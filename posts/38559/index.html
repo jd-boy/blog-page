@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="JD">
+    
+    <title>
+        
+            Sentinel |
+        
+        Bean You
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <link rel="shortcut icon" href="http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico">
+    
+<link rel="stylesheet" href="/css/font-awesome.min.css">
+
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"jzcupid.cn","root":"/","language":"en","path":"search.json"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":false,"expand_all":false,"init_open":false},"style":{"primary_color":"#0066CC","avatar":"http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico","favicon":"http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":true,"scale":true},"first_screen":{"enable":true,"background_img":"/images/bg.svg","description":"征途～是星辰大海"},"scroll":{"progress_bar":{"enable":false},"percent":{"enable":true}}},"local_search":{"enable":true,"trigger":"auto","preload":true},"code_copy":{"enable":true,"style":"default"},"pjax":{"enable":false},"lazyload":{"enable":false},"version":"3.4.3"};
+    KEEP.language_ago = {"second":"%s seconds ago","minute":"%s minutes ago","hour":"%s hours ago","day":"%s days ago","week":"%s weeks ago","month":"%s months ago","year":"%s years ago"};
+  </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                Bean You
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                首页
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/categories"
+                            >
+                                分类
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >
+                                标签
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                归档
+                            </a>
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="fas fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">首页</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/categories">分类</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags">标签</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">归档</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">Sentinel</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">JD</span>
+                        
+                            <span class="author-label">Lv5</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2022-04-22 22:40:25
+    </span>
+    
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/categories/%E6%9E%B6%E6%9E%84/">架构</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+    
+        <span class="article-tags article-meta-item">
+            <i class="fas fa-tags"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/tags/Spring/">Spring</a>&nbsp;
+                    </li>
+                
+                    <li>
+                        | <a href="/tags/SpringBoot/">SpringBoot</a>&nbsp;
+                    </li>
+                
+                    <li>
+                        | <a href="/tags/Sentinel/">Sentinel</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+
+    
+    
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fas fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <p><a class="link"   target="_blank" rel="noopener" href="https://github.com/alibaba/spring-cloud-alibaba/wiki/%E7%89%88%E6%9C%AC%E8%AF%B4%E6%98%8E" >Spring Cloud Alibaba组件版本对应说明<i class="fas fa-external-link-alt"></i></a></p>
+<p><a class="link"   target="_blank" rel="noopener" href="https://github.com/alibaba/Sentinel/wiki/%E4%BB%8B%E7%BB%8D" >Sentinel 官方文档<i class="fas fa-external-link-alt"></i></a></p>
+<p><a class="link"   target="_blank" rel="noopener" href="https://github.com/alibaba/Sentinel/wiki/Sentinel-%E9%9B%86%E7%BE%A4%E9%99%90%E6%B5%81-%E5%85%A5%E9%97%A8%E6%8C%87%E5%8D%97" >Sentinel 集群限流<i class="fas fa-external-link-alt"></i></a></p>
+<p>本文依赖版本：</p>
+<blockquote>
+<p>Spring Boot：2.6.6</p>
+</blockquote>
+<h2 id="一、Sentinel-依赖"><a href="#一、Sentinel-依赖" class="headerlink" title="一、Sentinel 依赖"></a>一、Sentinel 依赖</h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependencyManagement</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-alibaba-dependencies<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">version</span>&gt;</span>2021.0.1.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependencyManagement</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-alibaba-sentinel<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>本文采用 <strong>Nacos</strong> 作为数据源</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.csp<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>sentinel-datasource-nacos<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.8.4<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="二、安装-Nacos"><a href="#二、安装-Nacos" class="headerlink" title="二、安装 Nacos"></a>二、安装 Nacos</h2><p><a href="http://jzcupid.cn/posts/36267/">http://jzcupid.cn/posts/36267/</a></p>
+<h2 id="三、安装-Sentinel-控制台"><a href="#三、安装-Sentinel-控制台" class="headerlink" title="三、安装 Sentinel 控制台"></a>三、安装 Sentinel 控制台</h2><p><a class="link"   target="_blank" rel="noopener" href="https://github.com/alibaba/Sentinel/wiki/%E6%8E%A7%E5%88%B6%E5%8F%B0" >Sentinel  控制台配置<i class="fas fa-external-link-alt"></i></a></p>
+<h3 id="1-基于Docker镜像"><a href="#1-基于Docker镜像" class="headerlink" title="1. 基于Docker镜像"></a>1. 基于Docker镜像</h3><h4 id="拉取镜像"><a href="#拉取镜像" class="headerlink" title="拉取镜像"></a>拉取镜像</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pull bladex/sentinel-dashboard:1.8.0</span><br></pre></td></tr></table></figure>
+
+<p>官方没有提供镜像</p>
+<h4 id="运行控制台"><a href="#运行控制台" class="headerlink" title="运行控制台"></a>运行控制台</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --name sentinel -p 8858:8858 \</span><br><span class="line">   -e auth.enabled=&quot;true&quot; \</span><br><span class="line">   -e sentinel.dashboard.auth.username=admin \</span><br><span class="line">   -e sentinel.dashboard.auth.password=admin \</span><br><span class="line">   -e server.servlet.session.timeout=7200 \</span><br><span class="line">   bladex/sentinel-dashboard:1.8.0</span><br></pre></td></tr></table></figure>
+
+<p>访问控制台：<code>http://localhost:8858/</code></p>
+<h3 id="2-基于源码"><a href="#2-基于源码" class="headerlink" title="2. 基于源码"></a>2. 基于源码</h3><p><a class="link"   target="_blank" rel="noopener" href="https://github.com/alibaba/Sentinel.git" >源码仓库<i class="fas fa-external-link-alt"></i></a></p>
+<p>控制台源码位于 <code>sentinel-dashboard</code> 模块。</p>
+<p>默认在控制台修改规则后，无法持久化到数据源（例如：Nacos），对源码进行改造，使用 push 模式，使规则修改后自动同步到数据源，这里以 Nacos 为例。</p>
+<h4 id="1）修改-POM"><a href="#1）修改-POM" class="headerlink" title="1）修改 POM"></a>1）修改 POM</h4><p>将 POM 中下边依赖的 <code>&lt;scope&gt;test&lt;/scope&gt;</code> 去掉</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba.csp<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>sentinel-datasource-nacos<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">scope</span>&gt;</span>test<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>将 <code>sentinel-dashboard/src/test/java/com/alibaba/csp/sentinel/dashboard/rule/nacos</code> 目录整个拷贝到 <code>sentinel-dashboard/src/main/java/com/alibaba/csp/sentinel/dashboard/rule</code> 目录下。</p>
+<p>⚠️ <code>nacos</code> 最终是在 <code>rule</code> 目录下的。</p>
+<h4 id="2）修改配置"><a href="#2）修改配置" class="headerlink" title="2）修改配置"></a>2）修改配置</h4><p><code>NacosConfig</code> 添加如下配置，同时由于该类默认加载 Nacos 配置时用的 <code>nacosConfigService()</code> 方法比较简单，可以自行封装该方法。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="keyword">public</span> Converter&lt;List&lt;DegradeRuleEntity&gt;, String&gt; degradeRuleEntityEncoder() &#123;</span><br><span class="line">  <span class="keyword">return</span> JSON::toJSONString;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="keyword">public</span> Converter&lt;String, List&lt;DegradeRuleEntity&gt;&gt; degradeRuleEntityDecoder() &#123;</span><br><span class="line">  <span class="keyword">return</span> s -&gt; JSON.parseArray(s, DegradeRuleEntity.class);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="keyword">public</span> Converter&lt;List&lt;ParamFlowRuleEntity&gt;, String&gt; paramFlowRuleEntityEncoder() &#123;</span><br><span class="line">  <span class="keyword">return</span> JSON::toJSONString;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="keyword">public</span> Converter&lt;String, List&lt;ParamFlowRuleEntity&gt;&gt; paramFlowRuleEntityDecoder() &#123;</span><br><span class="line">  <span class="keyword">return</span> s -&gt; JSON.parseArray(s, ParamFlowRuleEntity.class);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="keyword">public</span> Converter&lt;List&lt;AuthorityRuleEntity&gt;, String&gt; authorityRuleEntityEncoder() &#123;</span><br><span class="line">  <span class="keyword">return</span> JSON::toJSONString;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Bean</span></span><br><span class="line"><span class="keyword">public</span> Converter&lt;String, List&lt;AuthorityRuleEntity&gt;&gt; authorityRuleEntityDecoder() &#123;</span><br><span class="line">  <span class="keyword">return</span> s -&gt; JSON.parseArray(s, AuthorityRuleEntity.class);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>NacosConfigUtil</code> 类添加</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String DEGRADE_DATA_ID_POSTFIX = <span class="string">&quot;-degrade-rules&quot;</span>;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> String AUTHORITY_DATA_ID_POSTFIX = <span class="string">&quot;-authority-rules&quot;</span>;</span><br></pre></td></tr></table></figure>
+
+<h4 id="3）自动推送-Flow-规则"><a href="#3）自动推送-Flow-规则" class="headerlink" title="3）自动推送 Flow 规则"></a>3）自动推送 Flow 规则</h4><p>修改 <code>com.alibaba.csp.sentinel.dashboard.controller.v2.FlowControllerV2</code> 类。</p>
+<p>找到如下代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Autowired</span></span><br><span class="line"><span class="meta">@Qualifier(&quot;flowRuleDefaultProvider&quot;)</span></span><br><span class="line"><span class="keyword">private</span> DynamicRuleProvider&lt;List&lt;FlowRuleEntity&gt;&gt; ruleProvider;</span><br><span class="line"><span class="meta">@Autowired</span></span><br><span class="line"><span class="meta">@Qualifier(&quot;flowRuleDefaultPublisher&quot;)</span></span><br><span class="line"><span class="keyword">private</span> DynamicRulePublisher&lt;List&lt;FlowRuleEntity&gt;&gt; rulePublisher;</span><br></pre></td></tr></table></figure>
+
+<p>修改为</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Autowired</span></span><br><span class="line"><span class="meta">@Qualifier(&quot;flowRuleNacosProvider&quot;)</span></span><br><span class="line"><span class="keyword">private</span> DynamicRuleProvider&lt;List&lt;FlowRuleEntity&gt;&gt; ruleProvider;</span><br><span class="line"><span class="meta">@Autowired</span></span><br><span class="line"><span class="meta">@Qualifier(&quot;flowRuleNacosPublisher&quot;)</span></span><br><span class="line"><span class="keyword">private</span> DynamicRulePublisher&lt;List&lt;FlowRuleEntity&gt;&gt; rulePublisher;</span><br></pre></td></tr></table></figure>
+
+<p>修改的 Bean Name 可在上边拷贝的类中找到。</p>
+<p>前端页面修改</p>
+<p>将 <code>src/main/webapp/resources/app/scripts/directives/sidebar/sidebar.html</code> 中如下代码的注释去掉。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--&lt;li ui-sref-active=&quot;active&quot; ng-if=&quot;entry.appType==0&quot;&gt;--&gt;</span></span><br><span class="line">  <span class="comment">&lt;!--&lt;a ui-sref=&quot;dashboard.flow(&#123;app: entry.app&#125;)&quot;&gt;--&gt;</span></span><br><span class="line">    <span class="comment">&lt;!--&lt;i class=&quot;glyphicon glyphicon-filter&quot;&gt;&lt;/i&gt;&amp;nbsp;&amp;nbsp;流控规则 V1&lt;/a&gt;--&gt;</span></span><br><span class="line"><span class="comment">&lt;!--&lt;/li&gt;--&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="4）自动推送-Degrade-规则"><a href="#4）自动推送-Degrade-规则" class="headerlink" title="4）自动推送 Degrade 规则"></a>4）自动推送 Degrade 规则</h4><p>新增 Publisher</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.alibaba.csp.sentinel.dashboard.datasource.entity.rule.DegradeRuleEntity;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.csp.sentinel.dashboard.rule.DynamicRulePublisher;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.csp.sentinel.datasource.Converter;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.csp.sentinel.util.AssertUtil;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.nacos.api.config.ConfigService;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Auther</span> jd</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Component(&quot;degradeRuleNacosPublisher&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">DegradeRuleNacosPublisher</span> <span class="keyword">implements</span> <span class="title">DynamicRulePublisher</span>&lt;<span class="title">List</span>&lt;<span class="title">DegradeRuleEntity</span>&gt;&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Autowired</span></span><br><span class="line">  <span class="keyword">private</span> ConfigService configService;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Autowired</span></span><br><span class="line">  <span class="keyword">private</span> Converter&lt;List&lt;DegradeRuleEntity&gt;, String&gt; converter;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">publish</span><span class="params">(String app, List&lt;DegradeRuleEntity&gt; rules)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    AssertUtil.notEmpty(app, <span class="string">&quot;app name cannot be empty&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (rules == <span class="keyword">null</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">boolean</span> successed = configService.publishConfig(app + NacosConfigUtil.DEGRADE_DATA_ID_POSTFIX,</span><br><span class="line">        NacosConfigUtil.GROUP_ID, converter.convert(rules));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!successed) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">&quot;publish degrade rule to nacos fail&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>改造 <code>DegradeController</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Autowired</span></span><br><span class="line"><span class="keyword">private</span> DegradeRuleNacosPublisher degradeRuleNacosPublisher;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">publishRules</span><span class="params">(String app, String ip, Integer port)</span> </span>&#123;</span><br><span class="line">  List&lt;DegradeRuleEntity&gt; rules = repository.findAllByMachine(MachineInfo.of(app, ip, port));</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    degradeRuleNacosPublisher.publish(app, rules);</span><br><span class="line">  &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">    e.printStackTrace();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> sentinelApiClient.setDegradeRuleOfMachine(app, ip, port, rules);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="5）自动推送-ParamFlow-规则"><a href="#5）自动推送-ParamFlow-规则" class="headerlink" title="5）自动推送 ParamFlow 规则"></a>5）自动推送 ParamFlow 规则</h4><p>新增 <code>ParamFlowRulePublisher</code> 实现将规则推送到 Nacos</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.alibaba.csp.sentinel.dashboard.datasource.entity.rule.ParamFlowRuleEntity;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.csp.sentinel.dashboard.rule.DynamicRulePublisher;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.csp.sentinel.datasource.Converter;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.csp.sentinel.util.AssertUtil;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.nacos.api.config.ConfigService;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Auther</span> jd</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Component(&quot;paramFlowRulePublisher&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ParamFlowRulePublisher</span> <span class="keyword">implements</span> <span class="title">DynamicRulePublisher</span>&lt;<span class="title">List</span>&lt;<span class="title">ParamFlowRuleEntity</span>&gt;&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Autowired</span></span><br><span class="line">  <span class="keyword">private</span> ConfigService configService;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Autowired</span></span><br><span class="line">  <span class="keyword">private</span> Converter&lt;List&lt;ParamFlowRuleEntity&gt;, String&gt; converter;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">publish</span><span class="params">(String app, List&lt;ParamFlowRuleEntity&gt; rules)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    AssertUtil.notEmpty(app, <span class="string">&quot;app name cannot be empty&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (rules == <span class="keyword">null</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">boolean</span> successed = configService.publishConfig(app + NacosConfigUtil.PARAM_FLOW_DATA_ID_POSTFIX,</span><br><span class="line">        NacosConfigUtil.GROUP_ID, converter.convert(rules));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!successed) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">&quot;publish param flow rule to nacos fail&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>改造 <code>ParamFlowRuleController</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Autowired</span></span><br><span class="line"><span class="keyword">private</span> ParamFlowRulePublisher paramFlowRulePublisher;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> CompletableFuture&lt;Void&gt; <span class="title">publishRules</span><span class="params">(String app, String ip, Integer port)</span> </span>&#123;</span><br><span class="line">  List&lt;ParamFlowRuleEntity&gt; rules = repository.findAllByMachine(MachineInfo.of(app, ip, port));</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    paramFlowRulePublisher.publish(app, rules);</span><br><span class="line">  &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">    e.printStackTrace();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> sentinelApiClient.setParamFlowRuleOfMachine(app, ip, port, rules);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="6）自动推送-Authority-规则"><a href="#6）自动推送-Authority-规则" class="headerlink" title="6）自动推送 Authority 规则"></a>6）自动推送 Authority 规则</h4><p>新增 <code>AuthorityRuleNacosPublisher</code> 将规则推送到 Nacos</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> com.alibaba.csp.sentinel.dashboard.datasource.entity.rule.AuthorityRuleEntity;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.csp.sentinel.dashboard.rule.DynamicRulePublisher;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.csp.sentinel.datasource.Converter;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.csp.sentinel.util.AssertUtil;</span><br><span class="line"><span class="keyword">import</span> com.alibaba.nacos.api.config.ConfigService;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line"><span class="keyword">import</span> org.springframework.stereotype.Component;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Auther</span> jd</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Component(&quot;authorityRuleNacosPublisher&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">AuthorityRuleNacosPublisher</span> <span class="keyword">implements</span> <span class="title">DynamicRulePublisher</span>&lt;<span class="title">List</span>&lt;<span class="title">AuthorityRuleEntity</span>&gt;&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Autowired</span></span><br><span class="line">  <span class="keyword">private</span> ConfigService configService;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Autowired</span></span><br><span class="line">  <span class="keyword">private</span> Converter&lt;List&lt;AuthorityRuleEntity&gt;, String&gt; converter;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">publish</span><span class="params">(String app, List&lt;AuthorityRuleEntity&gt; rules)</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">    AssertUtil.notEmpty(app, <span class="string">&quot;app name cannot be empty&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (rules == <span class="keyword">null</span>) &#123;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">boolean</span> successed = configService.publishConfig(app + NacosConfigUtil.AUTHORITY_DATA_ID_POSTFIX,</span><br><span class="line">        NacosConfigUtil.GROUP_ID, converter.convert(rules));</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!successed) &#123;</span><br><span class="line">      <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">&quot;publish authority rule to nacos fail&quot;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>改造 <code>AuthorityRuleController</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Autowired</span></span><br><span class="line"><span class="keyword">private</span> AuthorityRuleNacosPublisher authorityRuleNacosPublisher;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">boolean</span> <span class="title">publishRules</span><span class="params">(String app, String ip, Integer port)</span> </span>&#123;</span><br><span class="line">  List&lt;AuthorityRuleEntity&gt; rules = repository.findAllByMachine(MachineInfo.of(app, ip, port));</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    authorityRuleNacosPublisher.publish(app, rules);</span><br><span class="line">  &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">    e.printStackTrace();</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> sentinelApiClient.setAuthorityRuleOfMachine(app, ip, port, rules);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="7）使用控制台"><a href="#7）使用控制台" class="headerlink" title="7）使用控制台"></a>7）使用控制台</h4><p>默认登陆用户名和密码在配置文件中 <code>auth.username</code> 和 <code>auth.password</code></p>
+<p>在 <code>流控规则 V1</code> 菜单配置的流量规则将会同步到 Nacos，同时服务也会应用该规则，需要注意服务中配置的 Nacos 配置文件的 <code>dataId</code> 和 <code>groupId</code> 要与生成的一致。</p>
+<h2 id="四、Spring-Boot-添加配置"><a href="#四、Spring-Boot-添加配置" class="headerlink" title="四、Spring Boot 添加配置"></a>四、Spring Boot 添加配置</h2><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">spring:</span></span><br><span class="line">  <span class="attr">application:</span></span><br><span class="line">    <span class="attr">name:</span> <span class="string">spring-cloud-demo-consumer</span></span><br><span class="line">  <span class="attr">cloud:</span></span><br><span class="line">    <span class="comment"># 使用 Sentinel 进行流量控制</span></span><br><span class="line">    <span class="attr">sentinel:</span></span><br><span class="line">      <span class="attr">eager:</span> <span class="literal">true</span>      <span class="comment"># 取消控制台懒加载</span></span><br><span class="line">      <span class="attr">transport:</span></span><br><span class="line">        <span class="attr">port:</span> <span class="number">8732</span>     <span class="comment"># 上报给控制台的端口</span></span><br><span class="line">        <span class="attr">dashboard:</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span><span class="string">:8080</span>        <span class="comment"># 控制台地址</span></span><br><span class="line">      <span class="attr">datasource:</span></span><br><span class="line">        <span class="attr">nacos-degrade:</span></span><br><span class="line">          <span class="attr">nacos:</span></span><br><span class="line">            <span class="attr">server-addr:</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span><span class="string">:8848</span></span><br><span class="line">            <span class="attr">namespace:</span> <span class="string">public</span></span><br><span class="line">            <span class="attr">username:</span> <span class="string">nacos</span></span><br><span class="line">            <span class="attr">password:</span> <span class="string">nacos</span></span><br><span class="line">            <span class="attr">dataId:</span> <span class="string">$&#123;spring.application.name&#125;-degrade-rules</span></span><br><span class="line">            <span class="attr">groupId:</span> <span class="string">SENTINEL_GROUP</span>        <span class="comment"># 需要与 Sentinel 控制台的 GroupId 一致</span></span><br><span class="line">            <span class="attr">data-type:</span> <span class="string">json</span></span><br><span class="line">            <span class="attr">rule-type:</span> <span class="string">degrade</span></span><br><span class="line">        <span class="attr">nacos-flow:</span></span><br><span class="line">          <span class="attr">nacos:</span></span><br><span class="line">            <span class="attr">server-addr:</span> <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span><span class="string">:8848</span></span><br><span class="line">            <span class="attr">namespace:</span> <span class="string">public</span></span><br><span class="line">            <span class="attr">username:</span> <span class="string">nacos</span></span><br><span class="line">            <span class="attr">password:</span> <span class="string">nacos</span></span><br><span class="line">            <span class="attr">dataId:</span> <span class="string">$&#123;spring.application.name&#125;-flow-rules</span></span><br><span class="line">            <span class="attr">groupId:</span> <span class="string">SENTINEL_GROUP</span>        <span class="comment"># 需要与 Sentinel 控制台的 GroupId 一致</span></span><br><span class="line">            <span class="attr">data-type:</span> <span class="string">json</span></span><br><span class="line">            <span class="attr">rule-type:</span> <span class="string">flow</span></span><br></pre></td></tr></table></figure>
+
+
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                    <div class="article-prev">
+                        <a class="prev"
+                           rel="prev"
+                           href="/posts/20321/"
+                        >
+                            <span class="left arrow-icon flex-center">
+                              <i class="fas fa-chevron-left"></i>
+                            </span>
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">Resilience4j</span>
+                                <span class="post-nav-item">Prev posts</span>
+                            </span>
+                        </a>
+                    </div>
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/posts/36267/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">搭建 Nacos</span>
+                                <span class="post-nav-item">Next posts</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2021</span>
+              -
+            
+            2022&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">JD</a>
+        </div>
+        
+            <script async  src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <div class="website-count info-item">
+                
+                    <span id="busuanzi_container_site_uv">
+                        Visitor Count&nbsp;<span id="busuanzi_value_site_uv"></span>&ensp;
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv">
+                        Totalview&nbsp;<span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="theme-info info-item">
+            Powered by <a target="_blank" href="https://hexo.io">Hexo</a>&nbsp;|&nbsp;Theme&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.3</a>
+        </div>
+        
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="arrow-up fas fa-arrow-up"></i>
+                <span class="percent"></span>
+            </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81Sentinel-%E4%BE%9D%E8%B5%96"><span class="nav-text">一、Sentinel 依赖</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%AE%89%E8%A3%85-Nacos"><span class="nav-text">二、安装 Nacos</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%AE%89%E8%A3%85-Sentinel-%E6%8E%A7%E5%88%B6%E5%8F%B0"><span class="nav-text">三、安装 Sentinel 控制台</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%9F%BA%E4%BA%8EDocker%E9%95%9C%E5%83%8F"><span class="nav-text">1. 基于Docker镜像</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8B%89%E5%8F%96%E9%95%9C%E5%83%8F"><span class="nav-text">拉取镜像</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E6%8E%A7%E5%88%B6%E5%8F%B0"><span class="nav-text">运行控制台</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%9F%BA%E4%BA%8E%E6%BA%90%E7%A0%81"><span class="nav-text">2. 基于源码</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%EF%BC%89%E4%BF%AE%E6%94%B9-POM"><span class="nav-text">1）修改 POM</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%EF%BC%89%E4%BF%AE%E6%94%B9%E9%85%8D%E7%BD%AE"><span class="nav-text">2）修改配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3%EF%BC%89%E8%87%AA%E5%8A%A8%E6%8E%A8%E9%80%81-Flow-%E8%A7%84%E5%88%99"><span class="nav-text">3）自动推送 Flow 规则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4%EF%BC%89%E8%87%AA%E5%8A%A8%E6%8E%A8%E9%80%81-Degrade-%E8%A7%84%E5%88%99"><span class="nav-text">4）自动推送 Degrade 规则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5%EF%BC%89%E8%87%AA%E5%8A%A8%E6%8E%A8%E9%80%81-ParamFlow-%E8%A7%84%E5%88%99"><span class="nav-text">5）自动推送 ParamFlow 规则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6%EF%BC%89%E8%87%AA%E5%8A%A8%E6%8E%A8%E9%80%81-Authority-%E8%A7%84%E5%88%99"><span class="nav-text">6）自动推送 Authority 规则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7%EF%BC%89%E4%BD%BF%E7%94%A8%E6%8E%A7%E5%88%B6%E5%8F%B0"><span class="nav-text">7）使用控制台</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81Spring-Boot-%E6%B7%BB%E5%8A%A0%E9%85%8D%E7%BD%AE"><span class="nav-text">四、Spring Boot 添加配置</span></a></li></ol>
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="Search..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="popup-btn-close">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+</main>
+
+
+
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/main.js"></script>
+
+<script src="/js/header-shrink.js"></script>
+
+<script src="/js/back2top.js"></script>
+
+<script src="/js/dark-light-toggle.js"></script>
+
+
+
+    
+<script src="/js/local-search.js"></script>
+
+
+
+
+    
+<script src="/js/code-copy.js"></script>
+
+
+
+
+
+<div class="post-scripts">
+    
+        
+<script src="/js/left-side-toggle.js"></script>
+
+<script src="/js/libs/anime.min.js"></script>
+
+<script src="/js/toc.js"></script>
+
+    
+</div>
+
+
+
+</body>
+</html>

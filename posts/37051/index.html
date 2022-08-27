@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="JD">
+    
+    <title>
+        
+            tcpdump 命令详解 |
+        
+        Bean You
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <link rel="shortcut icon" href="http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico">
+    
+<link rel="stylesheet" href="/css/font-awesome.min.css">
+
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"jzcupid.cn","root":"/","language":"en","path":"search.json"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":false,"expand_all":false,"init_open":false},"style":{"primary_color":"#0066CC","avatar":"http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico","favicon":"http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":true,"scale":true},"first_screen":{"enable":true,"background_img":"/images/bg.svg","description":"征途～是星辰大海"},"scroll":{"progress_bar":{"enable":false},"percent":{"enable":true}}},"local_search":{"enable":true,"trigger":"auto","preload":true},"code_copy":{"enable":true,"style":"default"},"pjax":{"enable":false},"lazyload":{"enable":false},"version":"3.4.3"};
+    KEEP.language_ago = {"second":"%s seconds ago","minute":"%s minutes ago","hour":"%s hours ago","day":"%s days ago","week":"%s weeks ago","month":"%s months ago","year":"%s years ago"};
+  </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                Bean You
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                首页
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/categories"
+                            >
+                                分类
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >
+                                标签
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                归档
+                            </a>
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="fas fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">首页</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/categories">分类</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags">标签</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">归档</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">tcpdump 命令详解</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">JD</span>
+                        
+                            <span class="author-label">Lv5</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2022-06-08 21:59:15
+    </span>
+    
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>&nbsp;
+                    </li>
+                
+                    <li>
+                        &gt; <a href="/categories/%E8%BF%90%E7%BB%B4/Linux/">Linux</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+    
+
+    
+    
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fas fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <p>在讲解之前，有两点需要声明：</p>
+<ol>
+<li>第三节到第六节里的 tcpdump 命令示例，只为了说明参数的使用，并不一定就能抓到包，如果要精准抓到你所需要的包，需要配合第五节的逻辑逻辑运算符进行组合搭配。</li>
+<li>不同 Linux 发行版下、不同版本的 tcpdump 可能有小许差异， 本文是基于 CentOS 7.2 的 4.5.1 版本的tcpdump 进行学习的，若在你的环境中无法使用，请参考 <code>man tcpdump</code> 进行针对性学习。</li>
+</ol>
+<h2 id="1-tcpdump-核心参数图解"><a href="#1-tcpdump-核心参数图解" class="headerlink" title="1. tcpdump 核心参数图解"></a>1. tcpdump 核心参数图解</h2><p>大家都知道，网络上的流量、数据包，非常的多，因此要想抓到我们所需要的数据包，就需要我们定义一个精准的过滤器，把这些目标数据包，从巨大的数据包网络中抓取出来。</p>
+<p>所以学习抓包工具，其实就是学习如何定义过滤器的过程。</p>
+<p>而在 tcpdump 的世界里，过滤器的实现，都是通过一个又一个的参数组合起来，一个参数不够精准，那就再加一个，直到我们能过滤掉无用的数据包，只留下我们感兴趣的数据包。</p>
+<p>tcpdump 的参数非常的多，初学者在没有掌握 tcpdump 时，会对这个命令的众多参数产生很多的疑惑。</p>
+<p>就比如下面这个命令，我们要通过 <code>host</code> 参数指定 host ip 进行过滤</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump host 192.168.10.100</span></span><br></pre></td></tr></table></figure>
+
+<p><code>主程序</code> + <code>参数名</code>+ <code>参数值</code> 这样的组合才是我们正常认知里面命令行该有的样子。</p>
+<p>可 tcpdump 却不走寻常路，我们居然还可以在 host 前再加一个限定词，来缩小过滤的范围？</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump src host 192.168.10.100</span></span><br></pre></td></tr></table></figure>
+
+<p>从字面上理解，确实很容易理解，但是这不符合编写命令行程序的正常逻辑，导致我们会有所疑虑：</p>
+<ol>
+<li>除了 src ，dst，可还有其它可以用的限定词？</li>
+<li>src，host 应该如何理解它们，叫参数名？不合适，因为 src 明显不合适。</li>
+</ol>
+<p>如果你在网上看到有关 tcpdump 的博客、教程，无一不是给你一个参数组合，告诉你这是实现了怎样的一个过滤器？这样的教学方式，很容易让你依赖别人的文章来使用 tcpdump，而不能将 tcpdump 这样神器消化，达到灵活应用，灵活搭配过滤器的效果。</p>
+<p>上面加了 src 本身就颠覆了我们的认知，你可知道在 src 之前还可以加更多的条件，比如 tcp, udp, icmp 等词，在你之前的基础上再过滤一层。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump tcp src host 192.168.10.100</span></span><br></pre></td></tr></table></figure>
+
+<p>这种参数的不确定性，让大多数人对 tcpdump 的学习始终无法得其精髓。</p>
+<p>因此，在学习 tcpdump 之前，我觉得有必要要先让你知道：<strong>tcpdump 的参数是如何组成的？这非常重要。</strong></p>
+<p>为此，我画了一张图，方便你直观的理解 tcpdump 的各种参数：</p>
+<p><img src="data:image/png;base64,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" alt="img"></p>
+<ol>
+<li>option 可选参数：将在后边一一解释。</li>
+<li>proto 类过滤器：根据协议进行过滤，可识别的关键词有： tcp, udp, icmp, ip, ip6, arp, rarp,ether,wlan, fddi, tr, decnet</li>
+<li>type 类过滤器：可识别的关键词有：host, net, port, portrange，这些词后边需要再接参数。</li>
+<li>direction 类过滤器：根据数据流向进行过滤，可识别的关键字有：src, dst，同时你可以使用逻辑运算符进行组合，比如 src or dst</li>
+</ol>
+<p>proto、type、direction 这三类过滤器的内容比较简单，也最常用，因此我将其放在最前面，也就是 <strong>第三节：常规过滤规则</strong>一起介绍。</p>
+<p>而 option 可选的参数非常多，有的甚至也不经常用到，因此我将其放到后面一点，也就是 <strong>第四节：可选参数解析</strong></p>
+<p>当你看完前面六节，你对 tcpdump 的认识会上了一个台阶，至少能够满足你 80% 的使用需求。</p>
+<p>你一定会问了，还有 20% 呢？</p>
+<p>其实 tcpdump 还有一些过滤关键词，它不符合以上四种过滤规则，可能需要你单独记忆。关于这部分我会在 <strong>第六节：特殊过滤规则</strong> 里进行介绍。</p>
+<h2 id="2-理解-tcpdump-的输出"><a href="#2-理解-tcpdump-的输出" class="headerlink" title="2. 理解 tcpdump 的输出"></a>2. 理解 tcpdump 的输出</h2><h3 id="2-1-输出内容结构"><a href="#2-1-输出内容结构" class="headerlink" title="2.1 输出内容结构"></a>2.1 输出内容结构</h3><p>tcpdump 输出的内容虽然多，却很规律。</p>
+<p>这里以我随便抓取的一个 tcp 包为例来看一下</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">21:26:49.013621 IP 172.20.20.1.15605 &gt; 172.20.20.2.5920: Flags [P.], seq 49:97, ack 106048, win 4723, length 48</span><br></pre></td></tr></table></figure>
+
+<p>从上面的输出来看，可以总结出：</p>
+<ol>
+<li>第一列：时分秒毫秒 21:26:49.013621</li>
+<li>第二列：网络协议 IP</li>
+<li>第三列：发送方的ip地址+端口号，其中172.20.20.1是 ip，而15605 是端口号</li>
+<li>第四列：箭头 &gt;， 表示数据流向</li>
+<li>第五列：接收方的ip地址+端口号，其中 172.20.20.2 是 ip，而5920 是端口号</li>
+<li>第六列：冒号</li>
+<li>第七列：数据包内容，包括Flags 标识符，seq 号，ack 号，win 窗口，数据长度 length，其中 [P.] 表示 PUSH 标志位为 1，更多标识符见下面</li>
+</ol>
+<h3 id="2-2-Flags-标识符"><a href="#2-2-Flags-标识符" class="headerlink" title="2.2 Flags 标识符"></a>2.2 Flags 标识符</h3><p>使用 tcpdump 抓包后，会遇到的 TCP 报文 Flags，有以下几种：</p>
+<ul>
+<li><code>[S]</code> : SYN（开始连接）</li>
+<li><code>[P]</code> : PSH（推送数据）</li>
+<li><code>[F]</code> : FIN （结束连接）</li>
+<li><code>[R]</code> : RST（重置连接）</li>
+<li><code>[.]</code> : 没有 Flag （意思是除上面四种类型外的其他情况，有可能是 ACK 也有可能是 URG）</li>
+</ul>
+<h2 id="3-常规过滤规则"><a href="#3-常规过滤规则" class="headerlink" title="3. 常规过滤规则"></a>3. 常规过滤规则</h2><h3 id="3-1-基于IP地址过滤：host"><a href="#3-1-基于IP地址过滤：host" class="headerlink" title="3.1 基于IP地址过滤：host"></a>3.1 基于IP地址过滤：host</h3><p>使用 <code>host</code> 就可以指定 host ip 进行过滤</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump host 192.168.10.100</span></span><br></pre></td></tr></table></figure>
+
+<p>数据包的 ip 可以再细分为源ip和目标ip两种</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 根据源ip进行过滤</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> tcpdump -i eth2 src 192.168.10.100</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 根据目标ip进行过滤</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> tcpdump -i eth2 dst 192.168.10.200</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-2-基于网段进行过滤：net"><a href="#3-2-基于网段进行过滤：net" class="headerlink" title="3.2 基于网段进行过滤：net"></a>3.2 基于网段进行过滤：net</h3><p>若你的ip范围是一个网段，可以直接这样指定</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump net 192.168.10.0/24</span></span><br></pre></td></tr></table></figure>
+
+<p>网段同样可以再细分为源网段和目标网段</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 根据源网段进行过滤</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> tcpdump src net 192.168</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 根据目标网段进行过滤</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> tcpdump dst net 192.168</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-3-基于端口进行过滤：port"><a href="#3-3-基于端口进行过滤：port" class="headerlink" title="3.3 基于端口进行过滤：port"></a>3.3 基于端口进行过滤：port</h3><p>使用 <code>port</code> 就可以指定特定端口进行过滤</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump port 8088</span></span><br></pre></td></tr></table></figure>
+
+<p>端口同样可以再细分为源端口，目标端口</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 根据源端口进行过滤</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> tcpdump src port 8088</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 根据目标端口进行过滤</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> tcpdump dst port 8088</span></span><br></pre></td></tr></table></figure>
+
+<p>如果你想要同时指定两个端口你可以这样写</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump port 80 or port 8088</span></span><br></pre></td></tr></table></figure>
+
+<p>但也可以简写成这样</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump port 80 or 8088</span></span><br></pre></td></tr></table></figure>
+
+<p>如果你的想抓取的不再是一两个端口，而是一个范围，一个一个指定就非常麻烦了，此时你可以这样指定一个端口段。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump portrange 8000-8080</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> tcpdump src portrange 8000-8080</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> tcpdump dst portrange 8000-8080</span></span><br></pre></td></tr></table></figure>
+
+<p>对于一些常见协议的默认端口，我们还可以直接使用协议名，而不用具体的端口号</p>
+<p>比如 http == 80，https == 443 等</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump tcp port http</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-4-基于协议进行过滤：proto"><a href="#3-4-基于协议进行过滤：proto" class="headerlink" title="3.4 基于协议进行过滤：proto"></a>3.4 基于协议进行过滤：proto</h3><p>常见的网络协议有：tcp, udp, icmp, http, ip,ipv6 等</p>
+<p>若你只想查看 icmp 的包，可以直接这样写</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump icmp</span></span><br></pre></td></tr></table></figure>
+
+<p>protocol 可选值：ip, ip6, arp, rarp, atalk, aarp, decnet, sca, lat, mopdl, moprc, iso, stp, ipx, or netbeui</p>
+<h3 id="3-5-基本IP协议的版本进行过滤"><a href="#3-5-基本IP协议的版本进行过滤" class="headerlink" title="3.5 基本IP协议的版本进行过滤"></a>3.5 基本IP协议的版本进行过滤</h3><p>当你想查看 tcp 的包，你也许会这样子写</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump tcp</span></span><br></pre></td></tr></table></figure>
+
+<p>这样子写也没问题，就是不够精准，为什么这么说呢？</p>
+<p>ip 根据版本的不同，可以再细分为 IPv4 和 IPv6 两种，如果你只指定了 tcp，这两种其实都会包含在内。</p>
+<p>那有什么办法，能够将 IPv4 和 IPv6 区分开来呢？</p>
+<p>很简单，如果是 IPv4 的 tcp 包 ，就这样写（友情提示：数字 6 表示的是 tcp 在ip报文中的编号。）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump <span class="string">&#x27;ip proto tcp&#x27;</span></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> or</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> tcpdump ip proto 6</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> or</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> tcpdump <span class="string">&#x27;ip protochain tcp&#x27;</span></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> or</span> </span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> tcpdump ip protochain 6</span></span><br></pre></td></tr></table></figure>
+
+<p>而如果是 IPv6 的 tcp 包 ，就这样写</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump <span class="string">&#x27;ip6 proto tcp&#x27;</span></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> or</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> tcpdump ip6 proto 6</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> or</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> tcpdump <span class="string">&#x27;ip6 protochain tcp&#x27;</span></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> or</span> </span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> tcpdump ip6 protochain 6</span></span><br></pre></td></tr></table></figure>
+
+<p>关于上面这几个命令示例，有两点需要注意：</p>
+<ol>
+<li>跟在 proto 和 protochain 后面的如果是 tcp, udp, icmp ，那么过滤器需要用引号包含，这是因为 tcp,udp, icmp 是 tcpdump 的关键字。</li>
+<li>跟在ip 和 ip6 关键字后面的 proto 和 protochain 是两个新面孔，看起来用法类似，它们是否等价，又有什么区别呢？</li>
+</ol>
+<p>关于第二点，网络上没有找到很具体的答案，我只能通过 <code>man tcpdump</code> 的提示， 给出自己的个人猜测，但不保证正确。</p>
+<p>proto 后面跟的 <code>&lt;protocol&gt;</code> 的关键词是固定的，只能是 ip, ip6, arp, rarp, atalk, aarp, decnet, sca, lat, mopdl, moprc, iso, stp, ipx, or netbeui 这里面的其中一个。</p>
+<p>而 protochain 后面跟的 protocol 要求就没有那么严格，它可以是任意词，只要 tcpdump 的 IP 报文头部里的 protocol 字段为 <code>&lt;protocol&gt;</code> 就能匹配上。</p>
+<p>理论上来讲，下面两种写法效果是一样的</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump <span class="string">&#x27;ip &amp;&amp; tcp&#x27;</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> tcpdump <span class="string">&#x27;ip proto tcp&#x27;</span></span></span><br></pre></td></tr></table></figure>
+
+<p>同样的，这两种写法也是一样的</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump <span class="string">&#x27;ip6 &amp;&amp; tcp&#x27;</span></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> tcpdump <span class="string">&#x27;ip6 proto tcp&#x27;</span></span></span><br></pre></td></tr></table></figure>
+
+<h2 id="4-可选参数解析"><a href="#4-可选参数解析" class="headerlink" title="4. 可选参数解析"></a>4. 可选参数解析</h2><h3 id="4-1-设置不解析域名提升速度"><a href="#4-1-设置不解析域名提升速度" class="headerlink" title="4.1 设置不解析域名提升速度"></a>4.1 设置不解析域名提升速度</h3><ul>
+<li><code>-n</code>：不把ip转化成域名，直接显示 ip，避免执行 DNS lookups 的过程，速度会快很多</li>
+<li><code>-nn</code>：不把协议和端口号转化成名字，速度也会快很多。</li>
+<li><code>-N</code>：不打印出host 的域名部分.。比如,，如果设置了此选现，tcpdump 将会打印’nic’ 而不是 ‘nic.ddn.mil’.</li>
+</ul>
+<h3 id="4-2-过滤结果输出到文件"><a href="#4-2-过滤结果输出到文件" class="headerlink" title="4.2 过滤结果输出到文件"></a>4.2 过滤结果输出到文件</h3><p>使用 tcpdump 工具抓到包后，往往需要再借助其他的工具进行分析，比如常见的 wireshark 。</p>
+<p>而要使用wireshark ，我们得将 tcpdump 抓到的包数据生成到文件中，最后再使用 wireshark 打开它即可。</p>
+<p>使用 <code>-w</code> 参数后接一个以 <code>.pcap</code> 后缀命令的文件名，就可以将 tcpdump 抓到的数据保存到文件中。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump icmp -w icmp.pcap</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="4-3-从文件中读取包数据"><a href="#4-3-从文件中读取包数据" class="headerlink" title="4.3 从文件中读取包数据"></a>4.3 从文件中读取包数据</h3><p>使用 <code>-w</code> 是写入数据到文件，而使用 <code>-r</code> 是从文件中读取数据。</p>
+<p>读取后，我们照样可以使用上述的过滤器语法进行过滤分析。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump icmp -r all.pcap</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="4-4-控制详细内容的输出"><a href="#4-4-控制详细内容的输出" class="headerlink" title="4.4 控制详细内容的输出"></a>4.4 控制详细内容的输出</h3><ul>
+<li><code>-v</code>：产生详细的输出. 比如包的TTL，id标识，数据包长度，以及IP包的一些选项。同时它还会打开一些附加的包完整性检测，比如对IP或ICMP包头部的校验和。</li>
+<li><code>-vv</code>：产生比-v更详细的输出. 比如NFS回应包中的附加域将会被打印, SMB数据包也会被完全解码。（摘自网络，目前我还未使用过）</li>
+<li><code>-vvv</code>：产生比-vv更详细的输出。比如 telent 时所使用的SB, SE 选项将会被打印, 如果telnet同时使用的是图形界面，其相应的图形选项将会以16进制的方式打印出来（摘自网络，目前我还未使用过）</li>
+</ul>
+<h3 id="4-5-控制时间的显示"><a href="#4-5-控制时间的显示" class="headerlink" title="4.5 控制时间的显示"></a>4.5 控制时间的显示</h3><ul>
+<li><code>-t</code>：在每行的输出中不输出时间</li>
+<li><code>-tt</code>：在每行的输出中会输出时间戳</li>
+<li><code>-ttt</code>：输出每两行打印的时间间隔(以毫秒为单位)</li>
+<li><code>-tttt</code>：在每行打印的时间戳之前添加日期的打印（此种选项，输出的时间最直观）</li>
+</ul>
+<h3 id="4-6-显示数据包的头部"><a href="#4-6-显示数据包的头部" class="headerlink" title="4.6 显示数据包的头部"></a>4.6 显示数据包的头部</h3><ul>
+<li><code>-x</code>：以16进制的形式打印每个包的头部数据（但不包括数据链路层的头部）</li>
+<li><code>-xx</code>：以16进制的形式打印每个包的头部数据（包括数据链路层的头部）</li>
+<li><code>-X</code>：以16进制和 ASCII码形式打印出每个包的数据(但不包括连接层的头部)，这在分析一些新协议的数据包很方便。</li>
+<li><code>-XX</code>：以16进制和 ASCII码形式打印出每个包的数据(包括连接层的头部)，这在分析一些新协议的数据包很方便。</li>
+</ul>
+<h3 id="4-7-过滤指定网卡的数据包"><a href="#4-7-过滤指定网卡的数据包" class="headerlink" title="4.7 过滤指定网卡的数据包"></a>4.7 过滤指定网卡的数据包</h3><ul>
+<li><code>-i</code>：指定要过滤的网卡接口，如果要查看所有网卡，可以 <code>-i any</code></li>
+</ul>
+<h3 id="4-8-过滤特定流向的数据包"><a href="#4-8-过滤特定流向的数据包" class="headerlink" title="4.8 过滤特定流向的数据包"></a>4.8 过滤特定流向的数据包</h3><ul>
+<li><code>-Q</code>： 选择是入方向还是出方向的数据包，可选项有：in, out, inout，也可以使用 –direction=[direction] 这种写法</li>
+</ul>
+<h3 id="4-9-其他常用的一些参数"><a href="#4-9-其他常用的一些参数" class="headerlink" title="4.9 其他常用的一些参数"></a>4.9 其他常用的一些参数</h3><ul>
+<li><code>-A</code>：以ASCII码方式显示每一个数据包(不显示链路层头部信息). 在抓取包含网页数据的数据包时, 可方便查看数据</li>
+<li><code>-l</code> : 基于行的输出，便于你保存查看，或者交给其它工具分析</li>
+<li><code>-q</code> : 简洁地打印输出。即打印很少的协议相关信息, 从而输出行都比较简短.</li>
+<li><code>-c</code> : 捕获 count 个包 tcpdump 就退出</li>
+<li><code>-s</code> : tcpdump 默认只会截取前 <code>96</code> 字节的内容，要想截取所有的报文内容，可以使用 <code>-s number</code>， <code>number</code> 就是你要截取的报文字节数，如果是 0 的话，表示截取报文全部内容。</li>
+<li><code>-S</code> : 使用绝对序列号，而不是相对序列号</li>
+<li><code>-C</code>：file-size，tcpdump 在把原始数据包直接保存到文件中之前, 检查此文件大小是否超过file-size. 如果超过了, 将关闭此文件,另创一个文件继续用于原始数据包的记录. 新创建的文件名与-w 选项指定的文件名一致, 但文件名后多了一个数字.该数字会从1开始随着新创建文件的增多而增加. file-size的单位是百万字节(nt: 这里指1,000,000个字节,并非1,048,576个字节, 后者是以1024字节为1k, 1024k字节为1M计算所得, 即1M=1024 ＊ 1024 ＝ 1,048,576)</li>
+<li><code>-F</code>：使用file 文件作为过滤条件表达式的输入, 此时命令行上的输入将被忽略.</li>
+</ul>
+<h3 id="4-10-对输出内容进行控制的参数"><a href="#4-10-对输出内容进行控制的参数" class="headerlink" title="4.10 对输出内容进行控制的参数"></a>4.10 对输出内容进行控制的参数</h3><ul>
+<li><code>-D</code> : 显示所有可用网络接口的列表</li>
+<li><code>-e</code> : 每行的打印输出中将包括数据包的数据链路层头部信息</li>
+<li><code>-E</code> : 揭秘IPSEC数据</li>
+<li><code>-L</code> ：列出指定网络接口所支持的数据链路层的类型后退出</li>
+<li><code>-Z</code>：后接用户名，在抓包时会受到权限的限制。如果以root用户启动tcpdump，tcpdump将会有超级用户权限。</li>
+<li><code>-d</code>：打印出易读的包匹配码</li>
+<li><code>-dd</code>：以C语言的形式打印出包匹配码.</li>
+<li><code>-ddd</code>：以十进制数的形式打印出包匹配码</li>
+</ul>
+<h2 id="5-过滤规则组合"><a href="#5-过滤规则组合" class="headerlink" title="5. 过滤规则组合"></a>5. 过滤规则组合</h2><p>有编程基础的同学，对于下面三个逻辑运算符应该不陌生了吧</p>
+<ul>
+<li>and：所有的条件都需要满足，也可以表示为 <code>&amp;&amp;</code></li>
+<li>or：只要有一个条件满足就可以，也可以表示为 <code>||</code></li>
+<li>not：取反，也可以使用 <code>!</code></li>
+</ul>
+<p>举个例子，我想需要抓一个来自<code>10.5.2.3</code>，发往任意主机的3389端口的包</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump src 10.5.2.3 and dst port 3389</span></span><br></pre></td></tr></table></figure>
+
+<p>当你在使用多个过滤器进行组合时，有可能需要用到括号，而括号在 shell 中是特殊符号，因为你需要使用引号将其包含。例子如下：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump <span class="string">&#x27;src 10.0.2.4 and (dst port 3389 or 22)&#x27;</span></span></span><br></pre></td></tr></table></figure>
+
+<p>而在单个过滤器里，常常会判断一条件是否成立，这时候，就要使用下面两个符号</p>
+<ul>
+<li><code>=</code>：判断二者相等</li>
+<li><code>==</code>：判断二者相等</li>
+<li><code>!=</code>：判断二者不相等</li>
+</ul>
+<p>当你使用这两个符号时，tcpdump 还提供了一些关键字的接口来方便我们进行判断，比如</p>
+<ul>
+<li>if：表示网卡接口名、</li>
+<li>proc：表示进程名</li>
+<li>pid：表示进程 id</li>
+<li>svc：表示 service class</li>
+<li>dir：表示方向，in 和 out</li>
+<li>eproc：表示 effective process name</li>
+<li>epid：表示 effective process ID</li>
+</ul>
+<p>比如我现在要过滤来自进程名为 <code>nc</code> 发出的流经 en0 网卡的数据包，或者不流经 en0 的入方向数据包，可以这样子写</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump <span class="string">&quot;( if=en0 and proc =nc ) || (if != en0 and dir=in)&quot;</span></span></span><br></pre></td></tr></table></figure>
+
+<h2 id="6-特殊过滤规则"><a href="#6-特殊过滤规则" class="headerlink" title="6. 特殊过滤规则"></a>6. 特殊过滤规则</h2><h3 id="5-1-根据-tcpflags-进行过滤"><a href="#5-1-根据-tcpflags-进行过滤" class="headerlink" title="5.1 根据 tcpflags 进行过滤"></a>5.1 根据 tcpflags 进行过滤</h3><p>通过<a class="link"   target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzIzMzMzOTI3Nw==&mid=2247488180&idx=1&sn=09526224732ebfcccb52847f27298c70&chksm=e8867256dff1fb40c9f47bafd0e87a9237c5a9ebf33c8a3d0a598276b496d29cdaa3fbff8d26&token=1970357830&lang=zh_CN#rd" >上一篇文章<i class="fas fa-external-link-alt"></i></a>，我们知道了 tcp 的首部有一个标志位。</p>
+<p><img src="http://qiniu.jzcupid.cn/blog/20200606095627.png" alt="TCP 报文首部"></p>
+<p>tcpdump 支持我们根据数据包的标志位进行过滤</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">proto [ expr:size ]</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>proto</code>：可以是熟知的协议之一（如ip，arp，tcp，udp，icmp，ipv6）</li>
+<li><code>expr</code>：可以是数值，也可以是一个表达式，表示与指定的协议头开始处的字节偏移量。</li>
+<li><code>size</code>：是可选的，表示从字节偏移量开始取的字节数量。</li>
+</ul>
+<p>接下来，我将举几个例子，让人明白它的写法，不过在那之前，有几个点需要你明白，这在后面的例子中会用到：</p>
+<p><strong>1、</strong>tcpflags 可以理解为是一个别名常量，相当于 13，它代表着与指定的协议头开头相关的字节偏移量，也就是标志位，所以 tcp[tcpflags] 等价于 tcp[13] ，对应下图中的报文位置。</p>
+<p><img src="data:image/png;base64,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" alt="img"></p>
+<p><strong>2、</strong>tcp-fin, tcp-syn, tcp-rst, tcp-push, tcp-ack, tcp-urg 这些同样可以理解为别名常量，分别代表 1，2，4，8，16，32，64。这些数字是如何计算出来的呢？</p>
+<p>以 tcp-syn 为例，你可以参照下面这张图，计算出来的值 是就是 2</p>
+<p><img src="data:image/png;base64,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" alt="img"></p>
+<p>由于数字不好记忆，所以一般使用这样的“别名常量”表示。</p>
+<p>因此当下面这个表达式成立时，就代表这个包是一个 syn 包。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">tcp[tcpflags] == tcp-syn</span><br></pre></td></tr></table></figure>
+
+<p>要抓取特定数据包，方法有很多种。</p>
+<p>下面以最常见的 syn包为例，演示一下如何用 tcpdump 抓取到 syn 包，而其他的类型的包也是同样的道理。</p>
+<p>据我总结，主要有三种写法：</p>
+<p>1、第一种写法：使用数字表示偏移量</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump -i eth0 <span class="string">&quot;tcp[13] &amp; 2 != 0&quot;</span></span> </span><br></pre></td></tr></table></figure>
+
+<p>2、第二种写法：使用别名常量表示偏移量</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump -i eth0 <span class="string">&quot;tcp[tcpflags] &amp; tcp-syn != 0&quot;</span></span> </span><br></pre></td></tr></table></figure>
+
+<p>3、第三种写法：使用混合写法</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump -i eth0 <span class="string">&quot;tcp[tcpflags] &amp; 2 != 0&quot;</span></span> </span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> or</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> tcpdump -i eth0 <span class="string">&quot;tcp[13] &amp; tcp-syn != 0&quot;</span></span> </span><br></pre></td></tr></table></figure>
+
+<p>如果我想同时捕获多种类型的包呢，比如 syn + ack 包</p>
+<p>1、第一种写法</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump -i eth0 <span class="string">&#x27;tcp[13] == 2 or tcp[13] == 16&#x27;</span></span></span><br></pre></td></tr></table></figure>
+
+<p>2、第二种写法</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump -i eth0 <span class="string">&#x27;tcp[tcpflags] == tcp-syn or tcp[tcpflags] == tcp-ack&#x27;</span></span></span><br></pre></td></tr></table></figure>
+
+<p>3、第三种写法</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump -i eth0 <span class="string">&quot;tcp[tcpflags] &amp; (tcp-syn|tcp-ack) != 0&quot;</span></span> </span><br></pre></td></tr></table></figure>
+
+<p>4、第四种写法：注意这里是 单个等号，而不是像上面一样两个等号，18（syn+ack） = 2（syn） + 16（ack）</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump -i eth0 <span class="string">&#x27;tcp[13] = 18&#x27;</span></span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">#</span><span class="bash"> or</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> tcpdump -i eth0 <span class="string">&#x27;tcp[tcpflags] = 18&#x27;</span></span></span><br></pre></td></tr></table></figure>
+
+<p>tcp 中有 类似 tcp-syn 的别名常量，其他协议也是有的，比如 icmp 协议，可以使用的别名常量有</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">icmp-echoreply, icmp-unreach, icmp-sourcequench, </span><br><span class="line">icmp-redirect, icmp-echo, icmp-routeradvert,</span><br><span class="line">icmp-routersolicit, icmp-timx-ceed, icmp-paramprob, </span><br><span class="line">icmp-tstamp, icmp-tstampreply,icmp-ireq, </span><br><span class="line">icmp-ireqreply, icmp-maskreq, icmp-maskreply</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-2-基于包大小进行过滤"><a href="#5-2-基于包大小进行过滤" class="headerlink" title="5.2 基于包大小进行过滤"></a>5.2 基于包大小进行过滤</h3><p>若你想查看指定大小的数据包，也是可以的</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump less 32</span> </span><br><span class="line"><span class="meta">$</span><span class="bash"> tcpdump greater 64</span> </span><br><span class="line"><span class="meta">$</span><span class="bash"> tcpdump &lt;= 128</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="5-3-根据-mac-地址进行过滤"><a href="#5-3-根据-mac-地址进行过滤" class="headerlink" title="5.3 根据 mac 地址进行过滤"></a>5.3 根据 mac 地址进行过滤</h3><p>例子如下，其中 ehost 是记录在 /etc/ethers 里的 name</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump ether host [ehost]</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> tcpdump ether dst	[ehost]</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> tcpdump ether src	[ehost]</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="5-4-过滤通过指定网关的数据包"><a href="#5-4-过滤通过指定网关的数据包" class="headerlink" title="5.4 过滤通过指定网关的数据包"></a>5.4 过滤通过指定网关的数据包</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump gateway [host]</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="5-5-过滤广播-多播数据包"><a href="#5-5-过滤广播-多播数据包" class="headerlink" title="5.5 过滤广播/多播数据包"></a>5.5 过滤广播/多播数据包</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump ether broadcast</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> tcpdump ether multicast</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> tcpdump ip broadcast</span></span><br><span class="line"><span class="meta">$</span><span class="bash"> tcpdump ip multicast</span></span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">$</span><span class="bash"> tcpdump ip6 multicast</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="7-如何抓取到更精准的包？"><a href="#7-如何抓取到更精准的包？" class="headerlink" title="7. 如何抓取到更精准的包？"></a>7. 如何抓取到更精准的包？</h2><p>先给你抛出一个问题：如果我只想抓取 HTTP 的 POST 请求该如何写呢？</p>
+<p>如果只学习了上面的内容，恐怕你还是无法写法满足这个抓取需求的过滤器。</p>
+<p>在学习之前，我先给出答案，然后再剖析一下，这个过滤器是如何生效的，居然能让我们对包内的内容进行判断。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump -s 0 -A -vv <span class="string">&#x27;tcp[((tcp[12:1] &amp; 0xf0) &gt;&gt; 2):4]&#x27;</span></span></span><br></pre></td></tr></table></figure>
+
+<p>命令里的可选参数，在前面的内容里已经详细讲过了。这里不再细讲。</p>
+<p>本节的重点是引号里的内容，看起来很复杂的样子。</p>
+<p>将它逐一分解，我们只要先理解了下面几种用法，就能明白</p>
+<ul>
+<li><p><code>tcp[n]</code>：表示 tcp 报文里 第 n 个字节</p>
+</li>
+<li><p><code>tcp[n:c]</code>：表示 tcp 报文里从第n个字节开始取 c 个字节，tcp[12:1] 表示从报文的第12个字节（因为有第0个字节，所以这里的12其实表示的是13）开始算起取一个字节，也就是 8 个bit。查看 <a class="link"   target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Transmission_Control_Protocol#TCP_segment_structure" >tcp 的报文首部结构<i class="fas fa-external-link-alt"></i></a>，可以得知这 8 个bit 其实就是下图中的红框圈起来的位置，而在这里我们只要前面 4个bit，也就是实际数据在整个报文首部中的偏移量。</p>
+<p><img src="http://qiniu.jzcupid.cn/blog/20200629085659.png" alt="img"></p>
+</li>
+<li><p><code>&amp;</code>：是<a class="link"   target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Bitwise_operation" >位运算<i class="fas fa-external-link-alt"></i></a>里的 and 操作符，比如 <code>0011 &amp; 0010 = 0010</code></p>
+</li>
+<li><p><code>&gt;&gt;</code>：是位运算里的右移操作，比如 <code>0111 &gt;&gt; 2 = 0001</code></p>
+</li>
+<li><p><code>0xf0</code>：是 10 进制的 240 的 16 进制表示，但对于位操作来说，10进制和16进制都将毫无意义，我们需要的是二进制，将其转换成二进制后是：11110000，这个数有什么特点呢？前面个 4bit 全部是 1，后面4个bit全部是0，往后看你就知道这个特点有什么用了。</p>
+</li>
+</ul>
+<p>分解完后，再慢慢合并起来看</p>
+<p>1、<code>tcp[12:1] &amp; 0xf0</code> 其实并不直观，但是我们将它换一种写法，就好看多了，假设 tcp 报文中的 第12 个字节是这样组成的 <code>10110000</code>，那么这个表达式就可以变成 10110110 &amp;&amp; 11110000 = 10110000，得到了 10110000 后，再进入下一步。</p>
+<p>2、<code>tcp[12:1] &amp; 0xf0) &gt;&gt; 2</code> ：如果你不理解 tcp 报文首部里的数据偏移，请先点击这个前往我的<a class="link"   target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=MzIzMzMzOTI3Nw==&mid=2247488180&idx=1&sn=09526224732ebfcccb52847f27298c70&chksm=e8867256dff1fb40c9f47bafd0e87a9237c5a9ebf33c8a3d0a598276b496d29cdaa3fbff8d26&token=1970357830&lang=zh_CN#rd" >上一篇文章<i class="fas fa-external-link-alt"></i></a>，搞懂数据偏移的意义，否则我保证你这里会绝对会听懵了。</p>
+<p><code>tcp[12:1] &amp; 0xf0) &gt;&gt; 2</code> 这个表达式实际是 <code>(tcp[12:1] &amp; 0xf0) &gt;&gt; 4 ) &lt;&lt; 2</code> 的简写形式。所以要搞懂 <code>tcp[12:1] &amp; 0xf0) &gt;&gt; 2</code> 只要理解了<code>(tcp[12:1] &amp; 0xf0) &gt;&gt; 4 ) &lt;&lt; 2</code> 就行了 。</p>
+<p>从上一步我们算出了 <code>tcp[12:1] &amp; 0xf0</code> 的值其实是一个字节，也就是 8 个bit，但是你再回去看下上面的 tcp 报文首部结构图，表示数据偏移量的只有 4个bit，也就是说 上面得到的值 10110000，前面 4 位（1011）才是正确的偏移量，那么为了得到 1011，只需要将 10110000 右移4位即可，也就是 <code>tcp[12:1] &amp; 0xf0) &gt;&gt; 4</code>，至此我们是不是已经得出了实际数据的正确位置呢，很遗憾还没有，前一篇文章里我们讲到 Data Offset 的单位是 4个字节，因为要将 1011 乘以 4才可以，除以4在位运算中相当于左移2位，也就是 <code>&lt;&lt;2</code>，与前面的 <code>&gt;&gt;4</code> 结合起来一起算的话，最终的运算可以简化为 <code>&gt;&gt;2</code>。</p>
+<p>至此，我们终于得出了实际数据开始的位置是 <code>tcp[12:1] &amp; 0xf0) &gt;&gt; 2</code> （单位是字节）。</p>
+<p>找到了数据的起点后，可别忘了我们的目的是从数据中打到 HTTP 请求的方法，是 GET 呢 还是 POST ，或者是其他的？</p>
+<p>有了上面的经验，我们自然懂得使用 <code>tcp[((tcp[12:1] &amp; 0xf0) &gt;&gt; 2):4]</code> 从数据开始的位置再取出四个字节，然后将结果与 <code>GET</code> （注意 GET最后还有个空格）的 16进制写法（也就是 <code>0x47455420</code>）进行比对。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">0x47   --&gt;   71    --&gt;  G</span><br><span class="line">0x45   --&gt;   69    --&gt;  E</span><br><span class="line">0x54   --&gt;   84    --&gt;  T</span><br><span class="line">0x20   --&gt;   32    --&gt;  空格</span><br></pre></td></tr></table></figure>
+
+<p><img src="http://qiniu.jzcupid.cn/blog/20200629130407.png" alt="ASCII表"></p>
+<p>如果相等，则该表达式为True，tcpdump 认为这就是我们所需要抓的数据包，将其输出到我们的终端屏幕上。</p>
+<h2 id="8-抓包实战应用例子"><a href="#8-抓包实战应用例子" class="headerlink" title="8. 抓包实战应用例子"></a>8. 抓包实战应用例子</h2><h3 id="8-1-提取-HTTP-的-User-Agent"><a href="#8-1-提取-HTTP-的-User-Agent" class="headerlink" title="8.1 提取 HTTP 的 User-Agent"></a>8.1 提取 HTTP 的 User-Agent</h3><p>从 HTTP 请求头中提取 HTTP 的 User-Agent：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ tcpdump -nn -A -s1500 -l | grep <span class="string">&quot;User-Agent:&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>通过 <code>egrep</code> 可以同时提取User-Agent 和主机名（或其他头文件）：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ tcpdump -nn -A -s1500 -l | egrep -i <span class="string">&#x27;User-Agent:|Host:&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="8-2-抓取-HTTP-GET-和-POST-请求"><a href="#8-2-抓取-HTTP-GET-和-POST-请求" class="headerlink" title="8.2 抓取 HTTP GET 和 POST 请求"></a>8.2 抓取 HTTP GET 和 POST 请求</h3><p>抓取 HTTP GET 请求包：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ tcpdump -s 0 -A -vv <span class="string">&#x27;tcp[((tcp[12:1] &amp; 0xf0) &gt;&gt; 2):4] = 0x47455420&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># or</span></span><br><span class="line"></span><br><span class="line">$ tcpdump -vvAls0 | grep <span class="string">&#x27;GET&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>可以抓取 HTTP POST 请求包：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">$ tcpdump -s 0 -A -vv <span class="string">&#x27;tcp[((tcp[12:1] &amp; 0xf0) &gt;&gt; 2):4] = 0x504f5354&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># or </span></span><br><span class="line"></span><br><span class="line">$ tcpdump -vvAls0 | grep <span class="string">&#x27;POST&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>注意：该方法不能保证抓取到 HTTP POST 有效数据流量，因为一个 POST 请求会被分割为多个 TCP 数据包。</p>
+<h3 id="8-3-找出发包数最多的-IP"><a href="#8-3-找出发包数最多的-IP" class="headerlink" title="8.3 找出发包数最多的 IP"></a>8.3 找出发包数最多的 IP</h3><p>找出一段时间内发包最多的 IP，或者从一堆报文中找出发包最多的 IP，可以使用下面的命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ tcpdump -nnn -t -c 200 | cut -f 1,2,3,4 -d <span class="string">&#x27;.&#x27;</span> | sort | uniq -c | sort -nr | head -n 20</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>cut -f 1,2,3,4 -d ‘.’</strong> : 以 <code>.</code> 为分隔符，打印出每行的前四列。即 IP 地址。</li>
+<li><strong>sort | uniq -c</strong> : 排序并计数</li>
+<li><strong>sort -nr</strong> : 按照数值大小逆向排序</li>
+</ul>
+<h3 id="8-4-抓取-DNS-请求和响应"><a href="#8-4-抓取-DNS-请求和响应" class="headerlink" title="8.4 抓取 DNS 请求和响应"></a>8.4 抓取 DNS 请求和响应</h3><p>DNS 的默认端口是 53，因此可以通过端口进行过滤</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump -i any -s0 port 53</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="8-5-切割-pcap-文件"><a href="#8-5-切割-pcap-文件" class="headerlink" title="8.5 切割 pcap 文件"></a>8.5 切割 pcap 文件</h3><p>当抓取大量数据并写入文件时，可以自动切割为多个大小相同的文件。例如，下面的命令表示每 3600 秒创建一个新文件 <code>capture-(hour).pcap</code>，每个文件大小不超过 <code>200*1000000</code> 字节：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ tcpdump  -w /tmp/capture-%H.pcap -G 3600 -C 200</span><br></pre></td></tr></table></figure>
+
+<p>这些文件的命名为 <code>capture-&#123;1-24&#125;.pcap</code>，24 小时之后，之前的文件就会被覆盖。</p>
+<h3 id="8-6-提取-HTTP-POST-请求中的密码"><a href="#8-6-提取-HTTP-POST-请求中的密码" class="headerlink" title="8.6 提取 HTTP POST 请求中的密码"></a>8.6 提取 HTTP POST 请求中的密码</h3><p>从 HTTP POST 请求中提取密码和主机名：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump -s 0 -A -n -l | egrep -i <span class="string">&quot;POST /|pwd=|passwd=|password=|Host:&quot;</span></span></span><br></pre></td></tr></table></figure>
+
+<h3 id="8-7-提取-HTTP-请求的-URL"><a href="#8-7-提取-HTTP-请求的-URL" class="headerlink" title="8.7 提取 HTTP 请求的 URL"></a>8.7 提取 HTTP 请求的 URL</h3><p>提取 HTTP 请求的主机名和路径：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump -s 0 -v -n -l | egrep -i <span class="string">&quot;POST /|GET /|Host:&quot;</span></span></span><br></pre></td></tr></table></figure>
+
+<h3 id="8-8-抓取-HTTP-有效数据包"><a href="#8-8-抓取-HTTP-有效数据包" class="headerlink" title="8.8 抓取 HTTP 有效数据包"></a>8.8 抓取 HTTP 有效数据包</h3><p>抓取 80 端口的 HTTP 有效数据包，排除 TCP 连接建立过程的数据包（SYN / FIN / ACK）：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> tcpdump <span class="string">&#x27;tcp port 80 and (((ip[2:2] - ((ip[0]&amp;0xf)&lt;&lt;2)) - ((tcp[12]&amp;0xf0)&gt;&gt;2)) != 0)&#x27;</span></span></span><br></pre></td></tr></table></figure>
+
+<h3 id="8-9-结合-Wireshark-进行分析"><a href="#8-9-结合-Wireshark-进行分析" class="headerlink" title="8.9 结合 Wireshark 进行分析"></a>8.9 结合 Wireshark 进行分析</h3><p>通常 <code>Wireshark</code>（或 tshark）比 tcpdump 更容易分析应用层协议。一般的做法是在远程服务器上先使用 <code>tcpdump</code> 抓取数据并写入文件(后缀为pacp)，然后再将文件拷贝到本地工作站上用 <code>Wireshark</code> 分析。</p>
+<p>还有一种更高效的方法，可以通过 ssh 连接将抓取到的数据实时发送给 Wireshark 进行分析。以 MacOS 系统为例，可以通过 <code>brew cask install wireshark</code> 来安装，然后通过下面的命令来分析：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ssh root@remotesystem <span class="string">&#x27;tcpdump -s0 -c 1000 -nn -w - not port 22&#x27;</span> | /Applications/Wireshark.app/Contents/MacOS/Wireshark -k -i -</span></span><br></pre></td></tr></table></figure>
+
+<p>例如，如果想分析 DNS 协议，可以使用下面的命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span><span class="bash"> ssh root@remotesystem <span class="string">&#x27;tcpdump -s0 -c 1000 -nn -w - port 53&#x27;</span> | /Applications/Wireshark.app/Contents/MacOS/Wireshark -k -i -</span></span><br></pre></td></tr></table></figure>
+
+<p>抓取到的数据：</p>
+<p><img src="http://qiniu.jzcupid.cn/blog/20200210170101.png" alt="img"></p>
+<p><code>-c</code> 选项用来限制抓取数据的大小。如果不限制大小，就只能通过 <code>ctrl-c</code> 来停止抓取，这样一来不仅关闭了 tcpdump，也关闭了 wireshark。</p>
+<p>到这里，我已经将我所知道的 tcpdump 的用法全部说了一遍，如果你有认真地看完本文，相信会有不小的收获，掌握一个上手的抓包工具，对于以后我们学习网络、分析网络协议、以及定位网络问题，会很有帮助，而 tcpdump 是我推荐的一个抓包工具。</p>
+<h2 id="9-参考文章"><a href="#9-参考文章" class="headerlink" title="9. 参考文章"></a>9. 参考文章</h2><ol>
+<li><a class="link"   target="_blank" rel="noopener" href="https://www.freebsd.org/cgi/man.cgi?query=tcpdump&apropos=0&sektion=0&manpath=FreeBSD+7.2-RELEASE&format=html" >FreeBSD Manual Pages About tcpdump<i class="fas fa-external-link-alt"></i></a></li>
+<li><a class="link"   target="_blank" rel="noopener" href="https://www.cnblogs.com/ggjucheng/archive/2012/01/14/2322659.html" >Linux tcpdump命令详解<i class="fas fa-external-link-alt"></i></a></li>
+<li><a class="link"   target="_blank" rel="noopener" href="http://team.jiunile.com/blog/2019/06/tcpdump.html" >一份快速实用的 tcpdump 命令参考手册<i class="fas fa-external-link-alt"></i></a></li>
+<li><a class="link"   target="_blank" rel="noopener" href="https://fuckcloudnative.io/posts/tcpdump-examples/" >超详细的网络抓包神器 tcpdump 使用指南<i class="fas fa-external-link-alt"></i></a></li>
+<li>[<a class="link"   target="_blank" rel="noopener" href="https://colobu.com/2019/07/16/a-tcpdump-tutorial-with-examples/" >译]tcpdump 示例教程<i class="fas fa-external-link-alt"></i></a></li>
+<li>[<a class="link"   target="_blank" rel="noopener" href="https://danielmiessler.com/study/tcpdump/" >英]tcpdump 示例教程<i class="fas fa-external-link-alt"></i></a></li>
+</ol>
+
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                    <div class="article-prev">
+                        <a class="prev"
+                           rel="prev"
+                           href="/posts/39629/"
+                        >
+                            <span class="left arrow-icon flex-center">
+                              <i class="fas fa-chevron-left"></i>
+                            </span>
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">GitOps flux cd</span>
+                                <span class="post-nav-item">Prev posts</span>
+                            </span>
+                        </a>
+                    </div>
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/posts/30140/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">不可变基础设施【虚拟化容器】</span>
+                                <span class="post-nav-item">Next posts</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2021</span>
+              -
+            
+            2022&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">JD</a>
+        </div>
+        
+            <script async  src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <div class="website-count info-item">
+                
+                    <span id="busuanzi_container_site_uv">
+                        Visitor Count&nbsp;<span id="busuanzi_value_site_uv"></span>&ensp;
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv">
+                        Totalview&nbsp;<span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="theme-info info-item">
+            Powered by <a target="_blank" href="https://hexo.io">Hexo</a>&nbsp;|&nbsp;Theme&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.3</a>
+        </div>
+        
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="arrow-up fas fa-arrow-up"></i>
+                <span class="percent"></span>
+            </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-tcpdump-%E6%A0%B8%E5%BF%83%E5%8F%82%E6%95%B0%E5%9B%BE%E8%A7%A3"><span class="nav-text">1. tcpdump 核心参数图解</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E7%90%86%E8%A7%A3-tcpdump-%E7%9A%84%E8%BE%93%E5%87%BA"><span class="nav-text">2. 理解 tcpdump 的输出</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-%E8%BE%93%E5%87%BA%E5%86%85%E5%AE%B9%E7%BB%93%E6%9E%84"><span class="nav-text">2.1 输出内容结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-Flags-%E6%A0%87%E8%AF%86%E7%AC%A6"><span class="nav-text">2.2 Flags 标识符</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E5%B8%B8%E8%A7%84%E8%BF%87%E6%BB%A4%E8%A7%84%E5%88%99"><span class="nav-text">3. 常规过滤规则</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-%E5%9F%BA%E4%BA%8EIP%E5%9C%B0%E5%9D%80%E8%BF%87%E6%BB%A4%EF%BC%9Ahost"><span class="nav-text">3.1 基于IP地址过滤：host</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-%E5%9F%BA%E4%BA%8E%E7%BD%91%E6%AE%B5%E8%BF%9B%E8%A1%8C%E8%BF%87%E6%BB%A4%EF%BC%9Anet"><span class="nav-text">3.2 基于网段进行过滤：net</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-%E5%9F%BA%E4%BA%8E%E7%AB%AF%E5%8F%A3%E8%BF%9B%E8%A1%8C%E8%BF%87%E6%BB%A4%EF%BC%9Aport"><span class="nav-text">3.3 基于端口进行过滤：port</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-%E5%9F%BA%E4%BA%8E%E5%8D%8F%E8%AE%AE%E8%BF%9B%E8%A1%8C%E8%BF%87%E6%BB%A4%EF%BC%9Aproto"><span class="nav-text">3.4 基于协议进行过滤：proto</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-5-%E5%9F%BA%E6%9C%ACIP%E5%8D%8F%E8%AE%AE%E7%9A%84%E7%89%88%E6%9C%AC%E8%BF%9B%E8%A1%8C%E8%BF%87%E6%BB%A4"><span class="nav-text">3.5 基本IP协议的版本进行过滤</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E5%8F%AF%E9%80%89%E5%8F%82%E6%95%B0%E8%A7%A3%E6%9E%90"><span class="nav-text">4. 可选参数解析</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E8%AE%BE%E7%BD%AE%E4%B8%8D%E8%A7%A3%E6%9E%90%E5%9F%9F%E5%90%8D%E6%8F%90%E5%8D%87%E9%80%9F%E5%BA%A6"><span class="nav-text">4.1 设置不解析域名提升速度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E8%BF%87%E6%BB%A4%E7%BB%93%E6%9E%9C%E8%BE%93%E5%87%BA%E5%88%B0%E6%96%87%E4%BB%B6"><span class="nav-text">4.2 过滤结果输出到文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-%E4%BB%8E%E6%96%87%E4%BB%B6%E4%B8%AD%E8%AF%BB%E5%8F%96%E5%8C%85%E6%95%B0%E6%8D%AE"><span class="nav-text">4.3 从文件中读取包数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-4-%E6%8E%A7%E5%88%B6%E8%AF%A6%E7%BB%86%E5%86%85%E5%AE%B9%E7%9A%84%E8%BE%93%E5%87%BA"><span class="nav-text">4.4 控制详细内容的输出</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-5-%E6%8E%A7%E5%88%B6%E6%97%B6%E9%97%B4%E7%9A%84%E6%98%BE%E7%A4%BA"><span class="nav-text">4.5 控制时间的显示</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-6-%E6%98%BE%E7%A4%BA%E6%95%B0%E6%8D%AE%E5%8C%85%E7%9A%84%E5%A4%B4%E9%83%A8"><span class="nav-text">4.6 显示数据包的头部</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-7-%E8%BF%87%E6%BB%A4%E6%8C%87%E5%AE%9A%E7%BD%91%E5%8D%A1%E7%9A%84%E6%95%B0%E6%8D%AE%E5%8C%85"><span class="nav-text">4.7 过滤指定网卡的数据包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-8-%E8%BF%87%E6%BB%A4%E7%89%B9%E5%AE%9A%E6%B5%81%E5%90%91%E7%9A%84%E6%95%B0%E6%8D%AE%E5%8C%85"><span class="nav-text">4.8 过滤特定流向的数据包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-9-%E5%85%B6%E4%BB%96%E5%B8%B8%E7%94%A8%E7%9A%84%E4%B8%80%E4%BA%9B%E5%8F%82%E6%95%B0"><span class="nav-text">4.9 其他常用的一些参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-10-%E5%AF%B9%E8%BE%93%E5%87%BA%E5%86%85%E5%AE%B9%E8%BF%9B%E8%A1%8C%E6%8E%A7%E5%88%B6%E7%9A%84%E5%8F%82%E6%95%B0"><span class="nav-text">4.10 对输出内容进行控制的参数</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E8%BF%87%E6%BB%A4%E8%A7%84%E5%88%99%E7%BB%84%E5%90%88"><span class="nav-text">5. 过滤规则组合</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-%E7%89%B9%E6%AE%8A%E8%BF%87%E6%BB%A4%E8%A7%84%E5%88%99"><span class="nav-text">6. 特殊过滤规则</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#5-1-%E6%A0%B9%E6%8D%AE-tcpflags-%E8%BF%9B%E8%A1%8C%E8%BF%87%E6%BB%A4"><span class="nav-text">5.1 根据 tcpflags 进行过滤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-2-%E5%9F%BA%E4%BA%8E%E5%8C%85%E5%A4%A7%E5%B0%8F%E8%BF%9B%E8%A1%8C%E8%BF%87%E6%BB%A4"><span class="nav-text">5.2 基于包大小进行过滤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-3-%E6%A0%B9%E6%8D%AE-mac-%E5%9C%B0%E5%9D%80%E8%BF%9B%E8%A1%8C%E8%BF%87%E6%BB%A4"><span class="nav-text">5.3 根据 mac 地址进行过滤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-4-%E8%BF%87%E6%BB%A4%E9%80%9A%E8%BF%87%E6%8C%87%E5%AE%9A%E7%BD%91%E5%85%B3%E7%9A%84%E6%95%B0%E6%8D%AE%E5%8C%85"><span class="nav-text">5.4 过滤通过指定网关的数据包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-5-%E8%BF%87%E6%BB%A4%E5%B9%BF%E6%92%AD-%E5%A4%9A%E6%92%AD%E6%95%B0%E6%8D%AE%E5%8C%85"><span class="nav-text">5.5 过滤广播&#x2F;多播数据包</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-%E5%A6%82%E4%BD%95%E6%8A%93%E5%8F%96%E5%88%B0%E6%9B%B4%E7%B2%BE%E5%87%86%E7%9A%84%E5%8C%85%EF%BC%9F"><span class="nav-text">7. 如何抓取到更精准的包？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#8-%E6%8A%93%E5%8C%85%E5%AE%9E%E6%88%98%E5%BA%94%E7%94%A8%E4%BE%8B%E5%AD%90"><span class="nav-text">8. 抓包实战应用例子</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#8-1-%E6%8F%90%E5%8F%96-HTTP-%E7%9A%84-User-Agent"><span class="nav-text">8.1 提取 HTTP 的 User-Agent</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-2-%E6%8A%93%E5%8F%96-HTTP-GET-%E5%92%8C-POST-%E8%AF%B7%E6%B1%82"><span class="nav-text">8.2 抓取 HTTP GET 和 POST 请求</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-3-%E6%89%BE%E5%87%BA%E5%8F%91%E5%8C%85%E6%95%B0%E6%9C%80%E5%A4%9A%E7%9A%84-IP"><span class="nav-text">8.3 找出发包数最多的 IP</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-4-%E6%8A%93%E5%8F%96-DNS-%E8%AF%B7%E6%B1%82%E5%92%8C%E5%93%8D%E5%BA%94"><span class="nav-text">8.4 抓取 DNS 请求和响应</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-5-%E5%88%87%E5%89%B2-pcap-%E6%96%87%E4%BB%B6"><span class="nav-text">8.5 切割 pcap 文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-6-%E6%8F%90%E5%8F%96-HTTP-POST-%E8%AF%B7%E6%B1%82%E4%B8%AD%E7%9A%84%E5%AF%86%E7%A0%81"><span class="nav-text">8.6 提取 HTTP POST 请求中的密码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-7-%E6%8F%90%E5%8F%96-HTTP-%E8%AF%B7%E6%B1%82%E7%9A%84-URL"><span class="nav-text">8.7 提取 HTTP 请求的 URL</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-8-%E6%8A%93%E5%8F%96-HTTP-%E6%9C%89%E6%95%88%E6%95%B0%E6%8D%AE%E5%8C%85"><span class="nav-text">8.8 抓取 HTTP 有效数据包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#8-9-%E7%BB%93%E5%90%88-Wireshark-%E8%BF%9B%E8%A1%8C%E5%88%86%E6%9E%90"><span class="nav-text">8.9 结合 Wireshark 进行分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#9-%E5%8F%82%E8%80%83%E6%96%87%E7%AB%A0"><span class="nav-text">9. 参考文章</span></a></li></ol>
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="Search..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="popup-btn-close">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+</main>
+
+
+
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/main.js"></script>
+
+<script src="/js/header-shrink.js"></script>
+
+<script src="/js/back2top.js"></script>
+
+<script src="/js/dark-light-toggle.js"></script>
+
+
+
+    
+<script src="/js/local-search.js"></script>
+
+
+
+
+    
+<script src="/js/code-copy.js"></script>
+
+
+
+
+
+<div class="post-scripts">
+    
+        
+<script src="/js/left-side-toggle.js"></script>
+
+<script src="/js/libs/anime.min.js"></script>
+
+<script src="/js/toc.js"></script>
+
+    
+</div>
+
+
+
+</body>
+</html>

@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="JD">
+    
+    <title>
+        
+            Redis 压缩列表ziplist |
+        
+        Bean You
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <link rel="shortcut icon" href="http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico">
+    
+<link rel="stylesheet" href="/css/font-awesome.min.css">
+
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"jzcupid.cn","root":"/","language":"en","path":"search.json"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":false,"expand_all":false,"init_open":false},"style":{"primary_color":"#0066CC","avatar":"http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico","favicon":"http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":true,"scale":true},"first_screen":{"enable":true,"background_img":"/images/bg.svg","description":"征途～是星辰大海"},"scroll":{"progress_bar":{"enable":false},"percent":{"enable":true}}},"local_search":{"enable":true,"trigger":"auto","preload":true},"code_copy":{"enable":true,"style":"default"},"pjax":{"enable":false},"lazyload":{"enable":false},"version":"3.4.3"};
+    KEEP.language_ago = {"second":"%s seconds ago","minute":"%s minutes ago","hour":"%s hours ago","day":"%s days ago","week":"%s weeks ago","month":"%s months ago","year":"%s years ago"};
+  </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                Bean You
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                首页
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/categories"
+                            >
+                                分类
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >
+                                标签
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                归档
+                            </a>
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="fas fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">首页</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/categories">分类</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags">标签</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">归档</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">Redis 压缩列表ziplist</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">JD</span>
+                        
+                            <span class="author-label">Lv5</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2021-11-14 22:35:31
+    </span>
+    
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>&nbsp;
+                    </li>
+                
+                    <li>
+                        &gt; <a href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+    
+
+    
+    
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fas fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <h1 id="1-Ziplist-结构"><a href="#1-Ziplist-结构" class="headerlink" title="1. Ziplist 结构"></a>1. Ziplist 结构</h1><p><img src="http://qiniu.jzcupid.cn/blog/20201229234628972.png" alt="ziplist结构"></p>
+<h2 id="zlbytes"><a href="#zlbytes" class="headerlink" title="zlbytes"></a>zlbytes</h2><p>无符号 4 字节整数，保存 <strong>ziplist</strong> 内存大小。</p>
+<p>通过 <strong>zlbytes</strong> 可以直接对 <strong>ziplist</strong> 的内存大小进行调整，无需遍历整个列表。</p>
+<h2 id="zltail"><a href="#zltail" class="headerlink" title="zltail"></a>zltail</h2><p>压缩列表最后一个 <strong>entry</strong> 距离起始地址的偏移量，占 4 个字节。</p>
+<p>这个偏移量使得对表尾的 <code>pop</code> 操作可以在无需遍历整个列表的情况下进行。</p>
+<h2 id="zllen"><a href="#zllen" class="headerlink" title="zllen"></a>zllen</h2><p>压缩列表的 <strong>entry</strong> 数量，占 2 个字节。</p>
+<p>当压缩列表的元素数量操作 <strong>2^16 - 2</strong> 时，<strong>zllen</strong> 会设置为 <strong>2^16 - 1</strong>，此时获取元素数量需要遍历整个压缩列表才能获取到。</p>
+<p>故 <strong>zllen</strong> 不能替代 <strong>zltail</strong>。</p>
+<h2 id="entry"><a href="#entry" class="headerlink" title="entry"></a>entry</h2><p>压缩表存储数据的节点，</p>
+<h3 id="（1）结构"><a href="#（1）结构" class="headerlink" title="（1）结构"></a>（1）结构</h3><ul>
+<li><strong>prevlen：</strong>前一个 <strong>entry</strong> 的大小，用于反向遍历；</li>
+<li><strong>encoding：</strong>编码，表示不同长度的字符串或整数；</li>
+<li><strong>data：</strong> 存储 <strong>entry</strong> 中实际数据。</li>
+</ul>
+<h3 id="（2）prevlen"><a href="#（2）prevlen" class="headerlink" title="（2）prevlen"></a>（2）prevlen</h3><p>以字节为单位，记录了前一个节点的长度。长度可以是 <strong>1 字节</strong> 或 <strong>5 字节</strong>。</p>
+<ul>
+<li><strong>前节点长度小于254：</strong>prevlen长度 1 字节，用于存储前节点长度；</li>
+<li><strong>前节点长度大于254：</strong>prevlen长度为 5 字节，第一个字节设置为 254，后面 4 个字节存储前节点长度。</li>
+</ul>
+<p><img src="http://qiniu.jzcupid.cn/blog/20201227213614286.jpg" alt="20201227213614286"></p>
+<p><strong>prevlen</strong> 属性主要用于 <strong>反向遍历</strong>。</p>
+<p>通过 <strong>zltial</strong>，可以得到最后一个节点位置，获取到前一个节点 <strong>prevlen</strong> ，指针向前移动即可指向倒数第二个节点。以此类推。</p>
+<h3 id="（3）encoding"><a href="#（3）encoding" class="headerlink" title="（3）encoding"></a>（3）encoding</h3><p>记录了节点中 <strong>data</strong> 的 <strong>数据类型</strong> 和 <strong>长度</strong>。</p>
+<p>类型主要有两种：<strong>字符串</strong> 和 <strong>整数</strong>。</p>
+<h4 id="字符串"><a href="#字符串" class="headerlink" title="字符串"></a>字符串</h4><p>如果 <strong>encoding</strong> 以 <strong>00</strong>、<strong>01</strong> 或者 <strong>10</strong>开头，表示数据类型是字符串。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ZIP_STR_06B (0 &lt;&lt; 6)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ZIP_STR_14B (1 &lt;&lt; 6)</span></span><br><span class="line"><span class="meta">#<span class="meta-keyword">define</span> ZIP_STR_32B (2 &lt;&lt; 6)</span></span><br></pre></td></tr></table></figure>
+
+<p>字符串有三种编码：</p>
+<ul>
+<li><strong>长度 &lt; 2^6：</strong>以 <strong>00</strong> 开头，后 6 位表示 <strong>data</strong> 数据的长度；</li>
+<li><strong>2^6 &lt;= 长度 &lt; 2^14：</strong>以 <strong>01</strong> 开头，后续 6 位 + 下一个字节的 8 位（共14位），表示 <strong>data</strong> 长度；</li>
+<li><strong>2^14 &lt;= 长度 &lt; 2^32：</strong>以 <strong>10</strong> 开头，后续 6 位不用，从下一个字节开始，连续 32 位 表示 <strong>data</strong> 长度。</li>
+</ul>
+<p><img src="http://qiniu.jzcupid.cn/blog/20201227215730198.jpg"></p>
+<h4 id="整数"><a href="#整数" class="headerlink" title="整数"></a>整数</h4><p>如果 <strong>encoding</strong> 以 <strong>11</strong> 开头，表示数据类型为整数。</p>
+<p><img src="http://qiniu.jzcupid.cn/blog/2020122722121924.jpg"></p>
+<p>看了上图的最后一个类型，可能有小伙伴就有疑问：为啥没有 <code>11111111</code> ？<br>答：因为 <code>11111111</code> 表示 <code>zlend</code> (十进制的 <code>255</code>，十六进制的 <code>oxff</code>)</p>
+<h3 id="（4）data"><a href="#（4）data" class="headerlink" title="（4）data"></a>（4）data</h3><p><strong>data</strong> 表示真实存的数据的 byte数组，可以是 <strong>字符串</strong> 或者 <strong>整数</strong>，从编码可以得知类型和长度。知道长度，就知道 <strong>data</strong> 的起始位置了。</p>
+<p>比较特殊的是，整数 <code>1 ~ 13</code> (<code>0001 ~ 1101</code>)，因为比较短，刚好可以塞在 <code>encoding</code> 字段里面，所以就没有 <strong>data</strong>。</p>
+<h1 id="2-连锁更新"><a href="#2-连锁更新" class="headerlink" title="2. 连锁更新"></a>2. 连锁更新</h1><p>通过上面的分析，我们知道：</p>
+<ul>
+<li>前个节点的长度小于 254 的时候，用 1 个字节保存 <strong>prevlen</strong></li>
+<li>前个字节的长度大于等于 254 的时候，用 5 个字节保存 <strong>prevlen</strong></li>
+</ul>
+<p>现在我们来考虑一种情况：假设一个压缩列表中，有多个长度 <strong>250 ~ 253</strong> 的节点，假设是 entry1 ~ entryN。</p>
+<p>因为都是小于 254，所以都是用 <strong>1 个字节</strong> 保存 <strong>prevlen</strong>。</p>
+<p>如果此时，在压缩列表最前面，插入一个 254 长度的节点，此时它的长度需要 <strong>5 个字节</strong>。</p>
+<p>也就是说 <code>entry1.prevlen</code> 会从 1 个字节变为 <strong>5 个字节</strong>，因为 **prevlen **变长，<code>entry1</code> 的长度超过 254 了。</p>
+<p>这下就糟糕了，<code>entry2.prevlen</code> 也会因为 <code>entry1</code> 而变长，<code>entry2</code> 长度也会超过 254 了。</p>
+<p>然后接着 <code>entry3</code> 也会连锁更新。。。直到节点不超过 254， 噩梦终止。。。</p>
+<p>这种由于一个节点的增删，后续节点变长而导致的连续重新分配内存的现象，就是<strong>连锁更新</strong>。最坏情况下，会导致整个压缩列表的所有节点都重新分配内存。</p>
+<p>每次分配空间的最坏时间复杂度是 O(n)，所以连锁更新的最坏时间复杂度高达 O(n2) !</p>
+<h4 id="影响"><a href="#影响" class="headerlink" title="影响"></a>影响</h4><p>虽然说，连锁更新的时间复杂度高，但是它造成大的性能影响的概率很低，原因如下：</p>
+<ol>
+<li>压缩列表中需要需要有连续多个长度刚好为 <strong>250 ~ 253</strong> 的节点，才有可能发生连锁更新。实际上，这种情况并不多见。</li>
+<li>即使有连续多个长度刚好为 <strong>250 ~ 253</strong> 的节点，连续的个数也不多，不会对性能造成很大影响。</li>
+</ol>
+<p>因此，压缩列表插入操作，平均复杂度还是 O(n)</p>
+<h1 id="总结："><a href="#总结：" class="headerlink" title="总结："></a>总结：</h1><ul>
+<li>压缩列表是一种为节约内存而开发的顺序型数据结构，是 ZSET、HASH 和 LIST 的底层实现之一。</li>
+<li>压缩列表有 3 种字符串类型编码、6 种整数类型编码</li>
+<li>压缩列表的增删，可能会引发连锁更新操作，但这种操作出现的几率并不高。</li>
+</ul>
+
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                    <div class="article-prev">
+                        <a class="prev"
+                           rel="prev"
+                           href="/posts/44045/"
+                        >
+                            <span class="left arrow-icon flex-center">
+                              <i class="fas fa-chevron-left"></i>
+                            </span>
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">Redis 跳表</span>
+                                <span class="post-nav-item">Prev posts</span>
+                            </span>
+                        </a>
+                    </div>
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/posts/1904/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">Java 内存模型</span>
+                                <span class="post-nav-item">Next posts</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2021</span>
+              -
+            
+            2022&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">JD</a>
+        </div>
+        
+            <script async  src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <div class="website-count info-item">
+                
+                    <span id="busuanzi_container_site_uv">
+                        Visitor Count&nbsp;<span id="busuanzi_value_site_uv"></span>&ensp;
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv">
+                        Totalview&nbsp;<span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="theme-info info-item">
+            Powered by <a target="_blank" href="https://hexo.io">Hexo</a>&nbsp;|&nbsp;Theme&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.3</a>
+        </div>
+        
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="arrow-up fas fa-arrow-up"></i>
+                <span class="percent"></span>
+            </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-Ziplist-%E7%BB%93%E6%9E%84"><span class="nav-text">1. Ziplist 结构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#zlbytes"><span class="nav-text">zlbytes</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#zltail"><span class="nav-text">zltail</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#zllen"><span class="nav-text">zllen</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#entry"><span class="nav-text">entry</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%881%EF%BC%89%E7%BB%93%E6%9E%84"><span class="nav-text">（1）结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%882%EF%BC%89prevlen"><span class="nav-text">（2）prevlen</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%883%EF%BC%89encoding"><span class="nav-text">（3）encoding</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2"><span class="nav-text">字符串</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B4%E6%95%B0"><span class="nav-text">整数</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%884%EF%BC%89data"><span class="nav-text">（4）data</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2-%E8%BF%9E%E9%94%81%E6%9B%B4%E6%96%B0"><span class="nav-text">2. 连锁更新</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BD%B1%E5%93%8D"><span class="nav-text">影响</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%80%BB%E7%BB%93%EF%BC%9A"><span class="nav-text">总结：</span></a></li></ol>
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="Search..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="popup-btn-close">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+</main>
+
+
+
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/main.js"></script>
+
+<script src="/js/header-shrink.js"></script>
+
+<script src="/js/back2top.js"></script>
+
+<script src="/js/dark-light-toggle.js"></script>
+
+
+
+    
+<script src="/js/local-search.js"></script>
+
+
+
+
+    
+<script src="/js/code-copy.js"></script>
+
+
+
+
+
+<div class="post-scripts">
+    
+        
+<script src="/js/left-side-toggle.js"></script>
+
+<script src="/js/libs/anime.min.js"></script>
+
+<script src="/js/toc.js"></script>
+
+    
+</div>
+
+
+
+</body>
+</html>

@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="JD">
+    
+    <title>
+        
+            Redis 延迟排查 |
+        
+        Bean You
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <link rel="shortcut icon" href="http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico">
+    
+<link rel="stylesheet" href="/css/font-awesome.min.css">
+
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"jzcupid.cn","root":"/","language":"en","path":"search.json"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":false,"expand_all":false,"init_open":false},"style":{"primary_color":"#0066CC","avatar":"http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico","favicon":"http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":true,"scale":true},"first_screen":{"enable":true,"background_img":"/images/bg.svg","description":"征途～是星辰大海"},"scroll":{"progress_bar":{"enable":false},"percent":{"enable":true}}},"local_search":{"enable":true,"trigger":"auto","preload":true},"code_copy":{"enable":true,"style":"default"},"pjax":{"enable":false},"lazyload":{"enable":false},"version":"3.4.3"};
+    KEEP.language_ago = {"second":"%s seconds ago","minute":"%s minutes ago","hour":"%s hours ago","day":"%s days ago","week":"%s weeks ago","month":"%s months ago","year":"%s years ago"};
+  </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                Bean You
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                首页
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/categories"
+                            >
+                                分类
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >
+                                标签
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                归档
+                            </a>
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="fas fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">首页</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/categories">分类</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags">标签</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">归档</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">Redis 延迟排查</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">JD</span>
+                        
+                            <span class="author-label">Lv5</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2021-12-25 19:53:15
+    </span>
+    
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>&nbsp;
+                    </li>
+                
+                    <li>
+                        &gt; <a href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+    
+
+    
+    
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fas fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <p>官方延迟问题排查文档：<a class="link"   target="_blank" rel="noopener" href="https://redis.io/topics/latency" >https://redis.io/topics/latency<i class="fas fa-external-link-alt"></i></a></p>
+<h2 id="一、Redis延迟"><a href="#一、Redis延迟" class="headerlink" title="一、Redis延迟"></a>一、Redis延迟</h2><h3 id="1-网络延迟"><a href="#1-网络延迟" class="headerlink" title="1.网络延迟"></a>1.网络延迟</h3><p><code>redis-cli</code> 提供了通过ping测量延时的命令，延迟指客户端发出命令到客户端接收到对命令的响应之间的时间。</p>
+<h4 id="–latency"><a href="#–latency" class="headerlink" title="–latency"></a>–latency</h4><p>ping redis实例，并测试响应时间。</p>
+<p>默认统计每秒的延时情况，可通过 <code>-i</code> 修改时间间隔。</p>
+<p>默认会一直显示最新统计结果，可通过 <code>--raw</code>  或 <code>--csv</code> 只显示一次的统计结果。</p>
+<p>统计结果时间单位为ms。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">root@b86b4d13b636:/data<span class="comment"># redis-cli -p 7001 --latency</span></span><br><span class="line">min: 0, max: 7, avg: 0.09 (927 samples)</span><br><span class="line"></span><br><span class="line">root@b86b4d13b636:/data<span class="comment"># redis-cli -p 7001 --latency --raw -i 10   </span></span><br><span class="line">0 17 0.70 772</span><br><span class="line"></span><br><span class="line">root@b86b4d13b636:/data<span class="comment"># redis-cli -p 7001 --latency --csv /data/aa -i 10</span></span><br><span class="line">0,11,0.58,77</span><br></pre></td></tr></table></figure>
+
+<h4 id="–latency-history"><a href="#–latency-history" class="headerlink" title="–latency-history"></a>–latency-history</h4><p>与 <code>--latency</code> 一样，但会保留历史结果，时间间隔默认为15s，可通过 <code>-i</code> 改变时间间隔。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">root@b86b4d13b636:/data<span class="comment"># redis-cli -p 7001 --latency-history</span></span><br><span class="line">min: 0, max: 1, avg: 0.12 (1303 samples) -- 15.01 seconds range</span><br><span class="line">min: 0, max: 1, avg: 0.11 (1297 samples) -- 15.01 seconds range</span><br><span class="line">min: 0, max: 14, avg: 0.15 (1275 samples) -- 15.01 seconds range</span><br></pre></td></tr></table></figure>
+
+<h4 id="–latency-dist"><a href="#–latency-dist" class="headerlink" title="–latency-dist"></a>–latency-dist</h4><p>将延迟结果以彩色显示，可以查看延迟时间所占比例。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">root@b86b4d13b636:/data<span class="comment"># redis-cli -p 7001 --latency-dist</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="http://qiniu.jzcupid.cn/blog/image-20211225202451267.png" alt="redis latency-dist结果"></p>
+<h3 id="2-固有延迟"><a href="#2-固有延迟" class="headerlink" title="2.固有延迟"></a>2.固有延迟</h3><h4 id="–intrinsic-latency-lt-sec-gt"><a href="#–intrinsic-latency-lt-sec-gt" class="headerlink" title="–intrinsic-latency &lt;sec&gt;"></a>–intrinsic-latency &lt;sec&gt;</h4><p><code>&lt;sec&gt;</code> 表示检测的时间长度。</p>
+<p>有一种延迟是运行 Redis 的环境的固有部分，即由您的操作系统内核提供的延迟，如果您使用虚拟化，则由您使用的管理程序提供。虽然这种延迟无法消除，但研究它很重要，因为它是基线。</p>
+<p>换句话说，由于内核或管理程序的实现或设置，redis无法实现比该延迟更低的延迟时间。</p>
+<p>参数<code>100</code>是测试将执行的秒数。我们运行测试的时间越长，我们就越有可能发现延迟峰值。100 秒通常是合适的。</p>
+<p>该测试是 CPU 密集型的，并且可能会使系统中的单个内核饱和。</p>
+<p>固有延迟可能会随着时间的推移而变化，具体取决于系统的负载。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">root@b86b4d13b636:/data<span class="comment"># redis-cli -p 7001 --intrinsic-latency 100</span></span><br><span class="line">Max latency so far: 1 microseconds.</span><br><span class="line">Max latency so far: 95 microseconds.</span><br><span class="line">Max latency so far: 134 microseconds.</span><br><span class="line">Max latency so far: 180 microseconds.</span><br><span class="line">Max latency so far: 189 microseconds.</span><br><span class="line">Max latency so far: 249 microseconds.</span><br><span class="line">Max latency so far: 271 microseconds.</span><br><span class="line">Max latency so far: 433 microseconds.</span><br><span class="line">Max latency so far: 529 microseconds.</span><br><span class="line"></span><br><span class="line">2503422416 total runs (avg latency: 0.0399 microseconds / 39.95 nanoseconds per run).</span><br><span class="line">Worst run took 13243x longer than the average latency.</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-监控延时（latency）"><a href="#3-监控延时（latency）" class="headerlink" title="3.监控延时（latency）"></a>3.监控延时（latency）</h3><p>Latency 有5种命令查看监控报告，而不同的被监控代码路径被称为事件。</p>
+<p>例如，<code>command</code>是一个测量可能缓慢命令执行的延迟峰值<code>fast-command</code>的事件，而是监视O(1)和O(log N)命令的事件名称。其他事件不太通用，并监视由 Redis 执行的非常具体的操作。例如<code>fork</code>事件只监控Redis执行<code>fork(2)</code>系统调用所用的时间。</p>
+<p>具体可查看官方文档：<a class="link"   target="_blank" rel="noopener" href="https://redis.io/topics/latency-monitor" >https://redis.io/topics/latency-monitor<i class="fas fa-external-link-alt"></i></a></p>
+<h4 id="开启延时监控"><a href="#开启延时监控" class="headerlink" title="开启延时监控"></a>开启延时监控</h4><p>官方建议虽然这个监控消耗的内存较少，但是如果redis集群运行良好，没有充分的理由不要开启监控提高redis集群对内存的占用率。</p>
+<p>超过100毫秒的响应将会被监控，默认为0，表示关闭状态。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CONFIG SET latency-monitor-threshold 100</span><br></pre></td></tr></table></figure>
+
+<h4 id="Latency-Latest"><a href="#Latency-Latest" class="headerlink" title="Latency Latest"></a>Latency Latest</h4><p>返回所有事件的最新延迟样本</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; latency latest</span><br><span class="line">1) 1) <span class="string">&quot;command&quot;</span> <span class="comment">#事件名称</span></span><br><span class="line">   2) (<span class="built_in">integer</span>) 1405067976 <span class="comment">#延迟发生的时间戳</span></span><br><span class="line">   3) (<span class="built_in">integer</span>) 251 <span class="comment">#延迟 毫秒</span></span><br><span class="line">   4) (<span class="built_in">integer</span>) 1001 <span class="comment">#事件的最大延迟</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="Latency-History"><a href="#Latency-History" class="headerlink" title="Latency History"></a>Latency History</h4><p>返回给定事件的延迟时间序列。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; latency <span class="built_in">history</span> <span class="built_in">command</span> <span class="comment">#查看commend事件的历史延迟</span></span><br><span class="line">1) 1) (<span class="built_in">integer</span>) 1405067822 <span class="comment">#时间戳</span></span><br><span class="line">   2) (<span class="built_in">integer</span>) 251 <span class="comment">#延迟</span></span><br><span class="line">2) 1) (<span class="built_in">integer</span>) 1405067941</span><br><span class="line">   2) (<span class="built_in">integer</span>) 1001</span><br></pre></td></tr></table></figure>
+
+<h4 id="Latency-Reset"><a href="#Latency-Reset" class="headerlink" title="Latency Reset"></a>Latency Reset</h4><p>重置一个或多个事件的延迟时间序列数据。</p>
+<h4 id="Latency-Graph"><a href="#Latency-Graph" class="headerlink" title="Latency Graph"></a>Latency Graph</h4><p>呈现事件延迟样本的 ASCII 艺术图。</p>
+<h4 id="Latency-Doctor"><a href="#Latency-Doctor" class="headerlink" title="Latency Doctor"></a>Latency Doctor</h4><p>回复人类可读的延迟分析报告。</p>
+<h3 id="4-延迟原因"><a href="#4-延迟原因" class="headerlink" title="4.延迟原因"></a>4.延迟原因</h3><p>解决排查延迟问题，有时还需要知道延迟产生的原因，官网总结可能如下：</p>
+<ul>
+<li>Latency induced by network and communication</li>
+<li>Single threaded nature of Redis</li>
+<li>Latency generated by slow commands</li>
+<li>Latency generated by fork</li>
+<li>Fork time in different systems</li>
+<li>Latency induced by transparent huge pages</li>
+<li>Latency induced by swapping (operating system paging)</li>
+<li>Latency due to AOF and disk I/O</li>
+<li>Latency generated by expires</li>
+</ul>
+<h2 id="二、慢查询"><a href="#二、慢查询" class="headerlink" title="二、慢查询"></a>二、慢查询</h2><h4 id="slowlog-log-slower-than"><a href="#slowlog-log-slower-than" class="headerlink" title="slowlog-log-slower-than"></a>slowlog-log-slower-than</h4><p>慢查询时间阈值，超过这个阈值的查询将会被记录，默认 10000 微秒，即10ms。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:7001&gt; config get slowlog-log-slower-than</span><br><span class="line">1) <span class="string">&quot;slowlog-log-slower-than&quot;</span></span><br><span class="line">2) <span class="string">&quot;10000&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>设置阈值</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:7001&gt; config <span class="built_in">set</span> slowlog-log-slower-than 2000</span><br><span class="line">OK</span><br></pre></td></tr></table></figure>
+
+<h4 id="slowlog-max-len"><a href="#slowlog-max-len" class="headerlink" title="slowlog-max-len"></a>slowlog-max-len</h4><p>慢查询日志最大条数，默认128条。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:7001&gt; config get slowlog-max-len</span><br><span class="line">1) <span class="string">&quot;slowlog-max-len&quot;</span></span><br><span class="line">2) <span class="string">&quot;128&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>设置最大条数</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:7001&gt; config <span class="built_in">set</span> slowlog-max-len 64</span><br><span class="line">OK</span><br></pre></td></tr></table></figure>
+
+<h4 id="配置持久化到配置文件"><a href="#配置持久化到配置文件" class="headerlink" title="配置持久化到配置文件"></a>配置持久化到配置文件</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">config rewrite</span><br></pre></td></tr></table></figure>
+
+<h4 id="获取前-n-条慢查询日志"><a href="#获取前-n-条慢查询日志" class="headerlink" title="获取前 n 条慢查询日志"></a>获取前 n 条慢查询日志</h4><p>命令格式：<code>slowlog get [n]</code></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:7001&gt; slowlog get 10</span><br><span class="line"> 1) 1) (<span class="built_in">integer</span>) 1             <span class="comment"># 日志唯一id</span></span><br><span class="line">    2) (<span class="built_in">integer</span>) 1640439905    <span class="comment"># 命令执行时的 UNIX 时间戳</span></span><br><span class="line">    3) (<span class="built_in">integer</span>) 1             <span class="comment"># 命令执行时才，单位 微秒</span></span><br><span class="line">    4) 1) <span class="string">&quot;REPLCONF&quot;</span>           <span class="comment"># 命令及参数</span></span><br><span class="line">       2) <span class="string">&quot;ACK&quot;</span></span><br><span class="line">       3) <span class="string">&quot;484&quot;</span></span><br><span class="line">    5) <span class="string">&quot;127.0.0.1:38877&quot;</span></span><br><span class="line">    6) <span class="string">&quot;&quot;</span></span><br><span class="line"> 7) 1) (<span class="built_in">integer</span>) 0</span><br><span class="line">    2) (<span class="built_in">integer</span>) 1640439899</span><br><span class="line">    3) (<span class="built_in">integer</span>) 6</span><br><span class="line">    4) 1) <span class="string">&quot;get&quot;</span></span><br><span class="line">       2) <span class="string">&quot;k&quot;</span></span><br><span class="line">    5) <span class="string">&quot;127.0.0.1:46228&quot;</span></span><br><span class="line">    6) <span class="string">&quot;&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="慢查询日志重置"><a href="#慢查询日志重置" class="headerlink" title="慢查询日志重置"></a>慢查询日志重置</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:7001&gt; slowlog reset</span><br><span class="line">OK</span><br></pre></td></tr></table></figure>
+
+<h4 id="建议"><a href="#建议" class="headerlink" title="建议"></a>建议</h4><p><code>slowlog-max-len</code> 配置建议：</p>
+<ul>
+<li>线上建议调大慢查询列表，记录慢查询时Redis会对长命令做截断操作，并不会占用大量内存。增大慢查询列表可以减缓慢查询被剔除的可能，例如线上可设置为1000以上。</li>
+</ul>
+<p><code>slowlog-log-slower-than</code> 配置建议：</p>
+<ul>
+<li>默认值超过10毫秒判定为慢查询，需要根据Redis并发量调整该值。由于Redis采用单线程响应命令，对于高流量的场景，如果命令执行时间在1毫秒以上，那么Redis最多可支撑OPS不到1000。因此对于高OPS场景的Redis建议设置为1毫秒。</li>
+<li>慢查询只记录命令执行时间，并不包括命令排队和网络传输时间。因此客户端执行命令的时间会大于命令实际执行时间。因为命令执行排队机制，慢查询会导致其他命令级联阻塞，因此当客户端出现请求超时，需要检查该时间点是否有对应的慢查询，从而分析出是否为慢查询导致的命令级联阻塞。</li>
+<li>由于慢查询日志是一个先进先出的队列，也就是说如果慢查询比较多的情况下，可能会丢失部分慢查询命令，为了防止这种情况发生，可以定期执行<code>slow get</code>命令将慢查询日志持久化到其他存储中（例如MySQL），然后可以制作可视化界面进行查询。</li>
+</ul>
+<h2 id="三、操作BigKey"><a href="#三、操作BigKey" class="headerlink" title="三、操作BigKey"></a>三、操作BigKey</h2><p>如果你查询慢日志发现，并不是复杂度过高的命令导致的，而都是 SET / DEL 这种简单命令出现在慢日志中，那么你就要怀疑你的实例否写入了 bigkey。</p>
+<p>Redis 在写入数据时，需要为新的数据分配内存，相对应的，当从 Redis 中删除数据时，它会释放对应的内存空间。</p>
+<p><strong>如果一个 key 写入的 value 非常大，那么 Redis 在分配内存时就会比较耗时</strong>。同样的，当删除这个 key 时，释放内存也会比较耗时，这种类型的 key 我们一般称之为 bigkey。</p>
+<h4 id="查看bigkey"><a href="#查看bigkey" class="headerlink" title="查看bigkey"></a>查看bigkey</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">root@redis-1:/data<span class="comment"># redis-cli -h 127.0.0.1 --bigkeys -i 0.01                </span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Scanning the entire keyspace to find biggest keys as well as</span></span><br><span class="line"><span class="comment"># average sizes per key type.  You can use -i 0.1 to sleep 0.1 sec</span></span><br><span class="line"><span class="comment"># per 100 SCAN commands (not usually needed).</span></span><br><span class="line"></span><br><span class="line">[00.00%] Biggest string found so far <span class="string">&#x27;&quot;quota_de_202112271630_9427&quot;&#x27;</span> with 1 bytes</span><br><span class="line"></span><br><span class="line">-------- summary -------</span><br><span class="line"></span><br><span class="line">Sampled 188 keys <span class="keyword">in</span> the keyspace!</span><br><span class="line">Total key length <span class="keyword">in</span> bytes is 4897 (avg len 26.05)</span><br><span class="line"></span><br><span class="line">Biggest string found <span class="string">&#x27;&quot;quota_de_202112271630_9427&quot;&#x27;</span> has 1 bytes</span><br><span class="line"></span><br><span class="line">0 lists with 0 items (00.00% of keys, avg size 0.00)</span><br><span class="line">0 hashs with 0 fields (00.00% of keys, avg size 0.00)</span><br><span class="line">188 strings with 188 bytes (100.00% of keys, avg size 1.00)</span><br><span class="line">0 streams with 0 entries (00.00% of keys, avg size 0.00)</span><br><span class="line">0 sets with 0 members (00.00% of keys, avg size 0.00)</span><br><span class="line">0 zsets with 0 members (00.00% of keys, avg size 0.00)</span><br></pre></td></tr></table></figure>
+
+<p>从输出结果我们可以很清晰地看到，每种数据类型所占用的最大内存 / 拥有最多元素的 key 是哪一个，以及每种数据类型在整个实例中的占比和平均大小 / 元素数量。</p>
+<p>其实，使用这个命令的原理，就是 Redis 在内部执行了 SCAN 命令，遍历整个实例中所有的 key，然后针对 key 的类型，分别执行 STRLEN、LLEN、HLEN、SCARD、ZCARD 命令，来获取 String 类型的长度、容器类型（List、Hash、Set、ZSet）的元素个数。</p>
+<p>要注意 2 个问题：</p>
+<ul>
+<li>对线上实例进行 bigkey 扫描时，Redis 的 OPS 会突增，为了降低扫描过程中对 Redis 的影响，最好控制一下扫描的频率，指定 -i 参数即可，它表示扫描过程中每次扫描后休息的时间间隔，单位是秒</li>
+<li>扫描结果中，对于容器类型（List、Hash、Set、ZSet）的 key，只能扫描出元素最多的 key。但一个 key 的元素多，不一定表示占用内存也多，你还需要根据业务情况，进一步评估内存占用情况</li>
+</ul>
+<h4 id="bigkey-优化方向"><a href="#bigkey-优化方向" class="headerlink" title="bigkey 优化方向"></a>bigkey 优化方向</h4><ul>
+<li>业务应用尽量避免写入 bigkey</li>
+<li>如果你使用的 Redis 是 4.0 以上版本，用 UNLINK 命令替代 DEL，此命令可以把释放 key 内存的操作，放到后台线程中去执行，从而降低对 Redis 的影响</li>
+<li>如果你使用的 Redis 是 6.0 以上版本，可以开启 lazy-free 机制（lazyfree-lazy-user-del = yes），在执行 DEL 命令时，释放内存也会放到后台线程中执行</li>
+</ul>
+<p>但即便可以使用方案 2，也不建议在实例中存入 bigkey。</p>
+<p>这是因为 bigkey 在很多场景下，依旧会产生性能问题。例如，bigkey 在分片集群模式下，对于数据的迁移也会有性能影响，以及数据过期、数据淘汰、透明大页，都会受到 bigkey 的影响。</p>
+<h2 id="四、集中过期"><a href="#四、集中过期" class="headerlink" title="四、集中过期"></a>四、集中过期</h2><p>如果平时在操作 Redis 时，并没有延迟很大的情况发生，但在某个时间点突然出现一波延时，其现象表现为：<strong>变慢的时间点很有规律，例如某个整点，或者每间隔多久就会发生一波延迟</strong>。如果是出现这种情况，那么需要排查一下，业务代码中是否存在设置大量 key 集中过期的情况。</p>
+<p>如果有大量的 key 在某个固定时间点集中过期，在这个时间点访问 Redis 时，就有可能导致延时变大。</p>
+<h4 id="为什么集中过期会导致-Redis-延迟变大？"><a href="#为什么集中过期会导致-Redis-延迟变大？" class="headerlink" title="为什么集中过期会导致 Redis 延迟变大？"></a>为什么集中过期会导致 Redis 延迟变大？</h4><p>这就需要我们了解 Redis 的过期策略是怎样的。</p>
+<p>Redis 的过期数据采用被动过期 + 主动过期两种策略：</p>
+<ul>
+<li><strong>被动过期</strong>：只有当访问某个 key 时，才判断这个 key 是否已过期，如果已过期，则从实例中删除</li>
+<li><strong>主动过期</strong>：Redis 内部维护了一个定时任务，默认每隔 100 毫秒（1秒10次）就会从全局的过期哈希表中随机取出 20 个 key，然后删除其中过期的 key，如果过期 key 的比例超过了 25%，则继续重复此过程，直到过期 key 的比例下降到 25% 以下，或者这次任务的执行耗时超过了 25 毫秒，才会退出循环</li>
+</ul>
+<p>注意，<strong>这个主动过期 key 的定时任务，是在 Redis 主线程中执行的</strong>。</p>
+<p>也就是说如果在执行主动过期的过程中，出现了需要大量删除过期 key 的情况，那么此时应用程序在访问 Redis 时，必须要等待这个过期任务执行结束，Redis 才可以服务这个客户端请求。</p>
+<p>此时就会出现，应用访问 Redis 延时变大。</p>
+<p>如果此时需要过期删除的是一个 bigkey，那么这个耗时会更久。而且，<strong>这个操作延迟的命令并不会记录在慢日志中</strong>。</p>
+<p>因为慢日志中只记录一个命令真正操作内存数据的耗时，而 Redis 主动删除过期 key 的逻辑，是在命令真正执行之前执行的。</p>
+<p>所以，此时你会看到，<strong>慢日志中没有操作耗时的命令，但我们的应用程序却感知到了延迟变大，其实时间都花费在了删除过期 key 上</strong>，这种情况我们需要尤为注意。</p>
+<p><img src="http://qiniu.jzcupid.cn/blog/redis-performance-3.jpeg"></p>
+<h4 id="分析和排查"><a href="#分析和排查" class="headerlink" title="分析和排查"></a>分析和排查</h4><p>需要检查你的业务代码，是否存在集中过期 key 的逻辑。</p>
+<p>一般集中过期使用的是 expireat / pexpireat 命令，你需要在代码中搜索这个关键字。</p>
+<p>排查代码后，如果确实存在集中过期 key 的逻辑存在，但这种逻辑又是业务所必须的，那此时如何优化，同时又不对 Redis 有性能影响呢？</p>
+<p>一般有两种方案来规避这个问题：</p>
+<ul>
+<li>集中过期 key 增加一个随机过期时间，把集中过期的时间打散，降低 Redis 清理过期 key 的压力</li>
+<li>如果你使用的 Redis 是 4.0 以上版本，可以开启 lazy-free 机制，当删除过期 key 时，把释放内存的操作放到后台线程中执行，避免阻塞主线程</li>
+</ul>
+<p>第一种方案，在设置 key 的过期时间时，增加一个随机时间，伪代码可以这么写：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 在过期时间点之后的 5 分钟内随机过期掉</span></span><br><span class="line">redis.expireat(key, expire_time + random(300))    </span><br></pre></td></tr></table></figure>
+
+<p>这样一来，Redis 在处理过期时，不会因为集中删除过多的 key 导致压力过大，从而避免阻塞主线程。</p>
+<p>第二种方案，Redis 4.0 以上版本，开启 lazy-free 机制：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 释放过期 key 的内存，放到后台线程执行</span></span><br><span class="line">lazyfree-lazy-expire yes</span><br></pre></td></tr></table></figure>
+
+<p>另外，除了业务层面的优化和修改配置之外，你还可以通过运维手段及时发现这种情况。</p>
+<p>运维层面，你需要把 Redis 的各项运行状态数据监控起来，在 Redis 上执行 INFO 命令就可以拿到这个实例所有的运行状态数据。</p>
+<p>在这里我们需要重点关注 expired_keys 这一项，它代表整个实例到目前为止，累计删除过期 key 的数量。</p>
+<p>你需要把这个指标监控起来，<strong>当这个指标在很短时间内出现了突增，需要及时报警出来</strong>，然后与业务应用报慢的时间点进行对比分析，确认时间是否一致，如果一致，则可以确认确实是因为集中过期 key 导致的延迟变大。</p>
+<h2 id="五、实例内存达到上限"><a href="#五、实例内存达到上限" class="headerlink" title="五、实例内存达到上限"></a>五、实例内存达到上限</h2><p>如果你的 Redis 实例设置了内存上限 maxmemory，那么也有可能导致 Redis 变慢。</p>
+<p>当我们把 Redis 当做纯缓存使用时，通常会给这个实例设置一个内存上限 maxmemory，然后设置一个数据淘汰策略。</p>
+<p>而当实例的内存达到了 maxmemory 后，你可能会发现，在此之后每次写入新数据，操作延迟变大了。</p>
+<p>这是为什么？</p>
+<p>原因在于，当 Redis 内存达到 maxmemory 后，每次写入新的数据之前，<strong>Redis 必须先从实例中踢出一部分数据，让整个实例的内存维持在 maxmemory 之下，然后才能把新数据写进来</strong>。</p>
+<p>这个踢出旧数据的逻辑也是需要消耗时间的，而具体耗时的长短，要取决于你配置的淘汰策略：</p>
+<ul>
+<li><code>allkeys-lru</code>：不管 key 是否设置了过期，淘汰最近最少访问的 key</li>
+<li><code>volatile-lru</code>：只淘汰最近最少访问、并设置了过期时间的 key</li>
+<li><code>allkeys-random</code>：不管 key 是否设置了过期，随机淘汰 key</li>
+<li><code>volatile-random</code>：只随机淘汰设置了过期时间的 key</li>
+<li><code>allkeys-ttl</code>：不管 key 是否设置了过期，淘汰即将过期的 key</li>
+<li><code>noeviction</code>：不淘汰任何 key，实例内存达到 maxmeory 后，再写入新数据直接返回错误</li>
+<li><code>allkeys-lfu</code>：不管 key 是否设置了过期，淘汰访问频率最低的 key（4.0+版本支持）</li>
+<li><code>volatile-lfu</code>：只淘汰访问频率最低、并设置了过期时间 key（4.0+版本支持）</li>
+</ul>
+<p>具体使用哪种策略，我们需要根据具体的业务场景来配置。</p>
+<p>一般最常使用的是 allkeys-lru / volatile-lru 淘汰策略，它们的处理逻辑是，每次从实例中随机取出一批 key（这个数量可配置），然后淘汰一个最少访问的 key，之后把剩下的 key 暂存到一个池子中，继续随机取一批 key，并与之前池子中的 key 比较，再淘汰一个最少访问的 key。以此往复，直到实例内存降到 maxmemory 之下。</p>
+<p>需要注意的是，<strong>Redis 的淘汰数据的逻辑与删除过期 key 的一样，也是在命令真正执行之前执行的，也就是说它也会增加我们操作 Redis 的延迟，而且，写 OPS 越高，延迟也会越明显</strong>。</p>
+<p><img src="http://qiniu.jzcupid.cn/blog/redis-performance-4.jpeg"></p>
+<p>另外，如果此时你的 Redis 实例中还存储了 bigkey，那么在淘汰删除 bigkey 释放内存时，也会耗时比较久。</p>
+<p>看到了么？bigkey 的危害到处都是，这也是前面我提醒你尽量不存储 bigkey 的原因。</p>
+<h4 id="优化建议"><a href="#优化建议" class="headerlink" title="优化建议"></a>优化建议</h4><ul>
+<li>避免存储 bigkey，降低释放内存的耗时</li>
+<li>淘汰策略改为随机淘汰，随机淘汰比 LRU 要快很多（视业务情况调整）</li>
+<li>拆分实例，把淘汰 key 的压力分摊到多个实例上</li>
+<li>如果使用的是 Redis 4.0 以上版本，开启 layz-free 机制，把淘汰 key 释放内存的操作放到后台线程中执行（配置 lazyfree-lazy-eviction = yes）</li>
+</ul>
+<h2 id="六、fork耗时严重"><a href="#六、fork耗时严重" class="headerlink" title="六、fork耗时严重"></a>六、fork耗时严重</h2><p>为了保证 Redis 数据的安全性，我们可能会开启后台定时 RDB 和 AOF rewrite 功能。但如果你发现，操作 Redis 延迟变大，都发生在 Redis 后台 RDB 和 AOF rewrite 期间，那就需要排查，在这期间有可能导致变慢的情况。</p>
+<p>当 Redis 开启了后台 RDB 和 AOF rewrite 后，在执行时，它们都需要主进程创建出一个子进程进行数据的持久化。</p>
+<p><strong>主进程创建子进程，会调用操作系统提供的 fork 函数</strong>。</p>
+<p>而 fork 在执行过程中，主进程需要拷贝自己的内存页表给子进程，如果这个实例很大，那么这个拷贝的过程也会比较耗时。</p>
+<p>而且这个 fork 过程会消耗大量的 CPU 资源，在完成 fork 之前，整个 Redis 实例会被阻塞住，无法处理任何客户端请求。</p>
+<p>如果此时你的 CPU 资源本来就很紧张，那么 fork 的耗时会更长，甚至达到秒级，这会严重影响 Redis 的性能。</p>
+<p>那如何确认确实是因为 fork 耗时导致的 Redis 延迟变大呢？</p>
+<p>你可以在 Redis 上执行 INFO 命令，查看 <strong>latest_fork_usec</strong> 项，单位微秒。</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 上一次 fork 耗时，单位微秒</span></span><br><span class="line">latest_fork_usec:59477</span><br></pre></td></tr></table></figure>
+
+<p>这个时间就是主进程在 fork 子进程期间，整个实例阻塞无法处理客户端请求的时间。</p>
+<p>如果这个耗时很久，就要警惕起来了，这意味在这期间，你的整个 Redis 实例都处于不可用的状态。</p>
+<p><strong>除了数据持久化会生成 RDB 之外，当主从节点第一次建立数据同步时，主节点也创建子进程生成 RDB，然后发给从节点进行一次全量同步</strong>，所以，这个过程也会对 Redis 产生性能影响。</p>
+<p><img src="http://qiniu.jzcupid.cn/blog/redis-performance-5.jpeg" alt="bhbh"></p>
+<h4 id="优化方案"><a href="#优化方案" class="headerlink" title="优化方案"></a>优化方案</h4><ul>
+<li>控制 Redis 实例的内存：尽量在 10G 以下，执行 fork 的耗时与实例大小有关，实例越大，耗时越久</li>
+<li>合理配置数据持久化策略：在 slave 节点执行 RDB 备份，推荐在低峰期执行，而对于丢失数据不敏感的业务（例如把 Redis 当做纯缓存使用），可以关闭 AOF 和 AOF rewrite</li>
+<li>Redis 实例不要部署在虚拟机上：fork 的耗时也与系统也有关，虚拟机比物理机耗时更久</li>
+<li>降低主从库全量同步的概率：适当调大 <strong>repl-backlog-size</strong> 参数，避免主从全量同步</li>
+</ul>
+<h2 id="七、开启内存大页"><a href="#七、开启内存大页" class="headerlink" title="七、开启内存大页"></a>七、开启内存大页</h2><p>除了上面讲到的子进程 RDB 和 AOF rewrite 期间，fork 耗时导致的延时变大之外，这里还有一个方面也会导致性能问题，这就是操作系统是否开启了内存大页机制。</p>
+<h4 id="什么是内存大页？"><a href="#什么是内存大页？" class="headerlink" title="什么是内存大页？"></a><strong>什么是内存大页</strong>？</h4><p>我们都知道，应用程序向操作系统申请内存时，是按内存页进行申请的，而常规的内存页大小是 4KB。</p>
+<p>Linux 内核从 2.6.38 开始，支持了内存大页机制，该机制允许应用程序以 2MB 大小为单位，向操作系统申请内存。</p>
+<p>应用程序每次向操作系统申请的内存单位变大了，但这也意味着申请内存的耗时变长。</p>
+<h4 id="这对-Redis-会有什么影响呢？"><a href="#这对-Redis-会有什么影响呢？" class="headerlink" title="这对 Redis 会有什么影响呢？"></a>这对 Redis 会有什么影响呢？</h4><p>当 Redis 在执行后台 RDB 和 AOF rewrite 时，采用 fork 子进程的方式来处理。但主进程 fork 子进程后，此时的主进程依旧是可以接收写请求的，而进来的写请求，会采用 Copy On Write（写时复制）的方式操作内存数据。</p>
+<p>也就是说，主进程一旦有数据需要修改，Redis 并不会直接修改现有内存中的数据，而是先将这块内存数据拷贝出来，再修改这块新内存的数据，这就是所谓的「写时复制」。</p>
+<p>写时复制你也可以理解成，谁需要发生写操作，谁就需要先拷贝，再修改。</p>
+<p>这样做的好处是，父进程有任何写操作，并不会影响子进程的数据持久化（子进程只持久化 fork 这一瞬间整个实例中的所有数据即可，不关心新的数据变更，因为子进程只需要一份内存快照，然后持久化到磁盘上）。</p>
+<p>但是请注意，<strong>主进程在拷贝内存数据时，这个阶段就涉及到新内存的申请，如果此时操作系统开启了内存大页，那么在此期间，客户端即便只修改 10B 的数据，Redis 在申请内存时也会以 2MB 为单位向操作系统申请，申请内存的耗时变长，进而导致每个写请求的延迟增加，影响到 Redis 性能</strong>。</p>
+<p>同样地，如果这个写请求操作的是一个 bigkey，那主进程在拷贝这个 bigkey 内存块时，一次申请的内存会更大，时间也会更久。可见，bigkey 在这里又一次影响到了性能。</p>
+<p><img src="http://qiniu.jzcupid.cn/blog/redis-performance-6.jpeg" alt="2355"></p>
+<h4 id="那如何解决这个问题？"><a href="#那如何解决这个问题？" class="headerlink" title="那如何解决这个问题？"></a>那如何解决这个问题？</h4><p>很简单，你只需要关闭内存大页机制就可以了。</p>
+<p>首先，你需要查看 Redis 机器是否开启了内存大页：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ cat /sys/kernel/mm/transparent_hugepage/enabled</span><br><span class="line">[always] madvise never</span><br></pre></td></tr></table></figure>
+
+<p>如果输出选项是 always，就表示目前开启了内存大页机制，我们需要关掉它：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ <span class="built_in">echo</span> never &gt; /sys/kernel/mm/transparent_hugepage/enabled</span><br></pre></td></tr></table></figure>
+
+<p>其实，操作系统提供的内存大页机制，其优势是，可以在一定程序上降低应用程序申请内存的次数。</p>
+<p>但是对于 Redis 这种对性能和延迟极其敏感的数据库来说，我们希望 Redis 在每次申请内存时，耗时尽量短，所以我不建议你在 Redis 机器上开启这个机制。</p>
+<h2 id="八、开启AOF"><a href="#八、开启AOF" class="headerlink" title="八、开启AOF"></a>八、开启AOF</h2><p>前面我们分析了 RDB 和 AOF rewrite 对 Redis 性能的影响，主要关注点在 fork 上。</p>
+<p>其实，关于数据持久化方面，还有影响 Redis 性能的因素，这次我们重点来看 AOF 数据持久化。</p>
+<p>如果你的 AOF 配置不合理，还是有可能会导致性能问题。</p>
+<p>当 Redis 开启 AOF 后，其工作原理如下：</p>
+<ul>
+<li>Redis 执行写命令后，把这个命令写入到 AOF 文件内存中（write 系统调用）</li>
+<li>Redis 根据配置的 AOF 刷盘策略，把 AOF 内存数据刷到磁盘上（fsync 系统调用）</li>
+</ul>
+<p>为了保证 AOF 文件数据的安全性，Redis 提供了 3 种刷盘机制：</p>
+<ul>
+<li><strong>appendfsync always</strong>：主线程每次执行写操作后立即刷盘，此方案会占用比较大的磁盘 IO 资源，但数据安全性最高</li>
+<li><strong>appendfsync no</strong>：主线程每次写操作只写内存就返回，内存数据什么时候刷到磁盘，交由操作系统决定，此方案对性能影响最小，但数据安全性也最低，Redis 宕机时丢失的数据取决于操作系统刷盘时机</li>
+<li><strong>appendfsync everysec</strong>：主线程每次写操作只写内存就返回，然后由后台线程每隔 1 秒执行一次刷盘操作（触发fsync系统调用），此方案对性能影响相对较小，但当 Redis 宕机时会丢失 1 秒的数据</li>
+</ul>
+<h4 id="AOF刷盘机制对性能的影响"><a href="#AOF刷盘机制对性能的影响" class="headerlink" title="AOF刷盘机制对性能的影响"></a>AOF刷盘机制对性能的影响</h4><p>如果你的 AOF 配置为 appendfsync always，那么 Redis 每处理一次写操作，都会把这个命令写入到磁盘中才返回，整个过程都是在主线程执行的，这个过程必然会加重 Redis 写负担。</p>
+<p>原因也很简单，操作磁盘要比操作内存慢几百倍，采用这个配置会严重拖慢 Redis 的性能，因此我不建议你把 AOF 刷盘方式配置为 always。</p>
+<p>我们接着来看 appendfsync no 配置项。</p>
+<p>在这种配置下，Redis 每次写操作只写内存，什么时候把内存中的数据刷到磁盘，交给操作系统决定，此方案对 Redis 的性能影响最小，但当 Redis 宕机时，会丢失一部分数据，为了数据的安全性，一般我们也不采取这种配置。</p>
+<blockquote>
+<p>如果你的 Redis 只用作纯缓存，对于数据丢失不敏感，采用配置 appendfsync no 也是可以的。</p>
+</blockquote>
+<p>看到这里，我猜你肯定和大多数人的想法一样，选比较折中的方案 appendfsync everysec 就没问题了吧？</p>
+<p>这个方案优势在于，Redis 主线程写完内存后就返回，具体的刷盘操作是放到后台线程中执行的，后台线程每隔 1 秒把内存中的数据刷到磁盘中。</p>
+<p>这种方案既兼顾了性能，又尽可能地保证了数据安全，是不是觉得很完美？</p>
+<p><strong>但是，采用这种方案你也要警惕一下，因为这种方案还是存在导致 Redis 延迟变大的情况发生，甚至会阻塞整个 Redis</strong>。</p>
+<p>这是为什么？我把 AOF 最耗时的刷盘操作，放到后台线程中也会影响到 Redis 主线程？</p>
+<p>你试想这样一种情况：当 Redis 后台线程在执行 AOF 文件刷盘时，如果此时磁盘的 IO 负载很高，那这个后台线程在执行刷盘操作（fsync系统调用）时就会被阻塞住。</p>
+<p>此时的主线程依旧会接收写请求，紧接着，主线程又需要把数据写到文件内存中（write 系统调用），<strong>但此时的后台子线程由于磁盘负载过高，导致 fsync 发生阻塞，迟迟不能返回，那主线程在执行 write 系统调用时，也会被阻塞住，直到后台线程 fsync 执行完成后，主线程执行 write 才能成功返回</strong>。</p>
+<p>看到了么？在这个过程中，主线程依旧有阻塞的风险。</p>
+<p><img src="http://qiniu.jzcupid.cn/blog/redis-performance-7.jpeg" alt="342"></p>
+<p>所以，尽管你的 AOF 配置为 appendfsync everysec，也不能掉以轻心，要警惕磁盘压力过大导致的 Redis 有性能问题。</p>
+<p>那什么情况下会导致磁盘 IO 负载过大？以及如何解决这个问题呢？</p>
+<h4 id="排查方向"><a href="#排查方向" class="headerlink" title="排查方向"></a>排查方向</h4><ul>
+<li>子进程正在执行 AOF rewrite，这个过程会占用大量的磁盘 IO 资源</li>
+<li>有其他应用程序在执行大量的写文件操作，也会占用磁盘 IO 资源</li>
+</ul>
+<p>对于情况1，说白了就是，Redis 的 AOF 后台子线程刷盘操作，撞上了子进程 AOF rewrite！</p>
+<p>这怎么办？难道要关闭 AOF rewrite 才行？</p>
+<p>幸运的是，Redis 提供了一个配置项，当子进程在 AOF rewrite 期间，可以让后台子线程不执行刷盘（不触发 fsync 系统调用）操作。</p>
+<p>这相当于在 AOF rewrite 期间，临时把 appendfsync 设置为了 none，配置如下：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># AOF rewrite 期间，AOF 后台子线程不进行刷盘操作</span></span><br><span class="line"><span class="comment"># 相当于在这期间，临时把 appendfsync 设置为了 none</span></span><br><span class="line">no-appendfsync-on-rewrite yes</span><br></pre></td></tr></table></figure>
+
+<p>当然，开启这个配置项，在 AOF rewrite 期间，如果实例发生宕机，那么此时会丢失更多的数据，性能和数据安全性，你需要权衡后进行选择。</p>
+<p>如果占用磁盘资源的是其他应用程序，那就比较简单了，你需要定位到是哪个应用程序在大量写磁盘，然后把这个应用程序迁移到其他机器上执行就好了，避免对 Redis 产生影响。</p>
+<p>当然，如果你对 Redis 的性能和数据安全都有很高的要求，那么我建议从硬件层面来优化，更换为 SSD 磁盘，提高磁盘的 IO 能力，保证 AOF 期间有充足的磁盘资源可以使用。</p>
+<h2 id="九、绑定CPU"><a href="#九、绑定CPU" class="headerlink" title="九、绑定CPU"></a>九、绑定CPU</h2><p>很多时候，我们在部署服务时，为了提高服务性能，降低应用程序在多个 CPU 核心之间的上下文切换带来的性能损耗，通常采用的方案是进程绑定 CPU 的方式提高性能。</p>
+<p>但在部署 Redis 时，如果你需要绑定 CPU 来提高其性能，建议仔细斟酌后再做操作。</p>
+<h4 id="为什么？"><a href="#为什么？" class="headerlink" title="为什么？"></a>为什么？</h4><p>因为 Redis 在绑定 CPU 时，是有很多考究的，如果你不了解 Redis 的运行原理，随意绑定 CPU 不仅不会提高性能，甚至有可能会带来相反的效果。</p>
+<p>我们都知道，一般现代的服务器会有多个 CPU，而每个 CPU 又包含多个物理核心，每个物理核心又分为多个逻辑核心，每个物理核下的逻辑核共用 L1/L2 Cache。</p>
+<p>而 Redis Server 除了主线程服务客户端请求之外，还会创建子进程、子线程。</p>
+<p>其中子进程用于数据持久化，而子线程用于执行一些比较耗时操作，例如异步释放 fd、异步 AOF 刷盘、异步 lazy-free 等等。</p>
+<p>如果你把 Redis 进程只绑定了一个 CPU 逻辑核心上，那么当 Redis 在进行数据持久化时，fork 出的子进程会继承父进程的 CPU 使用偏好。</p>
+<p>而此时的子进程会消耗大量的 CPU 资源进行数据持久化（把实例数据全部扫描出来需要耗费CPU），这就会导致子进程会与主进程发生 CPU 争抢，进而影响到主进程服务客户端请求，访问延迟变大。</p>
+<p>这就是 Redis 绑定 CPU 带来的性能问题。</p>
+<h4 id="那如何解决这个问题呢？"><a href="#那如何解决这个问题呢？" class="headerlink" title="那如何解决这个问题呢？"></a>那如何解决这个问题呢？</h4><p>如果你确实想要绑定 CPU，可以优化的方案是，不要让 Redis 进程只绑定在一个 CPU 逻辑核上，而是绑定在多个逻辑核心上，而且，绑定的多个逻辑核心最好是同一个物理核心，这样它们还可以共用 L1/L2 Cache。</p>
+<p>当然，即便我们把 Redis 绑定在多个逻辑核心上，也只能在一定程度上缓解主线程、子进程、后台线程在 CPU 资源上的竞争。</p>
+<p>因为这些子进程、子线程还是会在这多个逻辑核心上进行切换，存在性能损耗。</p>
+<h4 id="如何再进一步优化？"><a href="#如何再进一步优化？" class="headerlink" title="如何再进一步优化？"></a>如何再进一步优化？</h4><p>可能你已经想到了，我们是否可以让主线程、子进程、后台线程，分别绑定在固定的 CPU 核心上，不让它们来回切换，这样一来，他们各自使用的 CPU 资源互不影响。</p>
+<p>其实，这个方案 Redis 官方已经想到了。</p>
+<p>Redis 在 6.0 版本已经推出了这个功能，我们可以通过以下配置，对主线程、后台线程、后台 RDB 进程、AOF rewrite 进程，绑定固定的 CPU 逻辑核心：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Redis Server 和 IO 线程绑定到 CPU核心 0,2,4,6</span></span><br><span class="line">server_cpulist 0-7:2</span><br><span class="line"> </span><br><span class="line"><span class="comment"># 后台子线程绑定到 CPU核心 1,3</span></span><br><span class="line">bio_cpulist 1,3</span><br><span class="line"> </span><br><span class="line"><span class="comment"># 后台 AOF rewrite 进程绑定到 CPU 核心 8,9,10,11</span></span><br><span class="line">aof_rewrite_cpulist 8-11</span><br><span class="line"> </span><br><span class="line"><span class="comment"># 后台 RDB 进程绑定到 CPU 核心 1,10,11</span></span><br><span class="line"><span class="comment"># bgsave_cpulist 1,10-1</span></span><br></pre></td></tr></table></figure>
+
+<p>如果你使用的正好是 Redis 6.0 版本，就可以通过以上配置，来进一步提高 Redis 性能。</p>
+<p>这里我需要提醒你的是，一般来说，Redis 的性能已经足够优秀，除非你对 Redis 的性能有更加严苛的要求，否则不建议你绑定 CPU。</p>
+<p>从上面的分析你也能看出，绑定 CPU 需要你对计算机体系结构有非常清晰的了解，否则谨慎操作。</p>
+<h2 id="十、使用Swap"><a href="#十、使用Swap" class="headerlink" title="十、使用Swap"></a>十、使用Swap</h2><p>如果你发现 Redis 突然变得非常慢，<strong>每次的操作耗时都达到了几百毫秒甚至秒级</strong>，那此时你就需要检查 Redis 是否使用到了 Swap，在这种情况下 Redis 基本上已经无法提供高性能的服务了。</p>
+<p>什么是 Swap？为什么使用 Swap 会导致 Redis 的性能下降？</p>
+<p>如果你对操作系统有些了解，就会知道操作系统为了缓解内存不足对应用程序的影响，允许把一部分内存中的数据换到磁盘上，以达到应用程序对内存使用的缓冲，这些内存数据被换到磁盘上的区域，就是 Swap。</p>
+<p>问题就在于，当内存中的数据被换到磁盘上后，Redis 再访问这些数据时，就需要从磁盘上读取，访问磁盘的速度要比访问内存慢几百倍！</p>
+<p><strong>尤其是针对 Redis 这种对性能要求极高、性能极其敏感的数据库来说，这个操作延时是无法接受的</strong>。</p>
+<p>此时，你需要检查 Redis 机器的内存使用情况，确认是否存在使用了 Swap。</p>
+<p>你可以通过以下方式来查看 Redis 进程是否使用到了 Swap：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 先找到 Redis 的进程 ID</span></span><br><span class="line">$ ps -aux | grep redis-server</span><br><span class="line"> </span><br><span class="line"><span class="comment"># 查看 Redis Swap 使用情况</span></span><br><span class="line">$ cat /proc/<span class="variable">$pid</span>/smaps | egrep <span class="string">&#x27;^(Swap|Size)&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>输出结果如下：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">Size:               1256 kB</span><br><span class="line">Swap:                  0 kB</span><br><span class="line">Size:                  4 kB</span><br><span class="line">Swap:                  0 kB</span><br><span class="line">Size:                132 kB</span><br><span class="line">Swap:                  0 kB</span><br><span class="line">Size:              63488 kB</span><br><span class="line">Swap:                  0 kB</span><br><span class="line">Size:                132 kB</span><br><span class="line">Swap:                  0 kB</span><br><span class="line">Size:              65404 kB</span><br><span class="line">Swap:                  0 kB</span><br><span class="line">Size:            1921024 kB</span><br><span class="line">Swap:                  0 kB</span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>这个结果会列出 Redis 进程的内存使用情况。</p>
+<p>每一行 Size 表示 Redis 所用的一块内存大小，Size 下面的 Swap 就表示这块 Size 大小的内存，有多少数据已经被换到磁盘上了，如果这两个值相等，说明这块内存的数据都已经完全被换到磁盘上了。</p>
+<p>如果只是少量数据被换到磁盘上，例如每一块 Swap 占对应 Size 的比例很小，那影响并不是很大。<strong>如果是几百兆甚至上 GB 的内存被换到了磁盘上，那么你就需要警惕了，这种情况 Redis 的性能肯定会急剧下降</strong>。</p>
+<h4 id="解决方案"><a href="#解决方案" class="headerlink" title="解决方案"></a>解决方案</h4><ul>
+<li>增加机器的内存，让 Redis 有足够的内存可以使用</li>
+<li>整理内存空间，释放出足够的内存供 Redis 使用，然后释放 Redis 的 Swap，让 Redis 重新使用内存</li>
+</ul>
+<p>可见，当 Redis 使用到 Swap 后，此时的 Redis 性能基本已达不到高性能的要求（你可以理解为武功被废），所以你也需要提前预防这种情况。</p>
+<p>预防的办法就是，你需要对 Redis 机器的内存和 Swap 使用情况进行监控，在内存不足或使用到 Swap 时报警出来，及时处理。</p>
+<h2 id="十一、碎片整理"><a href="#十一、碎片整理" class="headerlink" title="十一、碎片整理"></a>十一、碎片整理</h2><p>Redis 的数据都存储在内存中，当我们的应用程序频繁修改 Redis 中的数据时，就有可能会导致 Redis 产生内存碎片。</p>
+<p>内存碎片会降低 Redis 的内存使用率，我们可以通过执行 INFO 命令，得到这个实例的内存碎片率：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># Memory</span></span><br><span class="line">used_memory:5709194824</span><br><span class="line">used_memory_human:5.32G</span><br><span class="line">used_memory_rss:8264855552</span><br><span class="line">used_memory_rss_human:7.70G</span><br><span class="line">...</span><br><span class="line">mem_fragmentation_ratio:1.45</span><br></pre></td></tr></table></figure>
+
+<h4 id="这个内存碎片率是怎么计算的？"><a href="#这个内存碎片率是怎么计算的？" class="headerlink" title="这个内存碎片率是怎么计算的？"></a>这个内存碎片率是怎么计算的？</h4><p><strong>mem_fragmentation_ratio = used_memory_rss / used_memory</strong></p>
+<p>其中 used_memory 表示 Redis 存储数据的内存大小，而 used_memory_rss 表示操作系统实际分配给 Redis 进程的大小。</p>
+<p>如果 mem_fragmentation_ratio &gt; 1.5，说明内存碎片率已经超过了 50%，这时我们就需要采取一些措施来降低内存碎片了。</p>
+<h4 id="解决的方案"><a href="#解决的方案" class="headerlink" title="解决的方案"></a>解决的方案</h4><ul>
+<li>如果你使用的是 Redis 4.0 以下版本，只能通过重启实例来解决</li>
+<li>如果你使用的是 Redis 4.0 版本，它正好提供了自动碎片整理的功能，可以通过配置开启碎片自动整理</li>
+</ul>
+<p>但是，开启内存碎片整理，它也有可能会导致 Redis 性能下降。</p>
+<p>原因在于，<strong>Redis 的碎片整理工作是也在主线程中执行的</strong>，当其进行碎片整理时，必然会消耗 CPU 资源，产生更多的耗时，从而影响到客户端的请求。</p>
+<p>所以，当你需要开启这个功能时，最好提前测试评估它对 Redis 的影响。</p>
+<p>Redis 碎片整理的参数配置如下：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 开启自动内存碎片整理（总开关）</span></span><br><span class="line">activedefrag yes</span><br><span class="line"> </span><br><span class="line"><span class="comment"># 内存使用 100MB 以下，不进行碎片整理</span></span><br><span class="line">active-defrag-ignore-bytes 100mb</span><br><span class="line"> </span><br><span class="line"><span class="comment"># 内存碎片率超过 10%，开始碎片整理</span></span><br><span class="line">active-defrag-threshold-lower 10</span><br><span class="line"><span class="comment"># 内存碎片率超过 100%，尽最大努力碎片整理</span></span><br><span class="line">active-defrag-threshold-upper 100</span><br><span class="line"> </span><br><span class="line"><span class="comment"># 内存碎片整理占用 CPU 资源最小百分比</span></span><br><span class="line">active-defrag-cycle-min 1</span><br><span class="line"><span class="comment"># 内存碎片整理占用 CPU 资源最大百分比</span></span><br><span class="line">active-defrag-cycle-max 25</span><br><span class="line"> </span><br><span class="line"><span class="comment"># 碎片整理期间，对于 List/Set/Hash/ZSet 类型元素一次 Scan 的数量</span></span><br><span class="line">active-defrag-max-scan-fields 1000</span><br></pre></td></tr></table></figure>
+
+<p>需要结合 Redis 机器的负载情况，以及应用程序可接受的延迟范围进行评估，合理调整碎片整理的参数，尽可能降低碎片整理期间对 Redis 的影响。</p>
+<h2 id="十二、-网络带宽过载"><a href="#十二、-网络带宽过载" class="headerlink" title="十二、 网络带宽过载"></a>十二、 网络带宽过载</h2><p>如果以上产生性能问题的场景，你都规避掉了，而且 Redis 也稳定运行了很长时间，但在某个时间点之后开始，操作 Redis 突然开始变慢了，而且一直持续下去，这种情况又是什么原因导致？</p>
+<p>此时你需要排查一下 Redis 机器的网络带宽是否过载，是否存在某个实例把整个机器的网路带宽占满的情况。</p>
+<p>网络带宽过载的情况下，服务器在 TCP 层和网络层就会出现数据包发送延迟、丢包等情况。</p>
+<p>Redis 的高性能，除了操作内存之外，就在于网络 IO 了，如果网络 IO 存在瓶颈，那么也会严重影响 Redis 的性能。</p>
+<p>如果确实出现这种情况，你需要及时确认占满网络带宽 Redis 实例，如果属于正常的业务访问，那就需要及时扩容或迁移实例了，避免因为这个实例流量过大，影响这个机器的其他实例。</p>
+<p>运维层面，你需要对 Redis 机器的各项指标增加监控，包括网络流量，在网络流量达到一定阈值时提前报警，及时确认和扩容。</p>
+<h2 id="十三、其他原因"><a href="#十三、其他原因" class="headerlink" title="十三、其他原因"></a>十三、其他原因</h2><p>除了以上这些，还有一些比较小的点，也需要注意一下：</p>
+<ul>
+<li><strong>频繁短连接</strong></li>
+</ul>
+<p>你的业务应用，应该使用长连接操作 Redis，避免频繁的短连接。</p>
+<p>频繁的短连接会导致 Redis 大量时间耗费在连接的建立和释放上，TCP 的三次握手和四次挥手同样也会增加访问延迟。</p>
+<ul>
+<li><strong>运维监控</strong></li>
+</ul>
+<p>前面我也提到了，要想提前预知 Redis 变慢的情况发生，必不可少的就是做好完善的监控。</p>
+<p>监控其实就是对采集 Redis 的各项运行时指标，通常的做法是监控程序定时采集 Redis 的 INFO 信息，然后根据 INFO 信息中的状态数据做数据展示和报警。</p>
+<p>这里我需要提醒你的是，在写一些监控脚本，或使用开源的监控组件时，也不能掉以轻心。</p>
+<p>在写监控脚本访问 Redis 时，尽量采用长连接的方式采集状态信息，避免频繁短连接。同时，你还要注意控制访问 Redis 的频率，避免影响到业务请求。</p>
+<p>在使用一些开源的监控组件时，最好了解一下这些组件的实现原理，以及正确配置这些组件，防止出现监控组件发生 Bug，导致短时大量操作 Redis，影响 Redis 性能的情况发生。</p>
+<p>我们当时就发生过，DBA 在使用一些开源组件时，因为配置和使用问题，导致监控程序频繁地与 Redis 建立和断开连接，导致 Redis 响应变慢。</p>
+<ul>
+<li><strong>其它程序争抢资源</strong></li>
+</ul>
+<p>最后需要提醒你的是，你的 Redis 机器最好专项专用，只用来部署 Redis 实例，不要部署其他应用程序，尽量给 Redis 提供一个相对「安静」的环境，避免其它程序占用 CPU、内存、磁盘资源，导致分配给 Redis 的资源不足而受到影响。</p>
+
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                    <div class="article-prev">
+                        <a class="prev"
+                           rel="prev"
+                           href="/posts/50925/"
+                        >
+                            <span class="left arrow-icon flex-center">
+                              <i class="fas fa-chevron-left"></i>
+                            </span>
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">PaaS、IaaS 和 SaaS 的区别</span>
+                                <span class="post-nav-item">Prev posts</span>
+                            </span>
+                        </a>
+                    </div>
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/posts/13357/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">Nginx location 匹配规则</span>
+                                <span class="post-nav-item">Next posts</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2021</span>
+              -
+            
+            2022&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">JD</a>
+        </div>
+        
+            <script async  src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <div class="website-count info-item">
+                
+                    <span id="busuanzi_container_site_uv">
+                        Visitor Count&nbsp;<span id="busuanzi_value_site_uv"></span>&ensp;
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv">
+                        Totalview&nbsp;<span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="theme-info info-item">
+            Powered by <a target="_blank" href="https://hexo.io">Hexo</a>&nbsp;|&nbsp;Theme&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.3</a>
+        </div>
+        
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="arrow-up fas fa-arrow-up"></i>
+                <span class="percent"></span>
+            </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81Redis%E5%BB%B6%E8%BF%9F"><span class="nav-text">一、Redis延迟</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E7%BD%91%E7%BB%9C%E5%BB%B6%E8%BF%9F"><span class="nav-text">1.网络延迟</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E2%80%93latency"><span class="nav-text">–latency</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E2%80%93latency-history"><span class="nav-text">–latency-history</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E2%80%93latency-dist"><span class="nav-text">–latency-dist</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%9B%BA%E6%9C%89%E5%BB%B6%E8%BF%9F"><span class="nav-text">2.固有延迟</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E2%80%93intrinsic-latency-lt-sec-gt"><span class="nav-text">–intrinsic-latency &lt;sec&gt;</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E7%9B%91%E6%8E%A7%E5%BB%B6%E6%97%B6%EF%BC%88latency%EF%BC%89"><span class="nav-text">3.监控延时（latency）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BC%80%E5%90%AF%E5%BB%B6%E6%97%B6%E7%9B%91%E6%8E%A7"><span class="nav-text">开启延时监控</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Latency-Latest"><span class="nav-text">Latency Latest</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Latency-History"><span class="nav-text">Latency History</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Latency-Reset"><span class="nav-text">Latency Reset</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Latency-Graph"><span class="nav-text">Latency Graph</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Latency-Doctor"><span class="nav-text">Latency Doctor</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%BB%B6%E8%BF%9F%E5%8E%9F%E5%9B%A0"><span class="nav-text">4.延迟原因</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%85%A2%E6%9F%A5%E8%AF%A2"><span class="nav-text">二、慢查询</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#slowlog-log-slower-than"><span class="nav-text">slowlog-log-slower-than</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#slowlog-max-len"><span class="nav-text">slowlog-max-len</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E6%8C%81%E4%B9%85%E5%8C%96%E5%88%B0%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-text">配置持久化到配置文件</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%8E%B7%E5%8F%96%E5%89%8D-n-%E6%9D%A1%E6%85%A2%E6%9F%A5%E8%AF%A2%E6%97%A5%E5%BF%97"><span class="nav-text">获取前 n 条慢查询日志</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%85%A2%E6%9F%A5%E8%AF%A2%E6%97%A5%E5%BF%97%E9%87%8D%E7%BD%AE"><span class="nav-text">慢查询日志重置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BB%BA%E8%AE%AE"><span class="nav-text">建议</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E6%93%8D%E4%BD%9CBigKey"><span class="nav-text">三、操作BigKey</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8Bbigkey"><span class="nav-text">查看bigkey</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#bigkey-%E4%BC%98%E5%8C%96%E6%96%B9%E5%90%91"><span class="nav-text">bigkey 优化方向</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E9%9B%86%E4%B8%AD%E8%BF%87%E6%9C%9F"><span class="nav-text">四、集中过期</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9B%86%E4%B8%AD%E8%BF%87%E6%9C%9F%E4%BC%9A%E5%AF%BC%E8%87%B4-Redis-%E5%BB%B6%E8%BF%9F%E5%8F%98%E5%A4%A7%EF%BC%9F"><span class="nav-text">为什么集中过期会导致 Redis 延迟变大？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%86%E6%9E%90%E5%92%8C%E6%8E%92%E6%9F%A5"><span class="nav-text">分析和排查</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E5%AE%9E%E4%BE%8B%E5%86%85%E5%AD%98%E8%BE%BE%E5%88%B0%E4%B8%8A%E9%99%90"><span class="nav-text">五、实例内存达到上限</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BC%98%E5%8C%96%E5%BB%BA%E8%AE%AE"><span class="nav-text">优化建议</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81fork%E8%80%97%E6%97%B6%E4%B8%A5%E9%87%8D"><span class="nav-text">六、fork耗时严重</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BC%98%E5%8C%96%E6%96%B9%E6%A1%88"><span class="nav-text">优化方案</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81%E5%BC%80%E5%90%AF%E5%86%85%E5%AD%98%E5%A4%A7%E9%A1%B5"><span class="nav-text">七、开启内存大页</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E5%86%85%E5%AD%98%E5%A4%A7%E9%A1%B5%EF%BC%9F"><span class="nav-text">什么是内存大页？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%99%E5%AF%B9-Redis-%E4%BC%9A%E6%9C%89%E4%BB%80%E4%B9%88%E5%BD%B1%E5%93%8D%E5%91%A2%EF%BC%9F"><span class="nav-text">这对 Redis 会有什么影响呢？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%82%A3%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3%E8%BF%99%E4%B8%AA%E9%97%AE%E9%A2%98%EF%BC%9F"><span class="nav-text">那如何解决这个问题？</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AB%E3%80%81%E5%BC%80%E5%90%AFAOF"><span class="nav-text">八、开启AOF</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#AOF%E5%88%B7%E7%9B%98%E6%9C%BA%E5%88%B6%E5%AF%B9%E6%80%A7%E8%83%BD%E7%9A%84%E5%BD%B1%E5%93%8D"><span class="nav-text">AOF刷盘机制对性能的影响</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8E%92%E6%9F%A5%E6%96%B9%E5%90%91"><span class="nav-text">排查方向</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B9%9D%E3%80%81%E7%BB%91%E5%AE%9ACPU"><span class="nav-text">九、绑定CPU</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%EF%BC%9F"><span class="nav-text">为什么？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%82%A3%E5%A6%82%E4%BD%95%E8%A7%A3%E5%86%B3%E8%BF%99%E4%B8%AA%E9%97%AE%E9%A2%98%E5%91%A2%EF%BC%9F"><span class="nav-text">那如何解决这个问题呢？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E5%86%8D%E8%BF%9B%E4%B8%80%E6%AD%A5%E4%BC%98%E5%8C%96%EF%BC%9F"><span class="nav-text">如何再进一步优化？</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%81%E3%80%81%E4%BD%BF%E7%94%A8Swap"><span class="nav-text">十、使用Swap</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E6%A1%88"><span class="nav-text">解决方案</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%81%E4%B8%80%E3%80%81%E7%A2%8E%E7%89%87%E6%95%B4%E7%90%86"><span class="nav-text">十一、碎片整理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%BF%99%E4%B8%AA%E5%86%85%E5%AD%98%E7%A2%8E%E7%89%87%E7%8E%87%E6%98%AF%E6%80%8E%E4%B9%88%E8%AE%A1%E7%AE%97%E7%9A%84%EF%BC%9F"><span class="nav-text">这个内存碎片率是怎么计算的？</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A7%A3%E5%86%B3%E7%9A%84%E6%96%B9%E6%A1%88"><span class="nav-text">解决的方案</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%81%E4%BA%8C%E3%80%81-%E7%BD%91%E7%BB%9C%E5%B8%A6%E5%AE%BD%E8%BF%87%E8%BD%BD"><span class="nav-text">十二、 网络带宽过载</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8D%81%E4%B8%89%E3%80%81%E5%85%B6%E4%BB%96%E5%8E%9F%E5%9B%A0"><span class="nav-text">十三、其他原因</span></a></li></ol>
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="Search..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="popup-btn-close">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+</main>
+
+
+
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/main.js"></script>
+
+<script src="/js/header-shrink.js"></script>
+
+<script src="/js/back2top.js"></script>
+
+<script src="/js/dark-light-toggle.js"></script>
+
+
+
+    
+<script src="/js/local-search.js"></script>
+
+
+
+
+    
+<script src="/js/code-copy.js"></script>
+
+
+
+
+
+<div class="post-scripts">
+    
+        
+<script src="/js/left-side-toggle.js"></script>
+
+<script src="/js/libs/anime.min.js"></script>
+
+<script src="/js/toc.js"></script>
+
+    
+</div>
+
+
+
+</body>
+</html>

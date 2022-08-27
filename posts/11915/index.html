@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="JD">
+    
+    <title>
+        
+            漫谈 Kafka |
+        
+        Bean You
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <link rel="shortcut icon" href="http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico">
+    
+<link rel="stylesheet" href="/css/font-awesome.min.css">
+
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"jzcupid.cn","root":"/","language":"en","path":"search.json"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":false,"expand_all":false,"init_open":false},"style":{"primary_color":"#0066CC","avatar":"http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico","favicon":"http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":true,"scale":true},"first_screen":{"enable":true,"background_img":"/images/bg.svg","description":"征途～是星辰大海"},"scroll":{"progress_bar":{"enable":false},"percent":{"enable":true}}},"local_search":{"enable":true,"trigger":"auto","preload":true},"code_copy":{"enable":true,"style":"default"},"pjax":{"enable":false},"lazyload":{"enable":false},"version":"3.4.3"};
+    KEEP.language_ago = {"second":"%s seconds ago","minute":"%s minutes ago","hour":"%s hours ago","day":"%s days ago","week":"%s weeks ago","month":"%s months ago","year":"%s years ago"};
+  </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                Bean You
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                首页
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/categories"
+                            >
+                                分类
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >
+                                标签
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                归档
+                            </a>
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="fas fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">首页</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/categories">分类</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags">标签</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">归档</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">漫谈 Kafka</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">JD</span>
+                        
+                            <span class="author-label">Lv5</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2021-11-25 21:27:24
+    </span>
+    
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>&nbsp;
+                    </li>
+                
+                    <li>
+                        &gt; <a href="/categories/%E8%BF%90%E7%BB%B4/Kafka/">Kafka</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+    
+
+    
+    
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fas fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <h2 id="一、Rebalance机制"><a href="#一、Rebalance机制" class="headerlink" title="一、Rebalance机制"></a>一、Rebalance机制</h2><p>Rebalance 描述的是 consumer group 中的 consumer 与 <strong>topic</strong>  下的 <strong>partition</strong> 重新匹配的过程。</p>
+<h3 id="1-何时发生Rebalance"><a href="#1-何时发生Rebalance" class="headerlink" title="1.何时发生Rebalance"></a>1.何时发生Rebalance</h3><ul>
+<li>consumer group 中消费者个数发生变化，例如新消费者加入或者消费者宕机</li>
+<li>consumer 消费超时</li>
+<li>consumer group 订阅的 <strong>topic</strong> 个数发生变化</li>
+<li>consumer group 订阅的 <strong>topic</strong>  的 <strong>partition</strong> 数量发生变化</li>
+</ul>
+<h3 id="2-GroupCoordinator（协调者）"><a href="#2-GroupCoordinator（协调者）" class="headerlink" title="2.GroupCoordinator（协调者）"></a>2.GroupCoordinator（协调者）</h3><p>coordinator 是 Rebalance 机制中非常重要的一个角色。</p>
+<p>每个消费者组都会有一个 coordinator，负责管理组内消费者，但其并不负责消费者组内 partition 分配，而是由 <strong>leader consumer</strong> 进行分配。</p>
+<h4 id="1）-consumer-offsets-Topic"><a href="#1）-consumer-offsets-Topic" class="headerlink" title="1）_consumer_offsets Topic"></a>1）_consumer_offsets Topic</h4><p><code>__consumer_offsets</code> 是 Kafka 内部使用的一个 topic，专门用来存储消费者组的消费情况，默认有 50 个 partition，每个 partition 三个  follower。</p>
+<p>每个消费者组的消费情况存储在哪个 partition 上是根据 <code>abs(GroupId.hashCode()) % NumPartitions</code> 计算得来的。</p>
+<p>其中 <code>NumPartitions</code> 是 <strong>_consumer_offsets</strong> topic 的 partition 数量，默认 50。</p>
+<p>每个 broker 在启动时，都会启动一个 coordinator，但 <strong>只有 _consumer_offsets 的 partition 的 leader 所在 broker 上的 coordinator 才会直接与 consumer 进行交互，其他 coordinator 只是作为备份，一旦 leader 的 broker 挂掉之后进行主备切换</strong>。</p>
+<h4 id="2）影响-consumer-与-coordinator-的参数"><a href="#2）影响-consumer-与-coordinator-的参数" class="headerlink" title="2）影响 consumer 与 coordinator 的参数"></a>2）影响 consumer 与 coordinator 的参数</h4><p>消费者以 <code>heartbeat.interval.ms</code> 参数的频率向 coordinator 发送心跳，当消费者在 <code>session.timeout.ms</code> 参数配置的时间内没有向 coordinator 发送任何请求，会认为该消费者挂了。</p>
+<p>一般来说 <code>heartbeat.interval.ms</code> 要小于 <code>session.timeout.ms</code>，不然因为偶然的网络原因少了一次心跳或者下次心跳还没来得及发送就判定消费者挂了，那就会频繁的 rebalance，对于吞吐量是有很大影响的。</p>
+<p>但是如果 <code>session.timeout.ms</code> 设的时间太长了，就会导致 coordinator 需要较长的时间才能判定消费者宕机，对性能也是有影响的。</p>
+<p>在 kafka 0.10.1 之后的版本中，将 <code>session.timeout.ms</code> 和 <code>max.poll.interval.ms</code> 解耦了。</p>
+<p>也就是说在 <code>new KafkaConsumer</code> 对象后，在 <code>while</code> 循环中执行 <code>consumer.poll</code> 拉取消息过程中，实际运行了两个线程，一个是 consumer 消费消息的线程，一个是定时发送心跳给 coordinator 的线程（这个线程对开发是透明的）。</p>
+<p>如果 consumer 消费消息耗时较长，也不会影响给 coordinator 发送心跳，就不会出现 consumer 在正常消费，但 coordinator 认为 consumer 已经宕机的情况。只要 <code>max.poll.interval.ms</code> 参数可以包含 consumer 的消费时长是没问题的。</p>
+<p>由于是独立的线程，如果 consumer 真的宕机了，也就不用等到 <code>max.poll.interval.ms</code>之后才能检测出 consumer 宕机了。</p>
+<p>在 kafka 0.10.1 之前，由于心跳包的发送和消息消费是在一个线程中的，如果消息处理的时间超过 <code>session.timeout.ms</code>，消息还没消费完就被 coordinator 踢出消费者组了。</p>
+<h3 id="3-Rebalance-过程"><a href="#3-Rebalance-过程" class="headerlink" title="3.Rebalance 过程"></a>3.Rebalance 过程</h3><p>coordinator 发生 rebalance 时，coordinator 并不会主动通知组内所有消费者重新加入消费者组，而是在 consumer 发送心跳的时候，将 rebalance 的情况通过心跳响应返回给 consumer。</p>
+<p>rebalance 整体可以分为两个步骤：Joining The Group 和 Synchronizing Group State。</p>
+<h4 id="1）Joining-The-Group"><a href="#1）Joining-The-Group" class="headerlink" title="1）Joining The Group"></a>1）Joining The Group</h4><p>这一阶段，consumer 向 coordinator 请求加入消费者组，coordinator 会从所有 consumer 中随机选择一个作为 <strong>leader consumer</strong>。</p>
+<h4 id="2）Synchronizing-Group-State"><a href="#2）Synchronizing-Group-State" class="headerlink" title="2）Synchronizing Group State"></a>2）Synchronizing Group State</h4><p><strong>leader consumer</strong> 从 coordinator 获取所有消费者的信息，并将消费者的 partition 分配信息封装为 <strong>SyncGroup</strong> 请求。</p>
+<p><strong>leader consumer</strong> 并不直接与其他 consumer 进行交互，而是将 <strong>SyncGroup</strong> 发送给 coordinator，再由 coordinator 将分配结果发送给 consumer。</p>
+<p>如果 <strong>leader consumer</strong> 因为特殊原因导致分配 partition 失败（coordinator 通过超时的方式检测），那么 coordinator 会重新要求该消费者组中所有  consumer 重新进行 <strong>Joining The Group</strong>。</p>
+<h3 id="4-Generation-机制"><a href="#4-Generation-机制" class="headerlink" title="4.Generation 机制"></a>4.Generation 机制</h3><p>当 consumer 消费超时（超过 <code>max.poll.interval.ms</code>），coordinator 会将该 consumer 从消费者组中剔除，进行 Rebalance，将当前 consumer 负责的 partition 分配给其他 consumer，如果此时该 consumer 消费完成提交 offset，会抛出如下异常：</p>
+<blockquote>
+<p>Commit cannot be completed since the group has already rebalanced and assigned the partitions to another member. This means that the time between subsequent calls to poll() was longer than the configured max.poll.interval.ms, which typically implies that the poll loop is spending too much time message processing. You can address this either by increasing max.poll.interval.ms or by reducing the maximum size of batches returned in poll() with max.poll.records.</p>
+</blockquote>
+<p>Generation 机制就是为了防止上述情况下 offset 提交成功的。</p>
+<p>coordinator 每进行一次 rebalance，就会重新设置 generation 标记。</p>
+<p>例如第一次 rebalance 标记是 1，第二次 rebalance 标记是 2，消费者在提交 offset 时会将 generation 一同提交，coordinate 发现标记已经过时，就会拒绝 consumer 提交消息。</p>
+<p>Generation 机制可能会导致上一代 consumer 和当前代 consumer 消费相同的消息，所以 consumer 在消费消息时需要实现幂等性。</p>
+<h3 id="5-Leader-Consumer"><a href="#5-Leader-Consumer" class="headerlink" title="5.Leader Consumer"></a>5.Leader Consumer</h3><p><strong>Leader Consumer</strong> 是在 <strong>Joining The Group</strong> 阶段中随机选举的，负责其消费者组中各个 consumer 的 partition 分配。</p>
+<p>除此之外，还负责监控消费者组订阅的 <strong>Topic</strong>，一旦发现订阅的 <strong>Topic</strong> 发生变化， <strong>Leader Consumer</strong> 会通知 coordinator 进行 rebalance。</p>
+<h2 id="二、Partition-副本同步机制"><a href="#二、Partition-副本同步机制" class="headerlink" title="二、Partition 副本同步机制"></a>二、Partition 副本同步机制</h2><p>kafka 一个 Partition 可以有多个副本，采用主备模式，只有 leador partition 可以进行读写，副本只是同步 leador 的数据。</p>
+<p><img src="http://qiniu.jzcupid.cn/blog/kafka%20ISR.png" alt="kafka ISR"></p>
+<h4 id="ISR-in-sync-Replica-与-OSR-out-sync-Replica"><a href="#ISR-in-sync-Replica-与-OSR-out-sync-Replica" class="headerlink" title="ISR(in-sync Replica) 与 OSR(out-sync Replica)"></a>ISR(in-sync Replica) 与 OSR(out-sync Replica)</h4><p>如果一个 follower 落后 leader 不超过某个时间阈值，那么该 follower 就在 <strong>ISR</strong> 中，否则放在 <strong>OSR</strong> 中。</p>
+<p><strong>ISR</strong> 和 <strong>OSR</strong> 并不是一成不变的。</p>
+<p>当 <strong>ISR</strong> 中某个 follower 不符合条件时，会进入到 <strong>OSR</strong> 中；</p>
+<p>相反，当 <strong>OSR</strong> 中某个 follower 跟上了 leader 会进入到 <strong>ISR</strong>。</p>
+<h4 id="HW（high-watermark）"><a href="#HW（high-watermark）" class="headerlink" title="HW（high watermark）"></a>HW（high watermark）</h4><p>所有 <strong>ISR</strong> 中最小的 <strong>LEO</strong> 即为 <strong>HW</strong>。</p>
+<h4 id="LEO（log-end-offset）"><a href="#LEO（log-end-offset）" class="headerlink" title="LEO（log end offset）"></a>LEO（log end offset）</h4><p>partition 日志文件中下一条待写入消息的 offset。无论 leader 还是 follower 都有。</p>
+<h4 id="firstUnstableOffset"><a href="#firstUnstableOffset" class="headerlink" title="firstUnstableOffset"></a>firstUnstableOffset</h4><p>kafka 支持事物消息，<strong>firstUnstableOffset</strong> 指的是第一条未提交的消息的 <strong>offset</strong>，从 <strong>firstUnstableOffset</strong> 开始，到 <strong>LEO</strong> 之前都是未提交的消息。</p>
+<h4 id="lastStableOffset"><a href="#lastStableOffset" class="headerlink" title="lastStableOffset"></a>lastStableOffset</h4><p>最后一条已提交的消息的 <strong>offset</strong>。</p>
+<h4 id="logStartOffset"><a href="#logStartOffset" class="headerlink" title="logStartOffset"></a>logStartOffset</h4><p>初始消息的 <strong>offset</strong>。</p>
+<h3 id="1-Partition中哪些消息可以消费？"><a href="#1-Partition中哪些消息可以消费？" class="headerlink" title="1.Partition中哪些消息可以消费？"></a>1.Partition中哪些消息可以消费？</h3><p>当允许消费未提交的消息时，从 <strong>logStartOffset</strong> 开始，到 <strong>HW</strong> 之前的消息都是可以消费。</p>
+<p>当不允许消费未提交的消息时，只有从 <strong>logStartOffset</strong> 开始，到 <strong>lastStableOffset</strong> 的消息是可以消费的。</p>
+<h3 id="2-同步过程"><a href="#2-同步过程" class="headerlink" title="2.同步过程"></a>2.同步过程</h3><p>当 leader 收到生产者的一条消息时，<strong>LEO</strong> 通常会自增 1，而 follower 需要从 leader fetch到数据后，才能增加 <strong>LEO</strong>。</p>
+<p>follower 发出 fetch 请求同步数据时，会携带自身的 <strong>LEO</strong>，leader 会更新 <strong>remote LEO</strong> 和 partition 的 <strong>HW</strong>，然后将数据返回给 follower。</p>
+<p>follower 获取到数据后有三种情况：</p>
+<ul>
+<li><strong>follower 的 LEO 小于 leader 的 logStartOffset：</strong>说明 follower 的数据太老了，会把自身的数据删除，重新获取 leader 从 logStartOffset 到 LEO 之前的数据；</li>
+<li><strong>follower 的 LEO 大于等于 leader logStartOffset 且小于等于 leader LEO：</strong>正常同步缺失的数据；</li>
+<li><strong>follower 的 LEO 大于 leader LEO：</strong>删除 follower 多余的 offset，与 leader 保持一致。</li>
+</ul>
+<p>follower 会用 leader HW 和自身 LEO 的最小值进行更新自身 HW。</p>
+<h4 id="数据丢失"><a href="#数据丢失" class="headerlink" title="数据丢失"></a>数据丢失</h4><p>当 follower 还没有同步到 leader 最新数据，leader 挂掉，follower 成为 leader，部分数据会存在丢失的情况。</p>
+<h2 id="三、消息高可靠"><a href="#三、消息高可靠" class="headerlink" title="三、消息高可靠"></a>三、消息高可靠</h2><h3 id="消息可靠发送"><a href="#消息可靠发送" class="headerlink" title="消息可靠发送"></a>消息可靠发送</h3><h4 id="1）ACKS"><a href="#1）ACKS" class="headerlink" title="1）ACKS"></a>1）ACKS</h4><ul>
+<li><strong>acks = 0：</strong>生产者在成功写入消息之前不会等待broker的响应，一旦因为网络或其他原因导致broker没有收到消息，消息将会丢失。但由于不需要等待 broker 响应，所以吞吐量最高；</li>
+<li><strong>acks = 1：</strong>当生产者收到leader写入消息成功的ack后，即认为消息发送成功。当消息无法写入 leader ，将会收到一个错误响应，为避免消息丢失，生产者将会重新发送消息。若leader成功接收消息但还未同步给 follower，leader 挂掉，重新选举的leader没有该消息，此时消息将会丢失。该方式的吞吐量取决于使用异步发送还是同步发送；</li>
+<li><strong>acks = all/-1：</strong>ISR 中所有follower全部写入消息成功后，生产者才会收到ack。该模式的安全性最高，但延迟也最高。</li>
+</ul>
+<h4 id="2）是否允许从OSR选举leader"><a href="#2）是否允许从OSR选举leader" class="headerlink" title="2）是否允许从OSR选举leader"></a>2）是否允许从OSR选举leader</h4><p><code>unclean.leader.election.enable:false</code> 配置，禁止选举 <strong>ISR</strong> 之外（即 <strong>OSR</strong> 中）的 follower 成为 leader。</p>
+<p>如果允许从 <strong>OSR</strong> 中选举 leader，即使 <strong>ack = all/-1</strong> 也会存在消息丢失的情况。</p>
+<p>但是如果不允许从 <strong>OSR</strong> 中选举leader，在极端情况下 <strong>ISR</strong> 中的broker全部挂掉，此时就无法选举出leader，只能等待 <strong>ISR</strong> 中leader恢复，该 partition 也就无法提供服务，牺牲了可用性，但保证了消息的可靠性。</p>
+<h4 id="3）retries-重试次数"><a href="#3）retries-重试次数" class="headerlink" title="3）retries 重试次数"></a>3）retries 重试次数</h4><p>当生产者发送了消息，因为网络原因或其他原因导致没有收到ack，会进行重试。</p>
+<h4 id="4）最小同步副本数"><a href="#4）最小同步副本数" class="headerlink" title="4）最小同步副本数"></a>4）最小同步副本数</h4><p>broker 的 <code>min.insync.replicas</code> 参数可以控制消息至少被写入多少个副本才算写入成功，默认值为 1。</p>
+<p>如果消息同步的副本数量小于配置的该值，生产者将收到错误响应，保证消息不丢失。</p>
+<p>该配置可以与 <strong>acks</strong> 相结合，平衡性能。</p>
+<ol>
+<li><code>min.insync.replicas = 2 &amp;&amp; ack = all &amp;&amp; ISR=&#123;1,2&#125;</code>  时，ISR中两个follower同步完成生产者就会收到成功响应；</li>
+<li><code>min.insync.replicas = 2 &amp;&amp; ISR=&#123;1&#125;</code>  时，若 <code>ack = all </code> 不能成功写入，若 <code>ack = 0 或 1</code> 可以成功写入；</li>
+<li><code>min.insync.replicas = 2 &amp;&amp; ack = all &amp;&amp; ISR=&#123;1,2,3&#125;</code>  时，需要 ISR 中所有 follower 都写入成功后才会收到成功响应。</li>
+</ol>
+<h3 id="消息可靠消费"><a href="#消息可靠消费" class="headerlink" title="消息可靠消费"></a>消息可靠消费</h3><ol>
+<li>手动提交offset</li>
+<li>减小broker服务器的刷盘间隔</li>
+<li>事物消息</li>
+</ol>
+<h2 id="四、消费者无法消费"><a href="#四、消费者无法消费" class="headerlink" title="四、消费者无法消费"></a>四、消费者无法消费</h2><p><code>offsets.topic.replication.factor</code> </p>
+<p>offsets topic 的复制因子(设置更高以确保可用性)。在集群大小满足此复制因子要求之前，内部主题创建将失败。</p>
+<p>文档链接 <a class="link"   target="_blank" rel="noopener" href="https://kafka.apache.org/documentation/#brokerconfigs_offsets.topic.replication.factor" >https://kafka.apache.org/documentation/#brokerconfigs_offsets.topic.replication.factor<i class="fas fa-external-link-alt"></i></a></p>
+
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                    <div class="article-prev">
+                        <a class="prev"
+                           rel="prev"
+                           href="/posts/46477/"
+                        >
+                            <span class="left arrow-icon flex-center">
+                              <i class="fas fa-chevron-left"></i>
+                            </span>
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">Redis 高级客户端Lettuce详解</span>
+                                <span class="post-nav-item">Prev posts</span>
+                            </span>
+                        </a>
+                    </div>
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/posts/9873/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">MySQL MVCC</span>
+                                <span class="post-nav-item">Next posts</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2021</span>
+              -
+            
+            2022&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">JD</a>
+        </div>
+        
+            <script async  src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <div class="website-count info-item">
+                
+                    <span id="busuanzi_container_site_uv">
+                        Visitor Count&nbsp;<span id="busuanzi_value_site_uv"></span>&ensp;
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv">
+                        Totalview&nbsp;<span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="theme-info info-item">
+            Powered by <a target="_blank" href="https://hexo.io">Hexo</a>&nbsp;|&nbsp;Theme&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.3</a>
+        </div>
+        
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="arrow-up fas fa-arrow-up"></i>
+                <span class="percent"></span>
+            </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81Rebalance%E6%9C%BA%E5%88%B6"><span class="nav-text">一、Rebalance机制</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E4%BD%95%E6%97%B6%E5%8F%91%E7%94%9FRebalance"><span class="nav-text">1.何时发生Rebalance</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-GroupCoordinator%EF%BC%88%E5%8D%8F%E8%B0%83%E8%80%85%EF%BC%89"><span class="nav-text">2.GroupCoordinator（协调者）</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%EF%BC%89-consumer-offsets-Topic"><span class="nav-text">1）_consumer_offsets Topic</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%EF%BC%89%E5%BD%B1%E5%93%8D-consumer-%E4%B8%8E-coordinator-%E7%9A%84%E5%8F%82%E6%95%B0"><span class="nav-text">2）影响 consumer 与 coordinator 的参数</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Rebalance-%E8%BF%87%E7%A8%8B"><span class="nav-text">3.Rebalance 过程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%EF%BC%89Joining-The-Group"><span class="nav-text">1）Joining The Group</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%EF%BC%89Synchronizing-Group-State"><span class="nav-text">2）Synchronizing Group State</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-Generation-%E6%9C%BA%E5%88%B6"><span class="nav-text">4.Generation 机制</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-Leader-Consumer"><span class="nav-text">5.Leader Consumer</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81Partition-%E5%89%AF%E6%9C%AC%E5%90%8C%E6%AD%A5%E6%9C%BA%E5%88%B6"><span class="nav-text">二、Partition 副本同步机制</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#ISR-in-sync-Replica-%E4%B8%8E-OSR-out-sync-Replica"><span class="nav-text">ISR(in-sync Replica) 与 OSR(out-sync Replica)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#HW%EF%BC%88high-watermark%EF%BC%89"><span class="nav-text">HW（high watermark）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#LEO%EF%BC%88log-end-offset%EF%BC%89"><span class="nav-text">LEO（log end offset）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#firstUnstableOffset"><span class="nav-text">firstUnstableOffset</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#lastStableOffset"><span class="nav-text">lastStableOffset</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#logStartOffset"><span class="nav-text">logStartOffset</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Partition%E4%B8%AD%E5%93%AA%E4%BA%9B%E6%B6%88%E6%81%AF%E5%8F%AF%E4%BB%A5%E6%B6%88%E8%B4%B9%EF%BC%9F"><span class="nav-text">1.Partition中哪些消息可以消费？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%90%8C%E6%AD%A5%E8%BF%87%E7%A8%8B"><span class="nav-text">2.同步过程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%95%B0%E6%8D%AE%E4%B8%A2%E5%A4%B1"><span class="nav-text">数据丢失</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E6%B6%88%E6%81%AF%E9%AB%98%E5%8F%AF%E9%9D%A0"><span class="nav-text">三、消息高可靠</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E5%8F%AF%E9%9D%A0%E5%8F%91%E9%80%81"><span class="nav-text">消息可靠发送</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%EF%BC%89ACKS"><span class="nav-text">1）ACKS</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%EF%BC%89%E6%98%AF%E5%90%A6%E5%85%81%E8%AE%B8%E4%BB%8EOSR%E9%80%89%E4%B8%BEleader"><span class="nav-text">2）是否允许从OSR选举leader</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3%EF%BC%89retries-%E9%87%8D%E8%AF%95%E6%AC%A1%E6%95%B0"><span class="nav-text">3）retries 重试次数</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4%EF%BC%89%E6%9C%80%E5%B0%8F%E5%90%8C%E6%AD%A5%E5%89%AF%E6%9C%AC%E6%95%B0"><span class="nav-text">4）最小同步副本数</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E5%8F%AF%E9%9D%A0%E6%B6%88%E8%B4%B9"><span class="nav-text">消息可靠消费</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E6%B6%88%E8%B4%B9%E8%80%85%E6%97%A0%E6%B3%95%E6%B6%88%E8%B4%B9"><span class="nav-text">四、消费者无法消费</span></a></li></ol>
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="Search..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="popup-btn-close">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+</main>
+
+
+
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/main.js"></script>
+
+<script src="/js/header-shrink.js"></script>
+
+<script src="/js/back2top.js"></script>
+
+<script src="/js/dark-light-toggle.js"></script>
+
+
+
+    
+<script src="/js/local-search.js"></script>
+
+
+
+
+    
+<script src="/js/code-copy.js"></script>
+
+
+
+
+
+<div class="post-scripts">
+    
+        
+<script src="/js/left-side-toggle.js"></script>
+
+<script src="/js/libs/anime.min.js"></script>
+
+<script src="/js/toc.js"></script>
+
+    
+</div>
+
+
+
+</body>
+</html>

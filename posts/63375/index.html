@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="JD">
+    
+    <title>
+        
+            G1 垃圾收集器 |
+        
+        Bean You
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <link rel="shortcut icon" href="http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico">
+    
+<link rel="stylesheet" href="/css/font-awesome.min.css">
+
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"jzcupid.cn","root":"/","language":"en","path":"search.json"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":false,"expand_all":false,"init_open":false},"style":{"primary_color":"#0066CC","avatar":"http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico","favicon":"http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":true,"scale":true},"first_screen":{"enable":true,"background_img":"/images/bg.svg","description":"征途～是星辰大海"},"scroll":{"progress_bar":{"enable":false},"percent":{"enable":true}}},"local_search":{"enable":true,"trigger":"auto","preload":true},"code_copy":{"enable":true,"style":"default"},"pjax":{"enable":false},"lazyload":{"enable":false},"version":"3.4.3"};
+    KEEP.language_ago = {"second":"%s seconds ago","minute":"%s minutes ago","hour":"%s hours ago","day":"%s days ago","week":"%s weeks ago","month":"%s months ago","year":"%s years ago"};
+  </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                Bean You
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                首页
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/categories"
+                            >
+                                分类
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >
+                                标签
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                归档
+                            </a>
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="fas fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">首页</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/categories">分类</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags">标签</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">归档</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">G1 垃圾收集器</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">JD</span>
+                        
+                            <span class="author-label">Lv5</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2022-03-12 22:05:30
+    </span>
+    
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/categories/Java/">Java</a>&nbsp;
+                    </li>
+                
+                    <li>
+                        &gt; <a href="/categories/Java/JVM/">JVM</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+    
+        <span class="article-tags article-meta-item">
+            <i class="fas fa-tags"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/tags/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3JVM%E8%99%9A%E6%8B%9F%E6%9C%BA%EF%BC%88%E7%AC%AC%E4%B8%89%E7%89%88%EF%BC%89/">深入理解JVM虚拟机（第三版）</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+
+    
+    
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fas fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <h2 id="一、介绍"><a href="#一、介绍" class="headerlink" title="一、介绍"></a>一、介绍</h2><p><strong>Gartage First</strong> (简称G1)收集器是垃圾收集器技术发展历史上的里程碑式的成果，它开创了收集器面向局部收集的设计思路和基于 <strong>Region</strong> 的内存布局形式。</p>
+<p>早在 JDK7 刚刚确立项目目标、Oracle公司制定的 <strong>JDK7 RoadMap</strong> 里面，G1 收集器就被视作 JDK7 中 <strong>HotSpot</strong> 虚拟机的一项重要进化特征。从JDK 6 Update 14开始就有Early Access版本的 G1 收集器供开发人员实验和试用，但由此开始 G1 收集器的“实验状态”（Experimental）持续了数年时间，直至JDK 7 Update 4，Oracle 才认为它达到足够成熟的商用程度，移除了 “Experimental” 的标识；</p>
+<p>到了JDK 8 Update 40的时候，G1 提供并发的类卸载的支持，补全了其计划功能的最后一块拼图。这个版本以后的 <strong>G1</strong> 收集器才被 Oracle 官方称为 “全功能的垃圾收集器” （Fully-Featured Garbage Collector）。</p>
+<p>G1是一款主要面向服务端应用的垃圾收集器。</p>
+<p>HotSpot 开发团队最初赋予它的期望是（在比较长期的）未来可以替换掉 JDK 5 中发布的 CMS 收集器。现在这个期望目标已经实现过半了，<strong>JDK9</strong> 发布之日，<strong>G1</strong> 宣告取代 <strong>Parallel Scavenge</strong> 加 <strong>Parallel Old</strong> 组合，成为服务端模式下的默认垃圾收集器，而 CMS 则沦落至被声明为不推荐使用（Deprecate）的收集器日。</p>
+<p>如果对 <strong>JDK9</strong> 及以上版本的 HotSpot 虚拟机使用参数 <code> -XX:+UseConcMarkSweepGC</code> 来开启 CMS 收集器的话，用户会收到一个警告信息，提示 <strong>CMS</strong> 未来将会被废弃：</p>
+<blockquote>
+<p>JavaHot Spot (TM)64-BitServer VMwarning: Option UseConcMarkSweepGC was deprecated in version 9.0 and will likely be removed in a future release.</p>
+</blockquote>
+<p>但作为一款曾被广泛运用过的收集器，经过多个版本的开发迭代后，CMS（以及之前几款收集器）的代码与 HotSpot 的内存管理、执行、编译、监控等子系统都有千丝万缕的联系，这是历史原因导致的，并不符合职责分离的设计原则。</p>
+<p>为此，规划 <strong>JDK 10</strong> 功能目标时，HotSpot虚拟机提出了 “统一垃圾收集器接口”，将内存回收的 “行为” 与 “实现” 进行分离，<strong>CMS</strong> 以及其他收集器都重构成基于这套接口的一种实现。以此为基础，日后要移除或者加入某一款收集器，都会变得容易许多，风险也可以控制，这算是在为 <strong>CMS</strong> 退出历史舞台铺下最后的道路了。</p>
+<p>作为 <strong>CMS</strong> 收集器的替代者和继承人，设计者们希望做出一款能够建立起 “停顿时间模型” （Pause Prediction Model）的收集器，停顿时间模型的意思是能够支持指定在一个长度为M毫秒的时间片段内，消耗在垃圾收集上的时间大概率不超过N毫秒这样的目标，这几乎已经是实时 Java（RTSJ）的中软实时垃圾收集器特征了。</p>
+<h2 id="二、G1设计思想"><a href="#二、G1设计思想" class="headerlink" title="二、G1设计思想"></a>二、G1设计思想</h2><p>在 G1 收集器出现之前的所有其他收集器，包括 CMS 在内，垃圾收集的目标范围要么是整个新生代（<strong>Minor GC</strong>），要么就是整个老年代（<strong>Major GC</strong>），再要么就是整个Java堆（<strong>Full GC</strong>）。</p>
+<p>而 <strong>G1</strong> 跳出了这个樊笼，它可以面向堆内存任何部分来组成 <strong>回收集</strong>（Collection Set，一般简称 <strong>CSet</strong>）进行回收，衡量标准不再是它属于哪个分代，而是哪块内存中存放的垃圾数量最多，回收收益最大，这就是 <strong>G1</strong> 收集器的 <strong>Mixed GC</strong> 模式。</p>
+<p><strong>G1</strong> 开创的基于 <strong>Region</strong> 的堆内存布局是它能够实现这个目标的关键。</p>
+<h2 id="三、重要概念"><a href="#三、重要概念" class="headerlink" title="三、重要概念"></a>三、重要概念</h2><h3 id="1-Region"><a href="#1-Region" class="headerlink" title="1. Region"></a>1. Region</h3><p><strong>G1 不再坚持固定大小以及固定数量的分代区域划分，而是把连续的 Java 堆划分为多个大小相等的独立区域（Region），每一个 Region 都可以根据需要，扮演新生代的 Eden 空间、Survivor 空间，或者老年代空间。</strong></p>
+<p>收集器能够对扮演不同角色的 <strong>Region</strong> 采用不同的策略去处理，这样无论是新创建的对象还是已经存活了一段时间、熬过多次收集的旧对象都能获取很好的收集效果。</p>
+<p><strong>Region</strong> 中还有一类特殊的 <strong>Humongous</strong> 区域，专门用来存储大对象。</p>
+<p><strong>G1 认为只要大小超过了一个 Region 容量一半的对象即可判定为大对象。</strong></p>
+<p>每个 <strong>Region</strong> 的大小可以通过参数 <code>-XX:G1HeapRegionSize</code> 设定，取值范围为1MB～32MB，且应为 2 的N次幂。如果不设定，那么G1会根据Heap大小自动决定。</p>
+<p>而对于那些超过了整个 <strong>Region</strong> 容量的超级大对象，将会被存放 <strong>在N个连续的Humongous Region</strong> 之中，<strong>G1</strong> 的大多数行为都把 <strong>Humongous Region</strong> 作为老年代的一部分来进行看待。</p>
+<p><img src="http://qiniu.jzcupid.cn/blog/8ca16868.png" alt="G1内存分布图"></p>
+<p>虽然 <strong>G1</strong> 仍然保留新生代和老年代的概念，但新生代和老年代不再是固定的了，它们都是一系列区域（不需要连续）的动态集合。</p>
+<p><strong>G1</strong> 收集器之所以能建立可预测的停顿时间模型，是因为它将 <strong>Region</strong> 作为单次回收的最小单元，即<strong>每次收集到的内存空间都是 Region 大小的整数倍</strong>，这样可以有计划地避免在整个Java堆中进行全区域的垃圾收集。</p>
+<p>更具体的处理思路是让 <strong>G1</strong> 收集器去跟踪各个 <strong>Region</strong> 里面的垃圾堆积的 “价值” 大小，价值即回收所获得的空间大小以及回收所需时间的经验值，然后在后台维护一个优先级列表，每次根据用户设定允许的 <strong>收集停顿时间（使用参数 -XX:MasGCPatseMs 指定，默认值是200毫秒）</strong>优先处理回收价值收益最大的那些 <strong>Region</strong>。</p>
+<p>这也就是 “CartbolseFirst” 名字的由来。这种使用 <strong>Region</strong> 划分内存空间，以及具有优先级的区域回收方式，保证了 <strong>G1</strong> 收集器在有限的时间内获取尽可能高的收集效率。</p>
+<p><strong>G1</strong> 将堆内存 “化整为零” 的 “解题思路” ，看起来似乎没有太多令人惊讶之处，也完全不难理解，但其中的实现细节可是远远没有想象中那么简单，否则就不会从2004年Sun实验室发表第一篇关于 <strong>G1</strong>的论文后一直拖到2012年4月JDK 7 Update 4发布，用将近10年时间才倒腾出能够商用的 <strong>G1</strong> 收集器来。</p>
+<h3 id="2-RSet"><a href="#2-RSet" class="headerlink" title="2. RSet"></a>2. RSet</h3><p>全称是 <strong>Remembered Set</strong>，是辅助 GC 过程的一种结构，典型的空间换时间工具，和 Card Table有些类似。还有一种数据结构也是辅助GC的：Collection Set（CSet），它记录了GC要收集的Region集合，集合里的Region可以是任意年代的。在 GC 的时候，对于old-&gt;young和 young-&gt;old的跨代对象引用，只要扫描对应的 CSet 中的 RSet 即可。</p>
+<p>使用 RSet 可以避免全堆作为 <strong>GC Roots</strong> 扫描，但在 G1 收集器上 RSet 的应用其实要复杂很多，它的每个 <strong>Region</strong> 都维护有自己的 RSet，这些记忆集会记录下别的 <strong>Region</strong> 指向自己的指针。并标记这些指针分别在哪些卡页的范围之内。</p>
+<p>G1 的 RSet 在存储结构的本质上是一种哈希表，<strong>Key</strong> 是别的 <strong>Region</strong> 的起始地址（表示这个 Region 中有指针指向 ”我“），<strong>Value</strong> 是一个集合，里面存储的元素是卡表的索引号（即这个 Region 中哪个 card 中有对象指向了我）。</p>
+<p>这种 “双向” 的卡表结构（卡表是 “我指向谁”，这种结构还记录了 “谁指向我” ）比原来的卡表实现起来更复杂，同时由于 <strong>Region</strong> 数量比传统收集器的分代数量明显要多得多，因此 <strong>G1 收集器要比其他的传统垃圾收集器有着更高的内存占用负担</strong>。</p>
+<p><strong>根据经验，G1 至少要耗费大约相当于 Java 堆容量 10% 至 20% 的额外内存来维持收集器工作。</strong></p>
+<p><img src="http://qiniu.jzcupid.cn/blog/5aea17be.jpg" alt="Remembered Sets"></p>
+<p>上图中有三个 Region，每个 Region 被分成了多个 Card，在不同 Region 中的 Card 会相互引用，Region1 中的 Card 中的对象引用了 Region2 中的 Card 中的对象，蓝色实线表示的就是points-out的关系，而在 Region2 的 RSet 中，记录了 Region1 的 Card，即红色虚线表示的关系，这就是 points-into。 而维系 RSet 中的引用关系靠 post-write barrier 和 Concurrent refinement threads 来维护</p>
+<h3 id="3-TAMS"><a href="#3-TAMS" class="headerlink" title="3. TAMS"></a>3. TAMS</h3><p>并发标记阶段如何保证收集线程与用户线程互不干扰地运行？</p>
+<p>这里首先要解决的是用户线程改变对象引用关系时，必须保证其不能打破原本的对象图结构，导致标记结果出现错误。</p>
+<p><strong>CMS 收集器采用 增量更新算法 实现，而 G1 收集器则是通过 原始快照（SATB）算法来实现的。</strong></p>
+<p>此外，垃圾收集对用户线程的影响还体现在回收过程中新创建对象的内存分配上，程序要继续运行就肯定会持续有新对象被创建。</p>
+<p><strong>G1 为每一个 Region 设计了两个名为 TAMS（Top at Mark Start） 的指针，把 Region 中的一部分空间划分出来用于并发回收过程中的新对象分配，并发回收时新分配的对象地址都必须要在这两个指针位置以上。G1 收集器默认在这个地址以上的对象是被隐式标记过的，即默认它们是存活的，不纳入回收范围。</strong></p>
+<p>与 <strong>CMS</strong> 中的 “ConcurrentMode Failure” 失败会导致 <strong>Full GC</strong> 类似，<strong>如果内存回收的速度赶不上内存分配的速度，G1 收集器也要被迫冻结用户线程执行，导致 Full GC 而产生长时间 “Stop TheWorld“</strong>。</p>
+<h3 id="4-停顿预测模型（Pause-Prediction-Model）"><a href="#4-停顿预测模型（Pause-Prediction-Model）" class="headerlink" title="4. 停顿预测模型（Pause Prediction Model）"></a>4. 停顿预测模型（Pause Prediction Model）</h3><p>用户通过 <code> -XX:MaxGCPauseMillis</code> 参数指定的停顿时间只意味着垃圾收集发生之前的期望值，但G1收集器要怎么做才能满足用户的期望呢？</p>
+<p><strong>G1</strong> 收集器的停顿预测模型是以 <strong>衰减均值</strong>（Decaying Average）为理论基础来实现的。</p>
+<p>在垃圾收集过程中，<strong>G1</strong> 收集器会记录每个 <strong>Region</strong> 的回收耗时、每个 <strong>Region</strong> 记忆集里的脏卡数量等各个可测量的步骤花费的成本，并分析得出平均值、标准偏差、置信度等统计信息。</p>
+<p>这里强调的 <strong>“衰减平均值”</strong> 是指它会比普通的平均值更容易受到新数据的影响，平均值代表整体平均状态，但衰减平均值更准确地代表 “最近的” 平均状态。</p>
+<p>换句话说，Region的统计状态越新越能决定其回收的价值。然后通过这些信息预测现在开始回收的话，由哪些 <strong>Region</strong> 组成回收集才可以在不超过期望停顿时间的约束下获得最高的收益。</p>
+<h3 id="5-Mixed-GC"><a href="#5-Mixed-GC" class="headerlink" title="5. Mixed GC"></a>5. Mixed GC</h3><p>如果我们不去计算用户线程运行过程中的动作（如使用写屏障维护记忆集的操作），<strong>G1</strong> 收集器的运作过程大致可划分为以下四个步骤：初始标记、并发标记、最终标记、筛选回收。</p>
+<ul>
+<li><strong>初始标记（Initial Marking）</strong>：仅仅只是标记一下 <strong>GC Roots</strong> 能直接关联到的对象，并且修改 <strong>TAMS</strong> 指针的值，让下一阶段用户线程并发运行时，能正确地在可用的 <strong>Region</strong> 中分配新对象。这个阶段需要停顿线程，但耗时很短，而且是借用进行 <strong>Minor GC</strong> 的时候同步完成的，所以 <strong>G1</strong> 收集器在这个阶段实际并没有额外的停顿。</li>
+<li><strong>并发标记（Concurrent Marking）</strong>：从 <strong>GC Root</strong> 开始对堆中对象进行可达性分析，递归扫描整个堆里的对象图，找出要回收的对象，这阶段耗时较长，但可与用户程序并发执行。当对象图扫描完成以后，还要重新处理 <strong>SATB</strong> 记录下的在并发时有引用变动的对象。</li>
+<li><strong>最终标记（Final Marking）</strong>：对用户线程做另一个短暂的暂停，用于处理并发阶段结束后仍遗留下来的最后那少量的 <strong>SATB</strong> 记录。</li>
+<li><strong>筛选回收（Live Data Counting and Evacuation）</strong>：负责更新 <strong>Region</strong> 的统计数据，对各个 <strong>Region</strong> 的回收价值和成本进行排序，根据用户所期望的停顿时间来制定回收计划，可以自由选择任意多个 <strong>Reion</strong> 构成回收集，然后把决定回收的那一部分 <strong>Region</strong> 的存活对象复制到空的 <strong>Rerion</strong> 中，再清理掉整个旧 <strong>Region</strong> 的全部空间。这里的操作涉及存活对象的移动，是必须暂停用户线程，由多条收集器线程并行完成的。</li>
+</ul>
+<p>从上述阶段的描述可以看出，G1收集器除了并发标记外，其余阶段也是要完全暂停用户线程的。</p>
+<p>换言之，它并非纯粹地追求低延迟，官方给它设定的目标是在延迟可控的情况下获得尽可能高的吞吐量，所以才能担当起 “全功能收集器”  的重任与期望。</p>
+<p>从Oracle官方透露出来的信息可获知，回收阶段（Evacuation）其实本也有想过设计成与用户程序一起并发执行，但这件事情做起来比较复杂，考虑到 <strong>G1</strong> 只是回收一部分 <strong>Region</strong>，停顿时间是用户可控制的，所以并不迫切去实现，而选择把这个特性放到了 <strong>G1</strong> 之后出现的低延迟垃圾收集器（即ZGC）中。</p>
+<p>另外，还考虑到 <strong>G1</strong> 不是仅仅面向低延迟，停顿用户线程能够最大幅度提高垃圾收集效率，为了保证吞吐量所以才选择了完全暂停用户线程的实现方案。</p>
+<p>通过下图可以比较清楚地看到 <strong>G1</strong> 收集器的运作步骤中并发和需要停顿的阶段。</p>
+<p><img src="http://qiniu.jzcupid.cn/blog/G1%E8%BF%90%E8%A1%8C%E7%A4%BA%E6%84%8F%E5%9B%BE.png" alt="G1运行示意图"></p>
+<p>毫无疑问，可以由用户指定期望的停顿时间是 <strong>G1</strong> 收集器很强大的一个功能，设置不同的期望停顿时间，可使得 <strong>G1</strong> 在不同应用场景中取得关注吞吐量和关注延迟之间的最佳平衡。</p>
+<p>不过，这里设置的 “期望值” 必须是符合实际的，不能异想天开，毕竟 <strong>G1</strong> 是要冻结用户线程来复制对象的，这个停顿时间再怎么低也得有个限度。</p>
+<p>它默认的停顿目标为两百毫秒，一般来说，回收阶段占到几十到一百甚至接近两百毫秒都很正常，但如果我们把停顿时间调得非常低，譬如设置为二十毫秒，很可能出现的结果就是由于停顿目标时间太短，导致每次选出来的回收集只占堆内存很小的一部分，收集器收集的速度逐渐跟不上分配器分配的速度，导致垃圾慢慢堆积。</p>
+<p>很可能一开始收集器还能从空闲的堆内存中获得一些喘息的时间，但应用运行时间一长就不行了，最终占满堆引发 <strong>Full GC</strong> 反而降低性能，所以通常把期望停顿时间设置为一两百毫秒或者两三百毫秒会是比较合理的。</p>
+<p>从 <strong>G1</strong> 开始，最先进的垃圾收集器的设计导向都不约而同地变为追求能够应付应用的内存分配速率（Allocation Rate），而不追求一次把整个 <strong>Java</strong> 堆全部清理干净。</p>
+<p>这样，应用在分配，同时收集器在收集，只要收集的速度能跟得上对象分配的速度，那一切就能运作得很完美。这种新的收集器设计思路从工程实现上看是从 <strong>G1</strong> 开始兴起的，所以说 <strong>G1</strong> 是收集器技术发展的一个里程碑。</p>
+<h2 id="四、G1垃圾收集器运行细节"><a href="#四、G1垃圾收集器运行细节" class="headerlink" title="四、G1垃圾收集器运行细节"></a>四、G1垃圾收集器运行细节</h2><h4 id="1-何时触发-Minor-GC"><a href="#1-何时触发-Minor-GC" class="headerlink" title="1. 何时触发 Minor GC"></a>1. 何时触发 Minor GC</h4><p>在 G1 中，<strong>Eden</strong>、<strong>Survivor</strong>、老年代的大小是在动态变化的。在初始时，新生代占整个堆内存的 5%，可以通过参数 <code>G1NewSizePercent</code> 设置，默认值为 5。</p>
+<p>在 <strong>G1</strong> 中，虽然进行了 <strong>Region</strong> 分区，但是新生代依旧可以被分为 <strong>Eden</strong> 区和 <strong>Survivor</strong> 区，参数 <code>SurvivorRatio</code> 依旧表示 <strong>Eden/Survivor</strong> 的比值。</p>
+<p>随着系统的运行，<strong>Eden</strong> 区的对象越来越多，当达到 <strong>Eden</strong> 区的最大大小时，就会触发 <strong>Minor GC</strong>。新生代的最大大小默认为整个堆内存的 60%，可以通过参数 <code>G1MaxNewSizePercent</code> 控制，默认值为 60。</p>
+<p><strong>G1</strong> 垃圾回收器在进行新生代的垃圾回收时，会采用复制算法来回收垃圾，不用考虑并发的场景，全程都是 <strong>STW</strong>，它会根据设置的停顿时间，尽可能的最大效率的回收新生代区域。</p>
+<h4 id="2-对象何时进入到老年代"><a href="#2-对象何时进入到老年代" class="headerlink" title="2. 对象何时进入到老年代"></a>2. 对象何时进入到老年代</h4><p>新生代的对象要进入老年代，需要达到以下两个条件中的其中之一即可。</p>
+<ol>
+<li><strong>多次躲过新生代的回收</strong>，对象年龄达到 <code>MaxTenuringThreshold</code>，该参数默认值为 15。 在每次 <strong>Minor GC</strong> 时，新生代的对象如果存活，会被移动到 <strong>Survivor</strong> 区中，同时会将对象的年龄加 1，当对象的年龄达到 <code>MaxTenuringThreshold</code> 后，就被被移到老年代中。</li>
+<li><strong>符合动态年龄判断规则</strong>。如果某次 <strong>Minor GC</strong> 过后，发现 <strong>Survivor</strong> 区中相同年龄的对象达到了 <strong>Survivor</strong> 的 50%，那么该年龄及以上的对象，会被直接移动到老年代中。 例如某次 <strong>Minor GC</strong> 过后，<strong>Survivor</strong> 区中存在年龄分别为 1、2、3、4 的对象，而年龄为 3 的对象超过了 <strong>Survivor</strong> 区的 50%，那么年龄大于等于 3 的对象，就会被全部移动到老年代中。</li>
+</ol>
+<h4 id="3-何时触发-Mixed-GC"><a href="#3-何时触发-Mixed-GC" class="headerlink" title="3. 何时触发 Mixed GC"></a>3. 何时触发 Mixed GC</h4><p>在 G1 中，<strong>不存在单独回收老年代的行为，而是当要发生老年代的回收时，同时也会对新生代以及大对象进行回收，因此这个阶段称之为混合回收（Mixed GC）</strong>。</p>
+<p>当老年代对堆内存的占比达到 45%时，就会触发 Mixed GC。可以通过参数 <code>InitiatingHeapOccupancyPercent</code> 来设置当堆内存达到多少时，触发 Mixed GC，该参数的默认值为 45。</p>
+<p>当触发 Mixed GC 时，会依次执行初始标记（在 Minor GC 时完成）、并发标记、最终标记、筛选回收这四个过程。最终会根据设置的最大停顿时间，来计算对哪些 Region 区域进行回收带来的收益最大。</p>
+<p>实际上，在筛选回收阶段，可以分多次回收 Region，具体多少次可以通过参数 <code>G1MixedGCCountTarget</code> 控制，默认值为 8 次。具体什么意思呢？</p>
+<p>假如现在有 80 个 Region 需要被回收，因为筛选回收阶段会造成 STW，如果一下子全部回收这 80 个 Region，可能造成的停顿时间较长，因此 JVM 会分 8 次来回收这些 Region，每次先回收 10 个 Region，然后让用户线程执行一会，接着再让 GC 线程回收 10 个 Region，直至回收完这 80 个 Region，这样尽可能的降低了系统的暂停时间。</p>
+<p>G1 垃圾回收器的回收思路是：不需要对整个堆进行回收，只需要保证垃圾回收的速度大于内存分配的速度即可。因此在每次进行 Mixed GC 时，虽然我们设置了停顿时间，但是当回收得到的空闲 Region 数量达到了整个堆内存的 5%，那么就会停止回收。可以由参数 <code>G1HeapWaterPercent</code> 控制，默认值为 5%。</p>
+<p>另外，在混合回收的过程中，由于使用的是复制算法，因此当一个 Region 中存活的对象过多的话，复制这个 Region 所耗费的时间就会较多，因此 G1 提供了一个参数，用来控制当存活对象占当前 Region 的比例超过多少后，就不会对该 Region 进行回收。该参数为 <code>G1MixedGCLiveThresholdPercent</code> ，默认值为 85%。</p>
+<h4 id="4-何时触发-Full-GC"><a href="#4-何时触发-Full-GC" class="headerlink" title="4. 何时触发 Full GC"></a>4. 何时触发 Full GC</h4><p>在进行混合回收时，使用的是复制算法，如果当发现空闲的 Region 大小无法放得下存活对象的内存大小，那么这个时候使用复制算法就会失败，因此此时系统就不得不暂停应用程序，进行一次 Full GC。进行 Full GC 时采用的是单线程进行标记、清理和整理内存，这个过程是非常漫长的，因此应该尽量避免 Full GC 的触发。</p>
+<h2 id="五、G1与CMS的比较"><a href="#五、G1与CMS的比较" class="headerlink" title="五、G1与CMS的比较"></a>五、G1与CMS的比较</h2><p>G1收集器常会被拿来与CMS收集器互相比较，毕竟它们都非常关注停顿时间的控制，官方资料中将它们两个并称为 “The Mostly Concurrent Collectors” 。</p>
+<p>在未来，G1 收集器最终还是要取代 CMS 的，而当下它们两者并存的时间里，分个高低优劣就无可避免。</p>
+<p>相比 CMS，G1 的优点有很多，暂且不论可以指定最大停顿时间、分 Region 的内存布局、按收益动态确定回收集这些创新性设计带来的红利，单从最传统的算法理论上看，G1 也更有发展潜力。</p>
+<p>与 CMS 的 “标记-清除” 算法不同，<strong>G1 从整体来看是基于 “标记-整理” 算法实现的收集器，但从局部（两个Region之间）上看又是基于 “标记-复制” 算法实现</strong>。</p>
+<p>无论如何，这两种算法都意味着 <strong>G1</strong> 运作期间不会产生内存空间碎片，垃圾收集完成之后能提供规整的可用内存。这种特性有利于程序长时间运行，在程序为大对象分配内存时不容易因无法找到连续内存空间而提前触发下一次收集。</p>
+<p>不过，<strong>G1</strong> 相对于 <strong>CMS</strong> 仍然不是占全方位、压倒性优势的，从它出现几年仍不能在所有应用场景中代替 <strong>CMS</strong> 就可以得知这个结论。</p>
+<p>比起 <strong>CMS</strong>，<strong>G1</strong> 的弱项也可以列举出不少，如在用户程序运行过程中，<strong>G1</strong> 无论是为了垃圾收集产生的内存占用（Footprint）还是程序运行时的额外执行负载（Overload）都要比 <strong>CMS</strong> 要高。</p>
+<p>就内存占用来说，虽然 <strong>G1</strong> 和 <strong>CMS</strong> 都使用卡表来处理跨代指针，但 <strong>G1</strong> 的卡表实现更为复杂，而且堆中每个 <strong>Region</strong>，无论扮演的是新生代还是老年代角色，都必须有一份卡表，这导致 <strong>G1</strong> 的记忆集（和其他内存消耗）可能会占整个堆容量的 20% 乃至更多的内存空间。</p>
+<p>相比起来 <strong>CMS</strong> 的卡表就相当简单，只有唯一一份，而且只需要处理老年代到新生代的引用，反过来则不需要，由于新生代的对象具有朝生夕灭的不稳定性，引用变化频繁，能省下这个区域的维护开销是很划算的。</p>
+<p>在执行负载的角度上，同样由于两个收集器各自的细节实现特点导致了用户程序运行时的负载会有不同，譬如它们都使用到写屏障，<strong>CMS</strong> 用写后屏障来更新维护卡表。</p>
+<p>而 <strong>G1</strong> 除了使用写后屏障来进行同样的（由于 <strong>G1</strong> 的卡表结构复杂，其实是更烦琐的）卡表维护操作外，为了实现原始快照搜索（SATB）算法，还需要使用写前屏障来跟踪并发时的指针变化情况。</p>
+<p>相比起增量更新算法，原始快照搜索能够减少并发标记和重新标记阶段的消耗，避免 <strong>CMS</strong> 那样在最终标记阶段停顿时间过长的缺点，但是在用户程序运行过程中确实会产生由跟踪引用变化带来的额外负担。</p>
+<p><strong>由于 G1 对写屏障的复杂操作要比 CMS 消耗更多的运算资源，所以 CMS 的写屏障实现是直接的同步操作，而 G1 就不得不将其实现为类似于消息队列的结构，把写前屏障和写后屏障中要做的事情都放到队列里，然后再异步处理。</strong></p>
+<p>以上的优缺点对比仅仅是针对 <strong>G1</strong> 和 <strong>CMS</strong> 两款垃圾收集器单独某方面的实现细节的定性分析，通常我们说哪款收集器要更好、要好上多少，往往是针对具体场景才能做的定量比较。</p>
+<p>按照笔者的实践经验，目前在小内存应用上 CMS 的表现大概率仍然要会优于 G1，而在大内存应用上 G1 则大多能发挥其优势，这个优劣势的 Java 堆容量平衡点通常在 6GB 至 8GB 之间，当然，以上这些也仅是经验之谈，不同应用需要量体裁衣地实际测试才能得出最合适的结论，随着HotSpot的开发者对 G1 的不断优化，也会让对比结果继续向 G1 倾斜。</p>
+<h2 id="六、G1-GC-相关参数"><a href="#六、G1-GC-相关参数" class="headerlink" title="六、G1 GC 相关参数"></a>六、G1 GC 相关参数</h2><table>
+<thead>
+<tr>
+<th align="left">参数</th>
+<th align="left">含义</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">-XX:G1HeapRegionSize=n</td>
+<td align="left">设置Region大小，并非最终值</td>
+</tr>
+<tr>
+<td align="left">-XX:MaxGCPauseMillis</td>
+<td align="left">设置G1收集过程目标时间，默认值200ms，不是硬性条件</td>
+</tr>
+<tr>
+<td align="left">-XX:G1NewSizePercent</td>
+<td align="left">新生代最小值，默认值5%</td>
+</tr>
+<tr>
+<td align="left">-XX:G1MaxNewSizePercent</td>
+<td align="left">新生代最大值，默认值60%</td>
+</tr>
+<tr>
+<td align="left">-XX:ParallelGCThreads</td>
+<td align="left">STW期间，并行GC线程数</td>
+</tr>
+<tr>
+<td align="left">-XX:ConcGCThreads=n</td>
+<td align="left">并发标记阶段，并行执行的线程数</td>
+</tr>
+<tr>
+<td align="left">-XX:InitiatingHeapOccupancyPercent</td>
+<td align="left">设置触发标记周期的 Java 堆占用率阈值。默认值是45%。这里的java堆占比指的是non_young_capacity_bytes，包括old+humongous</td>
+</tr>
+</tbody></table>
+
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                    <div class="article-prev">
+                        <a class="prev"
+                           rel="prev"
+                           href="/posts/13254/"
+                        >
+                            <span class="left arrow-icon flex-center">
+                              <i class="fas fa-chevron-left"></i>
+                            </span>
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">OAuth2</span>
+                                <span class="post-nav-item">Prev posts</span>
+                            </span>
+                        </a>
+                    </div>
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/posts/39233/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">ZGC 垃圾收集器</span>
+                                <span class="post-nav-item">Next posts</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2021</span>
+              -
+            
+            2022&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">JD</a>
+        </div>
+        
+            <script async  src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <div class="website-count info-item">
+                
+                    <span id="busuanzi_container_site_uv">
+                        Visitor Count&nbsp;<span id="busuanzi_value_site_uv"></span>&ensp;
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv">
+                        Totalview&nbsp;<span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="theme-info info-item">
+            Powered by <a target="_blank" href="https://hexo.io">Hexo</a>&nbsp;|&nbsp;Theme&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.3</a>
+        </div>
+        
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="arrow-up fas fa-arrow-up"></i>
+                <span class="percent"></span>
+            </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E4%BB%8B%E7%BB%8D"><span class="nav-text">一、介绍</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81G1%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3"><span class="nav-text">二、G1设计思想</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E9%87%8D%E8%A6%81%E6%A6%82%E5%BF%B5"><span class="nav-text">三、重要概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-Region"><span class="nav-text">1. Region</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-RSet"><span class="nav-text">2. RSet</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-TAMS"><span class="nav-text">3. TAMS</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%81%9C%E9%A1%BF%E9%A2%84%E6%B5%8B%E6%A8%A1%E5%9E%8B%EF%BC%88Pause-Prediction-Model%EF%BC%89"><span class="nav-text">4. 停顿预测模型（Pause Prediction Model）</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-Mixed-GC"><span class="nav-text">5. Mixed GC</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81G1%E5%9E%83%E5%9C%BE%E6%94%B6%E9%9B%86%E5%99%A8%E8%BF%90%E8%A1%8C%E7%BB%86%E8%8A%82"><span class="nav-text">四、G1垃圾收集器运行细节</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E4%BD%95%E6%97%B6%E8%A7%A6%E5%8F%91-Minor-GC"><span class="nav-text">1. 何时触发 Minor GC</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E5%AF%B9%E8%B1%A1%E4%BD%95%E6%97%B6%E8%BF%9B%E5%85%A5%E5%88%B0%E8%80%81%E5%B9%B4%E4%BB%A3"><span class="nav-text">2. 对象何时进入到老年代</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E4%BD%95%E6%97%B6%E8%A7%A6%E5%8F%91-Mixed-GC"><span class="nav-text">3. 何时触发 Mixed GC</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4-%E4%BD%95%E6%97%B6%E8%A7%A6%E5%8F%91-Full-GC"><span class="nav-text">4. 何时触发 Full GC</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81G1%E4%B8%8ECMS%E7%9A%84%E6%AF%94%E8%BE%83"><span class="nav-text">五、G1与CMS的比较</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81G1-GC-%E7%9B%B8%E5%85%B3%E5%8F%82%E6%95%B0"><span class="nav-text">六、G1 GC 相关参数</span></a></li></ol>
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="Search..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="popup-btn-close">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+</main>
+
+
+
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/main.js"></script>
+
+<script src="/js/header-shrink.js"></script>
+
+<script src="/js/back2top.js"></script>
+
+<script src="/js/dark-light-toggle.js"></script>
+
+
+
+    
+<script src="/js/local-search.js"></script>
+
+
+
+
+    
+<script src="/js/code-copy.js"></script>
+
+
+
+
+
+<div class="post-scripts">
+    
+        
+<script src="/js/left-side-toggle.js"></script>
+
+<script src="/js/libs/anime.min.js"></script>
+
+<script src="/js/toc.js"></script>
+
+    
+</div>
+
+
+
+</body>
+</html>

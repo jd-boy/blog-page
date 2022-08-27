@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="JD">
+    
+    <title>
+        
+            K8S 生成kubeconfig |
+        
+        Bean You
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <link rel="shortcut icon" href="http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico">
+    
+<link rel="stylesheet" href="/css/font-awesome.min.css">
+
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"jzcupid.cn","root":"/","language":"en","path":"search.json"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":false,"expand_all":false,"init_open":false},"style":{"primary_color":"#0066CC","avatar":"http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico","favicon":"http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":true,"scale":true},"first_screen":{"enable":true,"background_img":"/images/bg.svg","description":"征途～是星辰大海"},"scroll":{"progress_bar":{"enable":false},"percent":{"enable":true}}},"local_search":{"enable":true,"trigger":"auto","preload":true},"code_copy":{"enable":true,"style":"default"},"pjax":{"enable":false},"lazyload":{"enable":false},"version":"3.4.3"};
+    KEEP.language_ago = {"second":"%s seconds ago","minute":"%s minutes ago","hour":"%s hours ago","day":"%s days ago","week":"%s weeks ago","month":"%s months ago","year":"%s years ago"};
+  </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                Bean You
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                首页
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/categories"
+                            >
+                                分类
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >
+                                标签
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                归档
+                            </a>
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="fas fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">首页</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/categories">分类</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags">标签</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">归档</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">K8S 生成kubeconfig</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">JD</span>
+                        
+                            <span class="author-label">Lv5</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2022-02-18 21:03:59
+    </span>
+    
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/categories/Kubernetes/">Kubernetes</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+    
+
+    
+    
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fas fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <h3 id="1-创建namespace"><a href="#1-创建namespace" class="headerlink" title="1.创建namespace"></a>1.创建namespace</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl create namespace <span class="built_in">test</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="2-创建-ServiceAccount"><a href="#2-创建-ServiceAccount" class="headerlink" title="2.创建 ServiceAccount"></a>2.创建 ServiceAccount</h3><p><strong>创建yaml</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cat &gt;&gt; serviceAccount.yaml&lt;&lt;<span class="string">EOF</span></span><br><span class="line"><span class="string">apiVersion: v1</span></span><br><span class="line"><span class="string">kind: ServiceAccount</span></span><br><span class="line"><span class="string">metadata:</span></span><br><span class="line"><span class="string">  name: test-user</span></span><br><span class="line"><span class="string">EOF</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>创建资源</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl create -f serviceAccount.yaml -n <span class="built_in">test</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-创建Role"><a href="#3-创建Role" class="headerlink" title="3.创建Role"></a>3.创建Role</h3><p>创建一个role，并通过RBAC控制上面生成的service account只能访问该namespace里的资源。</p>
+<p><strong>创建yaml</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">cat &gt;&gt; role.yaml&lt;&lt;<span class="string">EOF</span></span><br><span class="line"><span class="string">apiVersion: rbac.authorization.k8s.io/v1</span></span><br><span class="line"><span class="string">kind: Role</span></span><br><span class="line"><span class="string">metadata:</span></span><br><span class="line"><span class="string">  name: test-role</span></span><br><span class="line"><span class="string">  namespace: test</span></span><br><span class="line"><span class="string">rules:</span></span><br><span class="line"><span class="string">  - apiGroups:</span></span><br><span class="line"><span class="string">      - &quot;&quot;</span></span><br><span class="line"><span class="string">    resources:</span></span><br><span class="line"><span class="string">      - &quot;namespaces&quot;</span></span><br><span class="line"><span class="string">    verbs:</span></span><br><span class="line"><span class="string">      - &quot;get&quot;</span></span><br><span class="line"><span class="string">      - &quot;list&quot;</span></span><br><span class="line"><span class="string">---</span></span><br><span class="line"><span class="string">apiVersion: rbac.authorization.k8s.io/v1</span></span><br><span class="line"><span class="string">kind: RoleBinding</span></span><br><span class="line"><span class="string">metadata:</span></span><br><span class="line"><span class="string">  name: test-rolebinding</span></span><br><span class="line"><span class="string">  namespace: test</span></span><br><span class="line"><span class="string">roleRef:</span></span><br><span class="line"><span class="string">  apiGroup: rbac.authorization.k8s.io</span></span><br><span class="line"><span class="string">  kind: Role</span></span><br><span class="line"><span class="string">  name: test-role</span></span><br><span class="line"><span class="string">subjects:</span></span><br><span class="line"><span class="string">  - namespace: test</span></span><br><span class="line"><span class="string">    kind: ServiceAccount</span></span><br><span class="line"><span class="string">    name: test-user</span></span><br><span class="line"><span class="string">EOF</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>创建资源</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl create -f role.yaml</span><br></pre></td></tr></table></figure>
+
+<h3 id="4-获取ServiceAccount的secret"><a href="#4-获取ServiceAccount的secret" class="headerlink" title="4.获取ServiceAccount的secret"></a>4.获取ServiceAccount的secret</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl describe serviceAccounts test-user -n <span class="built_in">test</span></span><br><span class="line">Name:                test-user</span><br><span class="line">Namespace:           <span class="built_in">test</span></span><br><span class="line">Labels:              &lt;none&gt;</span><br><span class="line">Annotations:         &lt;none&gt;</span><br><span class="line">Image pull secrets:  &lt;none&gt;</span><br><span class="line">Mountable secrets:   test-user-token-jfj9g</span><br><span class="line">Tokens:              test-user-token-jfj9g</span><br><span class="line">Events:              &lt;none&gt;</span><br></pre></td></tr></table></figure>
+
+<h3 id="5-获取secret对应token"><a href="#5-获取secret对应token" class="headerlink" title="5.获取secret对应token"></a>5.获取secret对应token</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl describe secret test-user-token-jfj9g -n <span class="built_in">test</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="6-获取集群信息"><a href="#6-获取集群信息" class="headerlink" title="6.获取集群信息"></a>6.获取集群信息</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl config view --flatten --minify</span><br></pre></td></tr></table></figure>
+
+<h3 id="7-按以下格式生成kubeconfig"><a href="#7-按以下格式生成kubeconfig" class="headerlink" title="7.按以下格式生成kubeconfig"></a>7.按以下格式生成kubeconfig</h3><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Config</span></span><br><span class="line"><span class="attr">users:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">name:</span> <span class="string">test-user</span></span><br><span class="line">  <span class="attr">user:</span></span><br><span class="line">    <span class="attr">token:</span> &#123;<span class="string">步骤5获取的token</span>&#125;  </span><br><span class="line"><span class="attr">clusters:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">cluster:</span></span><br><span class="line">    <span class="attr">certificate-authority-data:</span> &#123;<span class="string">步骤6获取</span>&#125;</span><br><span class="line">    <span class="attr">server:</span> &#123;<span class="string">步骤6获取</span>&#125;</span><br><span class="line">  <span class="attr">name:</span> &#123;<span class="string">步骤6获取的集群名</span>&#125;</span><br><span class="line"><span class="attr">contexts:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">context:</span></span><br><span class="line">    <span class="attr">cluster:</span> &#123;<span class="string">步骤6获取的集群名</span>&#125;</span><br><span class="line">    <span class="attr">user:</span> <span class="string">test-user</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">test-user-context</span></span><br><span class="line"><span class="attr">current-context:</span> <span class="string">test-user-context</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="9-为namespace设置quota"><a href="#9-为namespace设置quota" class="headerlink" title="9.为namespace设置quota"></a>9.为namespace设置quota</h3><p><strong>创建yaml</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">$ cat &gt;&gt; quota.yaml&lt;&lt;<span class="string">EOF</span></span><br><span class="line"><span class="string">apiVersion: v1</span></span><br><span class="line"><span class="string">kind: List</span></span><br><span class="line"><span class="string">items:</span></span><br><span class="line"><span class="string">- apiVersion: v1</span></span><br><span class="line"><span class="string">  kind: ResourceQuota</span></span><br><span class="line"><span class="string">  metadata:</span></span><br><span class="line"><span class="string">    name: quota</span></span><br><span class="line"><span class="string">  spec:</span></span><br><span class="line"><span class="string">    hard:</span></span><br><span class="line"><span class="string">      cpu: &quot;20&quot;    # CPU</span></span><br><span class="line"><span class="string">      memory: 10Gi  # 内存</span></span><br><span class="line"><span class="string">      pods: &quot;50&quot;  # pod数</span></span><br><span class="line"><span class="string">EOF</span></span><br></pre></td></tr></table></figure>
+
+<p><strong>创建资源</strong></p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl create -f quota.yaml -n <span class="built_in">test</span></span><br><span class="line">resourcequota/quota created</span><br></pre></td></tr></table></figure>
+
+
+
+<figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">apiVersion:</span> <span class="string">v1</span></span><br><span class="line"><span class="attr">kind:</span> <span class="string">Config</span></span><br><span class="line"><span class="attr">users:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">name:</span> <span class="string">test-user</span></span><br><span class="line">  <span class="attr">user:</span></span><br><span class="line">    <span class="attr">token:</span> <span class="string">eyJhbGciOiJSUzI1NiIsImtpZCI6IjdrLVloT2NDd191VndTREh2TUpmM21EdkNPWkZFOEZXaklxZEl5Qms3dE0ifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJkZWZhdWx0Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9zZWNyZXQubmFtZSI6InRlc3QtdXNlci10b2tlbi12Y3BodiIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50Lm5hbWUiOiJ0ZXN0LXVzZXIiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC51aWQiOiI0NTg0ZGVjYi01M2YxLTQ4ZjAtYWZiZS01NmY5ODY5ZTc3YzgiLCJzdWIiOiJzeXN0ZW06c2VydmljZWFjY291bnQ6ZGVmYXVsdDp0ZXN0LXVzZXIifQ.H-Sn6QbRfnZs03YTYe338MJpRuoSHwFIynQGMeKqDBwxy5EZXGMjTtIKHCpK46XSxtdchsbsPpbktsZs0QFrluDLO03MYDsBWVoT0cV0YXUgnz7OHYUX-4pfO1zXeBL_CmHAT-Gn06O4Vcs_cOZXJd-Rlc4Sw6M3AhuzouKvWOKK8zPbahhbYyOOAU1VAAYv_DdS8Txq74vs5In5nqtvLhW5wca9LTkLPysxPsAB9V_UxJWedalf27OEl1vssvWaD9K0cKPBn3ZSxyJNAper6Ivu254KVuQj2V6p2xqqSzJ_f_UPeQXAS53WhB4jxJGLmJ7BefZUjSR-IUlo1fzUYw</span></span><br><span class="line"><span class="attr">clusters:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">cluster:</span></span><br><span class="line">    <span class="attr">certificate-authority-data:</span> <span class="string">LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURCakNDQWU2Z0F3SUJBZ0lCQVRBTkJna3Foa2lHOXcwQkFRc0ZBREFWTVJNd0VRWURWUVFERXdwdGFXNXAKYTNWaVpVTkJNQjRYRFRJeE1USXdOakUwTXprME9Wb1hEVE14TVRJd05URTBNemswT1Zvd0ZURVRNQkVHQTFVRQpBeE1LYldsdWFXdDFZbVZEUVRDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBTFJzCjZIY3N6Y0lWZVIxa1oraGRPb2d1NlRtTEw5VWhtV0N5U21FYVNiZFlzWlpacmo0VEFOaGdabFpPOUhvUDhqeTUKaTh1K2g0cDBZR0ZHd05COHRMSmdyN0puMW9MYzFRWFJXajZoNSt4SXdRdER3TmpYUnFNRURWcUF5RnNGV1pETgpWTlZGTWdTSS9IdWFEUUVYV2xyMGFUd3Jzb3VXeG1vbmtyamt4dWJzUHhiTnJWajJtaDdISFpSdTBMak1kTGplCnZUSE80dWVydEZJTFAySGJBK0I3ZUlRNDFLU051WGxRUmN0Y3BCQll6ZzB1ODVWMmx4a2MwNkRaSy9weHZ4ZE4KejRDVXh3KzVkdTdDZlhVeEFCT3VReS9YdExELzhiRXUvd1B5REk0M1Byb1gvVmtzNjk2KzNXcGFDR1lRMVZYUgpNVU5zcm9OSW9pb2R3djhNZGowQ0F3RUFBYU5oTUY4d0RnWURWUjBQQVFIL0JBUURBZ0trTUIwR0ExVWRKUVFXCk1CUUdDQ3NHQVFVRkJ3TUNCZ2dyQmdFRkJRY0RBVEFQQmdOVkhSTUJBZjhFQlRBREFRSC9NQjBHQTFVZERnUVcKQkJSR2RoeFVrVGVrbnRhdHBXaFBEQkxCUzhBcWVEQU5CZ2txaGtpRzl3MEJBUXNGQUFPQ0FRRUFiZFFwOTQxZQpmaVJjdTBSaTdrWkVXZkpqNDBWa2hqQTdTNjV4NEUyN3hYYXFxRG9tc2dkSFVpaHNyM0pXRU5iNjZYS0dFUWhlCmFDQUlHcE9tNjdJSUFacW15dUNOYVpwUGVKSXpzTTBOMVRLSnppNGhCczR4Rm5BQTljbHh0bm9jZmZLVnpxV1cKRUQ2d01BT1J1Z1pUTC9ldUgzandON2NXdEdhRkdPMFJxdXFqRW9rdGlYbkZwN1ZhT1ZaNUtpZ0RzUWZibmhJVQo2OFJoQTJJZWlYTWh2L3RiTHZwL3VQNUh5VnVSUGU2S1ZXRFB3N1NXNHV4Z0QvM29ocm8wWjVNTDF2dXk1b2Z1Ck5EWk1nUmR3dXFLT2JWektCTElaTXJKd2RWUHhvNE5xbFlnU0xGSGZjZ3ArOWUrOWVMUzZhKy9ORzkxeVRJS04KQlRkNFVUbi9QS01VbkE9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==</span></span><br><span class="line">    <span class="attr">server:</span> <span class="string">https://127.0.0.1:49570</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">minikube</span></span><br><span class="line"><span class="attr">contexts:</span></span><br><span class="line"><span class="bullet">-</span> <span class="attr">context:</span></span><br><span class="line">    <span class="attr">cluster:</span> <span class="string">minikube</span></span><br><span class="line">    <span class="attr">user:</span> <span class="string">test-user</span></span><br><span class="line">  <span class="attr">name:</span> <span class="string">testKubeconfig</span></span><br><span class="line"><span class="attr">current-context:</span> <span class="string">testKubeconfig</span></span><br></pre></td></tr></table></figure>
+
+
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                    <div class="article-prev">
+                        <a class="prev"
+                           rel="prev"
+                           href="/posts/64877/"
+                        >
+                            <span class="left arrow-icon flex-center">
+                              <i class="fas fa-chevron-left"></i>
+                            </span>
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">Prometheus Operator 监控 K8S应用</span>
+                                <span class="post-nav-item">Prev posts</span>
+                            </span>
+                        </a>
+                    </div>
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/posts/17417/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">Mysql Buffer Pool详解</span>
+                                <span class="post-nav-item">Next posts</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2021</span>
+              -
+            
+            2022&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">JD</a>
+        </div>
+        
+            <script async  src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <div class="website-count info-item">
+                
+                    <span id="busuanzi_container_site_uv">
+                        Visitor Count&nbsp;<span id="busuanzi_value_site_uv"></span>&ensp;
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv">
+                        Totalview&nbsp;<span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="theme-info info-item">
+            Powered by <a target="_blank" href="https://hexo.io">Hexo</a>&nbsp;|&nbsp;Theme&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.3</a>
+        </div>
+        
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="arrow-up fas fa-arrow-up"></i>
+                <span class="percent"></span>
+            </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%88%9B%E5%BB%BAnamespace"><span class="nav-text">1.创建namespace</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%88%9B%E5%BB%BA-ServiceAccount"><span class="nav-text">2.创建 ServiceAccount</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%88%9B%E5%BB%BARole"><span class="nav-text">3.创建Role</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E8%8E%B7%E5%8F%96ServiceAccount%E7%9A%84secret"><span class="nav-text">4.获取ServiceAccount的secret</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E8%8E%B7%E5%8F%96secret%E5%AF%B9%E5%BA%94token"><span class="nav-text">5.获取secret对应token</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#6-%E8%8E%B7%E5%8F%96%E9%9B%86%E7%BE%A4%E4%BF%A1%E6%81%AF"><span class="nav-text">6.获取集群信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-%E6%8C%89%E4%BB%A5%E4%B8%8B%E6%A0%BC%E5%BC%8F%E7%94%9F%E6%88%90kubeconfig"><span class="nav-text">7.按以下格式生成kubeconfig</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#9-%E4%B8%BAnamespace%E8%AE%BE%E7%BD%AEquota"><span class="nav-text">9.为namespace设置quota</span></a></li></ol>
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="Search..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="popup-btn-close">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+</main>
+
+
+
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/main.js"></script>
+
+<script src="/js/header-shrink.js"></script>
+
+<script src="/js/back2top.js"></script>
+
+<script src="/js/dark-light-toggle.js"></script>
+
+
+
+    
+<script src="/js/local-search.js"></script>
+
+
+
+
+    
+<script src="/js/code-copy.js"></script>
+
+
+
+
+
+<div class="post-scripts">
+    
+        
+<script src="/js/left-side-toggle.js"></script>
+
+<script src="/js/libs/anime.min.js"></script>
+
+<script src="/js/toc.js"></script>
+
+    
+</div>
+
+
+
+</body>
+</html>

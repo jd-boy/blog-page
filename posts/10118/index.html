@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="JD">
+    
+    <title>
+        
+            I/O模型与单服务器高性能架构 |
+        
+        Bean You
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <link rel="shortcut icon" href="http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico">
+    
+<link rel="stylesheet" href="/css/font-awesome.min.css">
+
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"jzcupid.cn","root":"/","language":"en","path":"search.json"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":false,"expand_all":false,"init_open":false},"style":{"primary_color":"#0066CC","avatar":"http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico","favicon":"http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":true,"scale":true},"first_screen":{"enable":true,"background_img":"/images/bg.svg","description":"征途～是星辰大海"},"scroll":{"progress_bar":{"enable":false},"percent":{"enable":true}}},"local_search":{"enable":true,"trigger":"auto","preload":true},"code_copy":{"enable":true,"style":"default"},"pjax":{"enable":false},"lazyload":{"enable":false},"version":"3.4.3"};
+    KEEP.language_ago = {"second":"%s seconds ago","minute":"%s minutes ago","hour":"%s hours ago","day":"%s days ago","week":"%s weeks ago","month":"%s months ago","year":"%s years ago"};
+  </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                Bean You
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                首页
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/categories"
+                            >
+                                分类
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >
+                                标签
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                归档
+                            </a>
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="fas fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">首页</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/categories">分类</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags">标签</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">归档</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">I/O模型与单服务器高性能架构</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">JD</span>
+                        
+                            <span class="author-label">Lv5</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2021-12-10 21:01:41
+    </span>
+    
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/categories/Java/">Java</a>&nbsp;
+                    </li>
+                
+                    <li>
+                        &gt; <a href="/categories/Java/IO/">IO</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+    
+
+    
+    
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fas fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <h2 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h2><p>高性能是每个程序员的追求，无论我们是做一个系统还是写一行代码，都希望能够达到高性能的效果，而高性能又是最复杂的一环，磁盘、操作系统、CPU、内存、缓存、网络、编程语言、架构等，每个都有可能影响系统达到高性能，一行不恰当的 debug 日志，就可能将服务器的性能从 TPS 30000 降低到 8000；一个 tcp_nodelay 参数，就可能将响应时间从 2 毫秒延长到 40 毫秒。因此，要做到高性能计算是一件很复杂很有挑战的事情，软件系统开发过程中的不同阶段都关系着高性能最终是否能够实现。</p>
+<p>站在架构师的角度，当然需要特别关注高性能架构的设计。</p>
+<p>高性能架构设计主要集中在两方面：</p>
+<ul>
+<li>尽量提升单服务器的性能，将单服务器的性能发挥到极致。</li>
+<li>如果单服务器无法支撑性能，设计服务器集群方案。</li>
+</ul>
+<p>除了以上两点，最终系统能否实现高性能，还和具体的实现及编码相关。但架构设计是高性能的基础，如果架构设计没有做到高性能，则后面的具体实现和编码能提升的空间是有限的。形象地说，架构设计决定了系统性能的上限，实现细节决定了系统性能的下限。</p>
+<p>单服务器高性能的关键之一就是 <strong>服务器采取的并发模型</strong>。</p>
+<p>并发模型有如下两个关键设计点：</p>
+<ul>
+<li>服务器如何管理连接。</li>
+<li>服务器如何处理请求。</li>
+</ul>
+<p>以上两个设计点最终都和操作系统的 I/O 模型及进程模型相关。</p>
+<ul>
+<li><strong>I/O 模型</strong>：阻塞、非阻塞、同步、异步。</li>
+<li><strong>进程模型</strong>：单进程、多进程、多线程。</li>
+</ul>
+<h3 id="什么是Socket"><a href="#什么是Socket" class="headerlink" title="什么是Socket"></a>什么是Socket</h3><p>Socket是 <strong>应用层与TCP/IP协议族通信的中间软件抽象层</strong>，它是一组接口。</p>
+<p>在设计模式中，Socket其实就是一个门面模式，<strong>它把复杂的TCP/IP协议族隐藏在Socket</strong> 接口后面，对用户来说，一组简单的接口就是全部，让Socket去组织数据，以符合指定的协议。</p>
+<p><img src="http://qiniu.jzcupid.cn/blog/733402-20160106213656075-1895373856.png" alt="socket"></p>
+<h2 id="二、I-O模型"><a href="#二、I-O模型" class="headerlink" title="二、I/O模型"></a>二、I/O模型</h2><h3 id="1-常见I-O模型"><a href="#1-常见I-O模型" class="headerlink" title="1.常见I/O模型"></a>1.常见I/O模型</h3><ul>
+<li><strong>同步阻塞IO（Blocking IO）</strong>：即传统IO模型，在内核准备好数据并传输完毕之前，用户线程都处于阻塞等待状态；</li>
+<li><strong>同步非阻塞IO（Non-Blocking IO）</strong>：如果数据未准备好，立即返回错误不等待。用户线程采用轮询的方式不断尝试读。根据实现不同，也可以在数据就绪时不返回内容而返回就绪标志，随后调用方再发起获取数据的调用；</li>
+<li><strong>IO多路复用（IO Multiplexing）</strong>：也被称为 <strong>异步阻塞IO</strong>。是对NIO的增强，可以同时监听多个NIO句柄的状态，每次调用时将轮询所有的NIO句柄并返回所有已就绪的集合。多路复用本身也是同步IO。Java中的 Selector 和 linux 中的 epoll 都是这种模型；</li>
+<li><strong>异步IO（Asynchronous IO）</strong>：也被称为 <strong>异步非阻塞IO</strong>，无论数据是否准备好都立即返回空，系统内核准备好数据并传输完毕后，通过信号或回调函数通知用户线程。对于系统调用来说，AIO的数据传输操作由操作系统内核进程来执行。</li>
+</ul>
+<h4 id="同步与异步"><a href="#同步与异步" class="headerlink" title="同步与异步"></a>同步与异步</h4><p>同步与异步描述的是 <strong>用户线程与内核的交互方式</strong>，即用户线程从发起IO请求后到真正得到或写入数据完成的整个过程，这个过程包括下面的阻塞或非。</p>
+<ul>
+<li><strong>同步</strong>：指用户线程发起IO请求后需要等待或者轮询内核IO操作，完成后才能继续执行。</li>
+<li><strong>异步</strong>：指用户线程发起IO请求后仍继续执行，当内核IO操作完成后回通知用户线程，或者调用用户线程注册的回调函数。</li>
+</ul>
+<h4 id="阻塞与非阻塞"><a href="#阻塞与非阻塞" class="headerlink" title="阻塞与非阻塞"></a>阻塞与非阻塞</h4><p>阻塞与非阻塞描述的是 <strong>用户线程调用内核IO操作方式</strong>，例如：read和write方法。</p>
+<p><img src="http://qiniu.jzcupid.cn/blog/image-20211220213400253.png" alt="image-20211220213400253"></p>
+<ul>
+<li><strong>阻塞</strong>：当 <code>read buffer</code> 为空时，用户线程阻塞等待可读，当 <code>write buffer</code> 满了或容量不足时，用户线程阻塞等待可写。</li>
+<li><strong>非阻塞</strong>：指IO操作（read或write）被调用后立即返回给用户一个状态值，无需等待IO操作彻底完成。</li>
+</ul>
+<p><strong>举个例子：</strong></p>
+<p><strong>NIO</strong> 之所以是非阻塞的，是因为用户线程在知道不可读时，并没有阻塞自己，而是不断轮询是否可读。</p>
+<p>在 Java <strong>IO多路复用</strong> 中，会用一个死循环调用 <code>select</code> 方法，而 <code>select</code> 方法是会阻塞线程的，所以它是阻塞IO。</p>
+<p>但是一个 <strong>Selector</strong> 可以同时监控多个 socket 的状态，造成了异步的假象。只有 <strong>AIO</strong> 是真正的异步。</p>
+<h3 id="2-同步阻塞IO"><a href="#2-同步阻塞IO" class="headerlink" title="2.同步阻塞IO"></a>2.同步阻塞IO</h3><p>同步阻塞IO是最简单的IO模型，用户线程在内核进行IO操作时被阻塞。用户线程通过调用系统调用read发起IO读操作，由用户空间转到内核空间。内核等到数据包到达后，然后将接受的数据拷贝到用户空间，完成read操作。整个IO请求过程，用户线程都是被阻塞的，对CPU利用率不够友好。</p>
+<p><img src="http://qiniu.jzcupid.cn/blog/142330286789443.png" alt="同步阻塞IO"></p>
+<h4 id="代码示例"><a href="#代码示例" class="headerlink" title="代码示例"></a>代码示例</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.io.BufferedWriter;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.io.OutputStreamWriter;</span><br><span class="line"><span class="keyword">import</span> java.net.ServerSocket;</span><br><span class="line"><span class="keyword">import</span> java.net.Socket;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">BIOTest</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        ServerSocket serverSocket = <span class="keyword">new</span> ServerSocket(<span class="number">8888</span>, <span class="number">1024</span>, <span class="keyword">null</span>);</span><br><span class="line">        System.out.println(<span class="string">&quot;服务启动&quot;</span>);</span><br><span class="line">        <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">            Socket socket = serverSocket.accept();</span><br><span class="line">            System.out.println(socket.getRemoteSocketAddress());</span><br><span class="line">            BufferedWriter bufferedWriter = <span class="keyword">new</span> BufferedWriter(<span class="keyword">new</span> OutputStreamWriter(socket.getOutputStream()));</span><br><span class="line">            bufferedWriter.append(IOUtils.buildResp());</span><br><span class="line">            bufferedWriter.flush();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-同步非阻塞IO"><a href="#3-同步非阻塞IO" class="headerlink" title="3.同步非阻塞IO"></a>3.同步非阻塞IO</h3><p>在同步基础上，将socket设置为NONBLOCK，这样用户线程可以在发起IO请求后立即返回。虽说可以立即返回，但并未读到任何数据，用户线程需要不断的发起IO请求，直到数据到达后才能真正读到数据，然后去处理。</p>
+<p> 整个IO请求中，虽然可以立即返回，但是因为是同步的，为了等到数据，需要不断的轮询、重复请求，消耗了大量的CPU资源。因此，这种模型很少使用，实际用处不大。</p>
+<p><img src="http://qiniu.jzcupid.cn/blog/142332004602984.png" alt="同步非阻塞IO"></p>
+<h3 id="4-IO多路复用"><a href="#4-IO多路复用" class="headerlink" title="4.IO多路复用"></a>4.IO多路复用</h3><p>不管是同步阻塞还是同步非阻塞，对系统性能的提升都是很小的。而通过复用可以使一个或一组线程（线程池）处理多个TCP连接。IO多路复用使用两个系统调用（select/poll/epoll和recvfrom），blocking IO只调用了recvfrom。select/poll/epoll核心是可以同时处理多个connection，而不是更快，所以连接数不高的话，性能不一定比多线程+阻塞IO好。</p>
+<p> select是内核提供的多路分离函数，使用它可以避免同步非阻塞IO中轮询等待问题。</p>
+<p><img src="http://qiniu.jzcupid.cn/blog/142332187256396.png" alt="IO多路复用"></p>
+<p>用户首先将需要进行IO操作的socket添加到select中，然后阻塞等待select系统调用返回。当数据到达时，socket被激活，select函数返回，用户线程正式发起read请求，读取数据并继续执行。</p>
+<p> 这么一看，这种方式和同步阻塞IO并没有太大区别，甚至还多了添加监视socket以及调用select函数的额外操作，效率更差。但是使用select以后，用户可以在一个线程内同时处理多个socket的IO请求，这就是它的最大优势。用户可以注册多个socket，然后不断调用select读取被激活的socket，<strong>即可达到同一个线程同时处理多个IO请求的目的</strong>。而在同步阻塞模型中，必须通过多线程方式才能达到这个目的。<strong>所以IO多路复用设计目的其实不是为了快，而是为了解决线程/进程数量过多对服务器开销造成的压力。</strong></p>
+<p>虽然这种方式允许单线程内处理多个IO请求，但是每个IO请求的过程还是阻塞的（在select函数上阻塞），平均时间甚至比同步阻塞IO模型还要长。如果用户线程只注册自己感兴趣的socket，然后去做自己的事情，等到数据到来时在进行处理，则可以提高CPU利用率。</p>
+<h3 id="5-异步非阻塞IO"><a href="#5-异步非阻塞IO" class="headerlink" title="5.异步非阻塞IO"></a>5.异步非阻塞IO</h3><p> 在IO多路复用模型中，事件循环文件句柄的状态事件通知给用户线程，由用户线程自行读取数据、处理数据。而异步IO中，当用户线程收到通知时候，数据已经被内核读取完毕，并放在了用户线程指定的缓冲区内，内核在IO完成后通知用户线程直接使用就行了。因此这种模型需要操作系统更强的支持，把read操作从用户线程转移到了内核。</p>
+<p> 相比于IO多路复用模型，异步IO并不十分常用，不少高性能并发服务程序使用IO多路复用+多线程任务处理的架构基本可以满足需求。不过最主要原因还是操作系统对异步IO的支持并非特别完善，更多的采用IO多路复用模拟异步IO方式（IO事件触发时不直接通知用户线程，而是将数据读写完毕后放到用户指定的缓冲区）。</p>
+<h2 id="三、单服务器高性能架构"><a href="#三、单服务器高性能架构" class="headerlink" title="三、单服务器高性能架构"></a>三、单服务器高性能架构</h2><h3 id="1-PPC"><a href="#1-PPC" class="headerlink" title="1.PPC"></a>1.PPC</h3><p>PPC 是 Process Per Connection 的缩写，其含义是指每次有新的连接就新建一个进程去专门处理这个连接的请求，这是传统的 UNIX 网络服务器所采用的模型。基本的流程图是：</p>
+<p><img src="http://qiniu.jzcupid.cn/blog/53b17d63a31c6b551d3a039a2568daba.jpg" alt="PPC流程图"></p>
+<ul>
+<li>父进程接受连接（图中 accept）</li>
+<li>父进程“fork”子进程（图中 fork）</li>
+<li>子进程处理连接的读写请求（图中子进程 read、业务处理、write）</li>
+<li>子进程关闭连接（图中子进程中的 close）</li>
+</ul>
+<p>注意，图中有一个小细节，父进程“fork”子进程后，直接调用了 close，看起来好像是关闭了连接，其实只是将连接的文件描述符引用计数减一，真正的关闭连接是等子进程也调用 close 后，连接对应的文件描述符引用计数变为 0 后，操作系统才会真正关闭连接，更多细节请参考《UNIX 网络编程：卷一》。</p>
+<p>PPC 模式实现简单，比较适合服务器的连接数没那么多的情况，例如数据库服务器。对于普通的业务服务器，在互联网兴起之前，由于服务器的访问量和并发量并没有那么大，这种模式其实运作得也挺好，世界上第一个 web 服务器 CERN httpd 就采用了这种模式（具体你可以参考<a class="link"   target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/CERN_httpd%EF%BC%89%E3%80%82%E4%BA%92%E8%81%94%E7%BD%91%E5%85%B4%E8%B5%B7%E5%90%8E%EF%BC%8C%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%9A%84%E5%B9%B6%E5%8F%91%E5%92%8C%E8%AE%BF%E9%97%AE%E9%87%8F%E4%BB%8E%E5%87%A0%E5%8D%81%E5%89%A7%E5%A2%9E%E5%88%B0%E6%88%90%E5%8D%83%E4%B8%8A%E4%B8%87%EF%BC%8C%E8%BF%99%E7%A7%8D%E6%A8%A1%E5%BC%8F%E7%9A%84%E5%BC%8A%E7%AB%AF%E5%B0%B1%E5%87%B8%E6%98%BE%E5%87%BA%E6%9D%A5%E4%BA%86%EF%BC%8C%E4%B8%BB%E8%A6%81%E4%BD%93%E7%8E%B0%E5%9C%A8%E8%BF%99%E5%87%A0%E4%B8%AA%E6%96%B9%E9%9D%A2%EF%BC%9A" >https://en.wikipedia.org/wiki/CERN_httpd）。互联网兴起后，服务器的并发和访问量从几十剧增到成千上万，这种模式的弊端就凸显出来了，主要体现在这几个方面：<i class="fas fa-external-link-alt"></i></a></p>
+<ul>
+<li><strong>fork 代价高</strong>：站在操作系统的角度，创建一个进程的代价是很高的，需要分配很多内核资源，需要将内存映像从父进程复制到子进程。即使现在的操作系统在复制内存映像时用到了 Copy on Write（写时复制）技术，总体来说创建进程的代价还是很大的。</li>
+<li><strong>父子进程通信复杂</strong>：父进程“fork”子进程时，文件描述符可以通过内存映像复制从父进程传到子进程，但“fork”完成后，父子进程通信就比较麻烦了，需要采用 IPC（Interprocess Communication）之类的进程通信方案。例如，子进程需要在 close 之前告诉父进程自己处理了多少个请求以支撑父进程进行全局的统计，那么子进程和父进程必须采用 IPC 方案来传递信息。</li>
+<li><strong>支持的并发连接数量有限</strong>：如果每个连接存活时间比较长，而且新的连接又源源不断的进来，则进程数量会越来越多，操作系统进程调度和切换的频率也越来越高，系统的压力也会越来越大。因此，一般情况下，PPC 方案能处理的并发连接数量最大也就几百。</li>
+</ul>
+<h4 id="prefork"><a href="#prefork" class="headerlink" title="prefork"></a>prefork</h4><p>PPC 模式中，当连接进来时才 fork 新进程来处理连接请求，由于 fork 进程代价高，用户访问时可能感觉比较慢，prefork 模式的出现就是为了解决这个问题。</p>
+<p>顾名思义，prefork 就是提前创建进程（pre-fork）。系统在启动的时候就预先创建好进程，然后才开始接受用户的请求，当有新的连接进来的时候，就可以省去 fork 进程的操作，让用户访问更快、体验更好。prefork 的基本示意图是：</p>
+<p><img src="http://qiniu.jzcupid.cn/blog/3c931b04d3372ebcebe4f2c2cf59d42f.jpg" alt="prefork流程"></p>
+<p>prefork 的实现关键就是多个子进程都 accept 同一个 socket，当有新的连接进入时，操作系统保证只有一个进程能最后 accept 成功。</p>
+<p>但这里也存在一个小小的问题：“惊群”现象，就是指虽然只有一个子进程能 accept 成功，但所有阻塞在 accept 上的子进程都会被唤醒，这样就导致了不必要的进程调度和上下文切换了。</p>
+<p>幸运的是，操作系统可以解决这个问题，例如 Linux 2.6 版本后内核已经解决了 accept 惊群问题。</p>
+<p>prefork 模式和 PPC 一样，还是存在父子进程通信复杂、支持的并发连接数量有限的问题，因此目前实际应用也不多。Apache 服务器提供了 MPM prefork 模式，推荐在需要可靠性或者与旧软件兼容的站点时采用这种模式，默认情况下最大支持 256 个并发连接。</p>
+<h2 id="2-TPC"><a href="#2-TPC" class="headerlink" title="2.TPC"></a>2.TPC</h2><p>TPC 是 Thread Per Connection 的缩写，其含义是指每次有新的连接就新建一个线程去专门处理这个连接的请求。与进程相比，线程更轻量级，创建线程的消耗比进程要少得多；同时多线程是共享进程内存空间的，线程通信相比进程通信更简单。因此，TPC 实际上是解决或者弱化了 PPC fork 代价高的问题和父子进程通信复杂的问题。</p>
+<p>TPC 的基本流程是：</p>
+<p><img src="http://qiniu.jzcupid.cn/blog/25b3910c8c5fb0055e184c5c186eece7.jpg" alt="TPC流程"></p>
+<ul>
+<li>父进程接受连接（图中 accept）</li>
+<li>父进程创建子线程（图中 pthread）</li>
+<li>子线程处理连接的读写请求（图中子线程 read、业务处理、write）</li>
+<li>子线程关闭连接（图中子线程中的 close）</li>
+</ul>
+<p>注意，和 PPC 相比，主进程不用“close”连接了。原因是在于子线程是共享主进程的进程空间的，连接的文件描述符并没有被复制，因此只需要一次 close 即可。</p>
+<p>TPC 虽然解决了 fork 代价高和进程通信复杂的问题，但是也引入了新的问题，具体表现在：</p>
+<ul>
+<li>创建线程虽然比创建进程代价低，但并不是没有代价，高并发时（例如每秒上万连接）还是有性能问题。</li>
+<li>无须进程间通信，但是线程间的互斥和共享又引入了复杂度，可能一不小心就导致了死锁问题。</li>
+<li>多线程会出现互相影响的情况，某个线程出现异常时，可能导致整个进程退出（例如内存越界）。</li>
+</ul>
+<p>除了引入了新的问题，TPC 还是存在 CPU 线程调度和切换代价的问题。因此，TPC 方案本质上和 PPC 方案基本类似，在并发几百连接的场景下，反而更多地是采用 PPC 的方案，因为 PPC 方案不会有死锁的风险，也不会多进程互相影响，稳定性更高。</p>
+<h4 id="prethread"><a href="#prethread" class="headerlink" title="prethread"></a>prethread</h4><p>TPC 模式中，当连接进来时才创建新的线程来处理连接请求，虽然创建线程比创建进程要更加轻量级，但还是有一定的代价，而 prethread 模式就是为了解决这个问题。</p>
+<p>和 prefork 类似，prethread 模式会预先创建线程，然后才开始接受用户的请求，当有新的连接进来的时候，就可以省去创建线程的操作，让用户感觉更快、体验更好。</p>
+<p>由于多线程之间数据共享和通信比较方便，因此实际上 prethread 的实现方式相比 prefork 要灵活一些，常见的实现方式有下面几种：</p>
+<ul>
+<li>主进程 accept，然后将连接交给某个线程处理。</li>
+<li>子线程都尝试去 accept，最终只有一个线程 accept 成功，方案的基本示意图如下：</li>
+</ul>
+<p><img src="http://qiniu.jzcupid.cn/blog/115308f686fe0bb1c93ec4b1728eda4d.jpg" alt="prethread流程"></p>
+<p>Apache 服务器的 MPM worker 模式本质上就是一种 prethread 方案，但稍微做了改进。Apache 服务器会首先创建多个进程，每个进程里面再创建多个线程，这样做主要是为了考虑稳定性，即：即使某个子进程里面的某个线程异常导致整个子进程退出，还会有其他子进程继续提供服务，不会导致整个服务器全部挂掉。</p>
+<p>prethread 理论上可以比 prefork 支持更多的并发连接，Apache 服务器 MPM worker 模式默认支持 16 × 25 = 400 个并发处理线程。</p>
+<h4 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h4><p>对于 PPC 和 TPC，由于其连接数有限，所以比较适合以下场景：</p>
+<ul>
+<li>常量连接海量请求，如数据库、mq、中间件等。</li>
+<li>常量连接常量请求，如内部运营系统、管理系统、门户网站等。</li>
+</ul>
+<h3 id="3-Reactor"><a href="#3-Reactor" class="headerlink" title="3.Reactor"></a>3.Reactor</h3><p>PPC 模式最主要的问题就是每个连接都要创建进程（为了描述简洁，这里只以 PPC 和进程为例，实际上换成 TPC 和线程，原理是一样的），连接结束后进程就销毁了，这样做其实是很大的浪费。为了解决这个问题，一个自然而然的想法就是资源复用，即不再单独为每个连接创建进程，而是创建一个进程池，将连接分配给进程，一个进程可以处理多个连接的业务。</p>
+<p>引入资源池的处理方式后，会引出一个新的问题：进程如何才能高效地处理多个连接的业务？当一个连接一个进程时，进程可以采用“read -&gt; 业务处理 -&gt; write”的处理流程，如果当前连接没有数据可以读，则进程就阻塞在 read 操作上。这种阻塞的方式在一个连接一个进程的场景下没有问题，但如果一个进程处理多个连接，进程阻塞在某个连接的 read 操作上，此时即使其他连接有数据可读，进程也无法去处理，很显然这样是无法做到高性能的。</p>
+<p>解决这个问题的最简单的方式是将 read 操作改为非阻塞，然后进程不断地轮询多个连接。这种方式能够解决阻塞的问题，但解决的方式并不优雅。首先，轮询是要消耗 CPU 的；其次，如果一个进程处理几千上万的连接，则轮询的效率是很低的。（例如NIO）</p>
+<p>为了能够更好地解决上述问题，很容易可以想到，只有当连接上有数据的时候进程才去处理，这就是 I/O 多路复用技术的来源。</p>
+<p>I/O 多路复用技术归纳起来有两个关键实现点：</p>
+<ul>
+<li>当多条连接共用一个阻塞对象后，进程只需要在一个阻塞对象上等待，而无须再轮询所有连接，常见的实现方式有 select、epoll、kqueue 等。</li>
+<li>当某条连接有新的数据可以处理时，操作系统会通知进程，进程从阻塞状态返回，开始进行业务处理。</li>
+</ul>
+<p>I/O 多路复用结合线程池，完美地解决了 PPC 和 TPC 的问题，而且“大神们”给它取了一个很牛的名字：Reactor，中文是“反应堆”。联想到“核反应堆”，听起来就很吓人，实际上这里的“反应”不是聚变、裂变反应的意思，而是“事件反应”的意思，可以通俗地理解为“来了一个事件我就有相应的反应”，这里的“我”就是 Reactor，具体的反应就是我们写的代码，Reactor 会根据事件类型来调用相应的代码进行处理。Reactor 模式也叫 Dispatcher 模式（在很多开源的系统里面会看到这个名称的类，其实就是实现 Reactor 模式的），更加贴近模式本身的含义，即 I/O 多路复用统一监听事件，收到事件后分配（Dispatch）给某个进程。</p>
+<p>Reactor 模式的核心组成部分包括 Reactor 和处理资源池（进程池或线程池），其中 Reactor 负责监听和分配事件，处理资源池负责处理事件。初看 Reactor 的实现是比较简单的，但实际上结合不同的业务场景，Reactor 模式的具体实现方案灵活多变，主要体现在：</p>
+<ul>
+<li>Reactor 的数量可以变化：可以是一个 Reactor，也可以是多个 Reactor。</li>
+<li>资源池的数量可以变化：以进程为例，可以是单个进程，也可以是多个进程（线程类似）。</li>
+</ul>
+<p>将上面两个因素排列组合一下，理论上可以有 4 种选择，但由于“多 Reactor 单进程”实现方案相比“单 Reactor 单进程”方案，既复杂又没有性能优势，因此“多 Reactor 单进程”方案仅仅是一个理论上的方案，实际没有应用。</p>
+<p>最终 Reactor 模式有这三种典型的实现方案：</p>
+<ul>
+<li>单 Reactor 单进程 / 线程</li>
+<li>单 Reactor 多线程</li>
+<li>多 Reactor 多进程 / 线程</li>
+</ul>
+<p>以上方案具体选择进程还是线程，更多地是和编程语言及平台相关。例如，Java 语言一般使用线程（例如，Netty），C 语言使用进程和线程都可以。例如，Nginx 使用进程，Memcache 使用线程。</p>
+<h4 id="单-Reactor-单进程-线程"><a href="#单-Reactor-单进程-线程" class="headerlink" title="单 Reactor 单进程 / 线程"></a>单 Reactor 单进程 / 线程</h4><p>单 Reactor 单进程 / 线程的方案示意图如下（以进程为例）：</p>
+<p><img src="http://qiniu.jzcupid.cn/blog/c2fafab3yybd83e97027b3e3f987f9c0.jpg" alt="单Reactor单进程"></p>
+<p>注意，select、accept、read、send 是标准的网络编程 API，dispatch 和“业务处理”是需要完成的操作，其他方案示意图类似。</p>
+<p>详细说明一下这个方案：</p>
+<ul>
+<li>Reactor 对象通过 select 监控连接事件，收到事件后通过 dispatch 进行分发。</li>
+<li>如果是连接建立的事件，则由 Acceptor 处理，Acceptor 通过 accept 接受连接，并创建一个 Handler 来处理连接后续的各种事件。</li>
+<li>如果不是连接建立事件，则 Reactor 会调用连接对应的 Handler（第 2 步中创建的 Handler）来进行响应。</li>
+<li>Handler 会完成 read-&gt; 业务处理 -&gt;send 的完整业务流程。</li>
+</ul>
+<p>单 Reactor 单进程的模式优点就是很简单，没有进程间通信，没有进程竞争，全部都在同一个进程内完成。</p>
+<p>但其缺点也是非常明显，具体表现有：</p>
+<ul>
+<li>只有一个进程，无法发挥多核 CPU 的性能；只能采取部署多个系统来利用多核 CPU，但这样会带来运维复杂度，本来只要维护一个系统，用这种方式需要在一台机器上维护多套系统。</li>
+<li>Handler 在处理某个连接上的业务时，整个进程无法处理其他连接的事件，很容易导致性能瓶颈。</li>
+</ul>
+<p>因此，单 Reactor 单进程的方案在实践中应用场景不多，<strong>只适用于业务处理非常快速的场景</strong>，目前比较著名的开源软件中使用单 Reactor 单进程的是 Redis。</p>
+<p>需要注意的是，C 语言编写系统的一般使用单 Reactor 单进程，因为没有必要在进程中再创建线程；</p>
+<p>而 Java 语言编写的一般使用单 Reactor 单线程，因为 Java 虚拟机是一个进程，虚拟机中有很多线程，业务线程只是其中的一个线程而已。</p>
+<h4 id="单-Reactor-多线程"><a href="#单-Reactor-多线程" class="headerlink" title="单 Reactor 多线程"></a>单 Reactor 多线程</h4><p>为了克服单 Reactor 单进程 / 线程方案的缺点，引入多进程 / 多线程是显而易见的，这就产生了第 2 个方案：单 Reactor 多线程。</p>
+<p>单 Reactor 多线程方案示意图是：</p>
+<p><img src="http://qiniu.jzcupid.cn/blog/73a2d97c63c143a01b2e671942024fda.jpg" alt="单Reactor多线程"></p>
+<p>介绍一下这个方案：</p>
+<ul>
+<li>主线程中，Reactor 对象通过 select 监控连接事件，收到事件后通过 dispatch 进行分发。</li>
+<li>如果是连接建立的事件，则由 Acceptor 处理，Acceptor 通过 accept 接受连接，并创建一个 Handler 来处理连接后续的各种事件。</li>
+<li>如果不是连接建立事件，则 Reactor 会调用连接对应的 Handler（第 2 步中创建的 Handler）来进行响应。</li>
+<li>Handler 只负责响应事件，不进行业务处理；Handler 通过 read 读取到数据后，会发给 Processor 进行业务处理。</li>
+<li>Processor 会在独立的子线程中完成真正的业务处理，然后将响应结果发给主进程的 Handler 处理；Handler 收到响应后通过 send 将响应结果返回给 client。</li>
+</ul>
+<p>单 Reator 多线程方案能够充分利用多核多 CPU 的处理能力，但同时也存在下面的问题：</p>
+<ul>
+<li>多线程数据共享和访问比较复杂。例如，子线程完成业务处理后，要把结果传递给主线程的 Reactor 进行发送，这里涉及共享数据的互斥和保护机制。以 Java 的 NIO 为例，Selector 是线程安全的，但是通过 Selector.selectKeys() 返回的键的集合是非线程安全的，对 selected keys 的处理必须单线程处理或者采取同步措施进行保护。</li>
+<li>Reactor 承担所有事件的监听和响应，只在主线程中运行，瞬间高并发时会成为性能瓶颈。</li>
+</ul>
+<p>你可能会发现，我只列出了“单 Reactor 多线程”方案，没有列出“单 Reactor 多进程”方案，这是什么原因呢？主要原因在于如果采用多进程，子进程完成业务处理后，将结果返回给父进程，并通知父进程发送给哪个 client，这是很麻烦的事情。因为父进程只是通过 Reactor 监听各个连接上的事件然后进行分配，子进程与父进程通信时并不是一个连接。如果要将父进程和子进程之间的通信模拟为一个连接，并加入 Reactor 进行监听，则是比较复杂的。而采用多线程时，因为多线程是共享数据的，因此线程间通信是非常方便的。虽然要额外考虑线程间共享数据时的同步问题，但这个复杂度比进程间通信的复杂度要低很多。</p>
+<h4 id="多-Reactor-多进程-线程"><a href="#多-Reactor-多进程-线程" class="headerlink" title="多 Reactor 多进程 / 线程"></a>多 Reactor 多进程 / 线程</h4><p>为了解决单 Reactor 多线程的问题，最直观的方法就是将单 Reactor 改为多 Reactor，这就产生了第 3 个方案：多 Reactor 多进程 / 线程。</p>
+<p>多 Reactor 多进程 / 线程方案示意图是（以进程为例）：</p>
+<p><img src="http://qiniu.jzcupid.cn/blog/6cfe3c8785623f93da18ce3390e524ba.jpg" alt="多reactor多进程"></p>
+<p>方案详细说明如下：</p>
+<ul>
+<li>父进程中 mainReactor 对象通过 select 监控连接建立事件，收到事件后通过 Acceptor 接收，将新的连接分配给某个子进程。</li>
+<li>子进程的 subReactor 将 mainReactor 分配的连接加入连接队列进行监听，并创建一个 Handler 用于处理连接的各种事件。</li>
+<li>当有新的事件发生时，subReactor 会调用连接对应的 Handler（即第 2 步中创建的 Handler）来进行响应。</li>
+<li>Handler 完成 read→业务处理→send 的完整业务流程。</li>
+</ul>
+<p>多 Reactor 多进程 / 线程的方案看起来比单 Reactor 多线程要复杂，但实际实现时反而更加简单，主要原因是：</p>
+<ul>
+<li>父进程和子进程的职责非常明确，父进程只负责接收新连接，子进程负责完成后续的业务处理。</li>
+<li>父进程和子进程的交互很简单，父进程只需要把新连接传给子进程，子进程无须返回数据。</li>
+<li>子进程之间是互相独立的，无须同步共享之类的处理（这里仅限于网络模型相关的 select、read、send 等无须同步共享，“业务处理”还是有可能需要同步共享的）。</li>
+</ul>
+<p>目前著名的开源系统 Nginx 采用的是多 Reactor 多进程，采用多 Reactor 多线程的实现有 Memcache 和 Netty。</p>
+<p>我多说一句，Nginx 采用的是多 Reactor 多进程的模式，但方案与标准的多 Reactor 多进程有差异。具体差异表现为主进程中仅仅创建了监听端口，并没有创建 mainReactor 来“accept”连接，而是由子进程的 Reactor 来“accept”连接，通过锁来控制一次只有一个子进程进行“accept”，子进程“accept”新连接后就放到自己的 Reactor 进行处理，不会再分配给其他子进程，更多细节请查阅相关资料或阅读 Nginx 源码。</p>
+<h3 id="4-Proactor"><a href="#4-Proactor" class="headerlink" title="4.Proactor"></a>4.Proactor</h3><p>Reactor 是非阻塞同步网络模型，因为真正的 read 和 send 操作都需要用户进程同步操作。这里的“同步”指用户进程在执行 read 和 send 这类 I/O 操作的时候是同步的，如果把 I/O 操作改为异步就能够进一步提升性能，这就是异步网络模型 Proactor。</p>
+<p>Proactor 中文翻译为“前摄器”比较难理解，与其类似的单词是 proactive，含义为“主动的”，因此我们照猫画虎翻译为“主动器”反而更好理解。Reactor 可以理解为“来了事件我通知你，你来处理”，而 Proactor 可以理解为 <strong>“来了事件我来处理，处理完了我通知你</strong>”。</p>
+<p>这里的“我”就是操作系统内核，“事件”就是有新连接、有数据可读、有数据可写的这些 I/O 事件，“你”就是我们的程序代码。</p>
+<p>Proactor 模型示意图是：</p>
+<p><img src="http://qiniu.jzcupid.cn/blog/f431b2674eb0881df6a1d1f77a3729fe.jpg" alt="proactor模型图"></p>
+<p>详细介绍一下 Proactor 方案：</p>
+<ul>
+<li>Proactor Initiator 负责创建 Proactor 和 Handler，并将 Proactor 和 Handler 都通过 Asynchronous Operation Processor 注册到内核。</li>
+<li>Asynchronous Operation Processor 负责处理注册请求，并完成 I/O 操作。</li>
+<li>Asynchronous Operation Processor 完成 I/O 操作后通知 Proactor。</li>
+<li>Proactor 根据不同的事件类型回调不同的 Handler 进行业务处理。</li>
+<li>Handler 完成业务处理，Handler 也可以注册新的 Handler 到内核进程。</li>
+</ul>
+<p>理论上 Proactor 比 Reactor 效率要高一些，异步 I/O 能够充分利用 DMA 特性，让 I/O 操作与计算重叠，但要实现真正的异步 I/O，操作系统需要做大量的工作。</p>
+<p>目前 Windows 下通过 IOCP 实现了真正的异步 I/O，而在 Linux 系统下的 AIO 并不完善，因此在 Linux 下实现高并发网络编程时都是以 Reactor 模式为主。</p>
+<p>所以即使 Boost.Asio 号称实现了 Proactor 模型，其实它在 Windows 下采用 IOCP，而在 Linux 下是用 Reactor 模式（采用 epoll）模拟出来的异步模型。</p>
+
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                    <div class="article-prev">
+                        <a class="prev"
+                           rel="prev"
+                           href="/posts/13357/"
+                        >
+                            <span class="left arrow-icon flex-center">
+                              <i class="fas fa-chevron-left"></i>
+                            </span>
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">Nginx location 匹配规则</span>
+                                <span class="post-nav-item">Prev posts</span>
+                            </span>
+                        </a>
+                    </div>
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/posts/42351/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">最大QPS推算</span>
+                                <span class="post-nav-item">Next posts</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2021</span>
+              -
+            
+            2022&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">JD</a>
+        </div>
+        
+            <script async  src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <div class="website-count info-item">
+                
+                    <span id="busuanzi_container_site_uv">
+                        Visitor Count&nbsp;<span id="busuanzi_value_site_uv"></span>&ensp;
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv">
+                        Totalview&nbsp;<span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="theme-info info-item">
+            Powered by <a target="_blank" href="https://hexo.io">Hexo</a>&nbsp;|&nbsp;Theme&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.3</a>
+        </div>
+        
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="arrow-up fas fa-arrow-up"></i>
+                <span class="percent"></span>
+            </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="nav-text">一、前言</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFSocket"><span class="nav-text">什么是Socket</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81I-O%E6%A8%A1%E5%9E%8B"><span class="nav-text">二、I&#x2F;O模型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%B8%B8%E8%A7%81I-O%E6%A8%A1%E5%9E%8B"><span class="nav-text">1.常见I&#x2F;O模型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%90%8C%E6%AD%A5%E4%B8%8E%E5%BC%82%E6%AD%A5"><span class="nav-text">同步与异步</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%98%BB%E5%A1%9E%E4%B8%8E%E9%9D%9E%E9%98%BB%E5%A1%9E"><span class="nav-text">阻塞与非阻塞</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%90%8C%E6%AD%A5%E9%98%BB%E5%A1%9EIO"><span class="nav-text">2.同步阻塞IO</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E7%A4%BA%E4%BE%8B"><span class="nav-text">代码示例</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%90%8C%E6%AD%A5%E9%9D%9E%E9%98%BB%E5%A1%9EIO"><span class="nav-text">3.同步非阻塞IO</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-IO%E5%A4%9A%E8%B7%AF%E5%A4%8D%E7%94%A8"><span class="nav-text">4.IO多路复用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E5%BC%82%E6%AD%A5%E9%9D%9E%E9%98%BB%E5%A1%9EIO"><span class="nav-text">5.异步非阻塞IO</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%8D%95%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%AB%98%E6%80%A7%E8%83%BD%E6%9E%B6%E6%9E%84"><span class="nav-text">三、单服务器高性能架构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-PPC"><span class="nav-text">1.PPC</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#prefork"><span class="nav-text">prefork</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-TPC"><span class="nav-text">2.TPC</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#prethread"><span class="nav-text">prethread</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B0%8F%E7%BB%93"><span class="nav-text">小结</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-Reactor"><span class="nav-text">3.Reactor</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8D%95-Reactor-%E5%8D%95%E8%BF%9B%E7%A8%8B-%E7%BA%BF%E7%A8%8B"><span class="nav-text">单 Reactor 单进程 &#x2F; 线程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8D%95-Reactor-%E5%A4%9A%E7%BA%BF%E7%A8%8B"><span class="nav-text">单 Reactor 多线程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A4%9A-Reactor-%E5%A4%9A%E8%BF%9B%E7%A8%8B-%E7%BA%BF%E7%A8%8B"><span class="nav-text">多 Reactor 多进程 &#x2F; 线程</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-Proactor"><span class="nav-text">4.Proactor</span></a></li></ol></li></ol>
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="Search..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="popup-btn-close">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+</main>
+
+
+
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/main.js"></script>
+
+<script src="/js/header-shrink.js"></script>
+
+<script src="/js/back2top.js"></script>
+
+<script src="/js/dark-light-toggle.js"></script>
+
+
+
+    
+<script src="/js/local-search.js"></script>
+
+
+
+
+    
+<script src="/js/code-copy.js"></script>
+
+
+
+
+
+<div class="post-scripts">
+    
+        
+<script src="/js/left-side-toggle.js"></script>
+
+<script src="/js/libs/anime.min.js"></script>
+
+<script src="/js/toc.js"></script>
+
+    
+</div>
+
+
+
+</body>
+</html>

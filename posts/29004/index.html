@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="JD">
+    
+    <title>
+        
+            Docker 搭建 Redis 集群以及哈希槽动态扩容 |
+        
+        Bean You
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <link rel="shortcut icon" href="http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico">
+    
+<link rel="stylesheet" href="/css/font-awesome.min.css">
+
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"jzcupid.cn","root":"/","language":"en","path":"search.json"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":false,"expand_all":false,"init_open":false},"style":{"primary_color":"#0066CC","avatar":"http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico","favicon":"http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":true,"scale":true},"first_screen":{"enable":true,"background_img":"/images/bg.svg","description":"征途～是星辰大海"},"scroll":{"progress_bar":{"enable":false},"percent":{"enable":true}}},"local_search":{"enable":true,"trigger":"auto","preload":true},"code_copy":{"enable":true,"style":"default"},"pjax":{"enable":false},"lazyload":{"enable":false},"version":"3.4.3"};
+    KEEP.language_ago = {"second":"%s seconds ago","minute":"%s minutes ago","hour":"%s hours ago","day":"%s days ago","week":"%s weeks ago","month":"%s months ago","year":"%s years ago"};
+  </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                Bean You
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                首页
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/categories"
+                            >
+                                分类
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >
+                                标签
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                归档
+                            </a>
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="fas fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">首页</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/categories">分类</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags">标签</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">归档</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">Docker 搭建 Redis 集群以及哈希槽动态扩容</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">JD</span>
+                        
+                            <span class="author-label">Lv5</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2022-07-10 16:31:00
+    </span>
+    
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>&nbsp;
+                    </li>
+                
+                    <li>
+                        &gt; <a href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+    
+
+    
+    
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fas fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <h2 id="一、创建网络"><a href="#一、创建网络" class="headerlink" title="一、创建网络"></a>一、创建网络</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker network create --subnet=172.10.1.0/24 redis</span><br></pre></td></tr></table></figure>
+
+<h2 id="二、创建-Redis-容器"><a href="#二、创建-Redis-容器" class="headerlink" title="二、创建 Redis 容器"></a>二、创建 Redis 容器</h2><p>创建6个redis实例</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker create --name redis1 --net host --privileged=true -v /data/redis/share/redis1:/data redis:5.0.7 --cluster-enabled yes --appendonly yes --port 6381</span><br><span class="line">docker create --name redis2 --net host --privileged=true -v /data/redis/share/redis2:/data redis:5.0.7 --cluster-enabled yes --appendonly yes --port 6382</span><br><span class="line">docker create --name redis3 --net host --privileged=true -v /data/redis/share/redis3:/data redis:5.0.7 --cluster-enabled yes --appendonly yes --port 6383</span><br><span class="line">docker create --name redis4 --net host --privileged=true -v /data/redis/share/redis4:/data redis:5.0.7 --cluster-enabled yes --appendonly yes --port 6384</span><br><span class="line">docker create --name redis5 --net host --privileged=true -v /data/redis/share/redis5:/data redis:5.0.7 --cluster-enabled yes --appendonly yes --port 6385</span><br><span class="line">docker create --name redis6 --net host --privileged=true -v /data/redis/share/redis6:/data redis:5.0.7 --cluster-enabled yes --appendonly yes --port 6386</span><br></pre></td></tr></table></figure>
+
+<p><strong>命令说明：</strong></p>
+<blockquote>
+<p>docker create                          // 创建容器</p>
+<p>–name redis1                         // 容器名</p>
+<p>–net host                                // docker网络，使用宿主机的ip和端口</p>
+<p>–privileged=true                   // docker容器，获取宿主机root权限</p>
+<p>-v /data/redis/share/redis1:/data     // 容器的/data 挂载到宿主机 /data/redis/share/redis-node-1</p>
+<p>redis:5.0.7                              // redis 镜像名称和版本号</p>
+<p>–cluster-enabled yes           // redis.conf的配置：开启redis集群</p>
+<p>–appendonly yes                 // redis.conf的配置：开启数据持久化</p>
+<p>–port 6381                           // redis.conf的配置：redis端口号</p>
+</blockquote>
+<h2 id="三、启动容器"><a href="#三、启动容器" class="headerlink" title="三、启动容器"></a>三、启动容器</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker start redis1 redis2 redis3 redis4 redis5 redis6</span><br></pre></td></tr></table></figure>
+
+<h2 id="四、创建集群"><a href="#四、创建集群" class="headerlink" title="四、创建集群"></a>四、创建集群</h2><h3 id="1-进入redis1容器中"><a href="#1-进入redis1容器中" class="headerlink" title="1.进入redis1容器中"></a>1.进入redis1容器中</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker exec -it redis1 /bin/bash</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-配置一主一从"><a href="#2-配置一主一从" class="headerlink" title="2.配置一主一从"></a>2.配置一主一从</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-cli --cluster create 192.168.20.10:6381 192.168.20.10:6382 192.168.20.10:6383 192.168.20.10:6384 192.168.20.10:6385 192.168.20.10:6386 --cluster-replicas 1</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-查看集群信息"><a href="#3-查看集群信息" class="headerlink" title="3.查看集群信息"></a>3.查看集群信息</h3><h4 id="（1）进入redis客户端"><a href="#（1）进入redis客户端" class="headerlink" title="（1）进入redis客户端"></a>（1）进入redis客户端</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-cli -h 192.168.20.10 -p 6381 -c</span><br></pre></td></tr></table></figure>
+
+<h4 id="（2）查看集群信息"><a href="#（2）查看集群信息" class="headerlink" title="（2）查看集群信息"></a>（2）查看集群信息</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cluster info</span><br></pre></td></tr></table></figure>
+
+<h4 id="（3）查看节点信息"><a href="#（3）查看节点信息" class="headerlink" title="（3）查看节点信息"></a>（3）查看节点信息</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">cluster nodes</span><br></pre></td></tr></table></figure>
+
+<h4 id="（4）查看集群槽位信息"><a href="#（4）查看集群槽位信息" class="headerlink" title="（4）查看集群槽位信息"></a>（4）查看集群槽位信息</h4><p>退出redis客户端执行命令</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-cli --cluster check 192.168.20.10:6381</span><br></pre></td></tr></table></figure>
+
+<h2 id="五、redis集群哈希槽扩容"><a href="#五、redis集群哈希槽扩容" class="headerlink" title="五、redis集群哈希槽扩容"></a>五、redis集群哈希槽扩容</h2><h3 id="1-新增两台redis"><a href="#1-新增两台redis" class="headerlink" title="1.新增两台redis"></a>1.新增两台redis</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker create --name redis-node-7 --net host --privileged=true -v /data/redis/share/redis-node-7:/data redis:5.0.7 --cluster-enabled yes --appendonly yes --port 6387</span><br><span class="line">docker create --name redis-node-8 --net host --privileged=true -v /data/redis/share/redis-node-8:/data redis:5.0.7 --cluster-enabled yes --appendonly yes --port 6388</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-启动容器"><a href="#2-启动容器" class="headerlink" title="2.启动容器"></a>2.启动容器</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker start redis-node-7 redis-node-8</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-添加6387为master节点"><a href="#3-添加6387为master节点" class="headerlink" title="3.添加6387为master节点"></a>3.添加6387为master节点</h3><h4 id="（1）进入容器内"><a href="#（1）进入容器内" class="headerlink" title="（1）进入容器内"></a>（1）进入容器内</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker exec -it redis-node-7 /bin/bash</span><br></pre></td></tr></table></figure>
+
+<h4 id="（2）添加节点"><a href="#（2）添加节点" class="headerlink" title="（2）添加节点"></a>（2）添加节点</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-cli --cluster add-node 192.168.20.10:6387 192.168.20.10:6381</span><br></pre></td></tr></table></figure>
+
+<p><strong>说明：</strong></p>
+<blockquote>
+<p><strong>192.168.20.10:6387</strong>：被添加节点</p>
+<p><strong>192.168.20.10:6381</strong>：集群内任意节点</p>
+</blockquote>
+<p><strong>执行结果：</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">root@dev:/data# redis-cli --cluster add-node 192.168.20.10:6387 192.168.20.10:6381</span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Adding node 192.168.20.10:6387 to cluster 192.168.20.10:6381</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Performing Cluster Check (using node 192.168.20.10:6381)</span></span><br><span class="line">M: e3b687667d24189134183edac32bf9a4f69c6033 192.168.20.10:6381</span><br><span class="line">   slots:[0-5460] (5461 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">M: 981842c6e96abe8abc34326400565e0b2c44dd0f 192.168.20.10:6382</span><br><span class="line">   slots:[5461-10922] (5462 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">S: 4f65496819a0490760d4e1375fb7a371732a1ba8 192.168.20.10:6386</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates 1b826b5348a69af7054e04c3908ee066e9649ae0</span><br><span class="line">S: c450e9af3b9d84c4e8cee6e70e7317628c4a9960 192.168.20.10:6384</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates e3b687667d24189134183edac32bf9a4f69c6033</span><br><span class="line">M: 1b826b5348a69af7054e04c3908ee066e9649ae0 192.168.20.10:6383</span><br><span class="line">   slots:[10923-16383] (5461 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">S: 88be3f5ac4cd4c468004e829f3857666e9ff9bc5 192.168.20.10:6385</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates 981842c6e96abe8abc34326400565e0b2c44dd0f</span><br><span class="line">[OK] All nodes agree about slots configuration.</span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Check <span class="keyword">for</span> open slots...</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Check slots coverage...</span></span><br><span class="line">[OK] All 16384 slots covered.</span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Send CLUSTER MEET to node 192.168.20.10:6387 to make it join the cluster.</span></span><br><span class="line">[OK] New node added correctly.</span><br><span class="line">123456789101112131415161718192021222324252627</span><br></pre></td></tr></table></figure>
+
+<h4 id="（3）查看节点信息-1"><a href="#（3）查看节点信息-1" class="headerlink" title="（3）查看节点信息"></a>（3）查看节点信息</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-cli --cluster check 192.168.20.10:6381</span><br></pre></td></tr></table></figure>
+
+<p><strong>执行结果：</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">root@dev:/data# redis-cli --cluster check 192.168.20.10:6381</span><br><span class="line">192.168.20.10:6381 (e3b68766...) -&gt; 0 keys | 5461 slots | 1 slaves.</span><br><span class="line">192.168.20.10:6382 (981842c6...) -&gt; 1 keys | 5462 slots | 1 slaves.</span><br><span class="line">192.168.20.10:6383 (1b826b53...) -&gt; 0 keys | 5461 slots | 1 slaves.</span><br><span class="line">192.168.20.10:6387 (c4629e20...) -&gt; 0 keys | 0 slots | 0 slaves.</span><br><span class="line">[OK] 1 keys in 4 masters.</span><br><span class="line">0.00 keys per slot on average.</span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Performing Cluster Check (using node 192.168.20.10:6381)</span></span><br><span class="line">M: e3b687667d24189134183edac32bf9a4f69c6033 192.168.20.10:6381</span><br><span class="line">   slots:[0-5460] (5461 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">M: 981842c6e96abe8abc34326400565e0b2c44dd0f 192.168.20.10:6382</span><br><span class="line">   slots:[5461-10922] (5462 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">S: 4f65496819a0490760d4e1375fb7a371732a1ba8 192.168.20.10:6386</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates 1b826b5348a69af7054e04c3908ee066e9649ae0</span><br><span class="line">S: c450e9af3b9d84c4e8cee6e70e7317628c4a9960 192.168.20.10:6384</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates e3b687667d24189134183edac32bf9a4f69c6033</span><br><span class="line">M: 1b826b5348a69af7054e04c3908ee066e9649ae0 192.168.20.10:6383</span><br><span class="line">   slots:[10923-16383] (5461 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">S: 88be3f5ac4cd4c468004e829f3857666e9ff9bc5 192.168.20.10:6385</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates 981842c6e96abe8abc34326400565e0b2c44dd0f</span><br><span class="line">M: c4629e200d17cfa3625d5769e279e02948a1386b 192.168.20.10:6387</span><br><span class="line">   slots: (0 slots) master</span><br><span class="line">[OK] All nodes agree about slots configuration.</span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Check <span class="keyword">for</span> open slots...</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Check slots coverage...</span></span><br><span class="line">[OK] All 16384 slots covered.</span><br></pre></td></tr></table></figure>
+
+<p>通过信息可以发现，6387 节点虽然已成功加入到集群，但并未分配槽号。</p>
+<h4 id="（4）分配槽号"><a href="#（4）分配槽号" class="headerlink" title="（4）分配槽号"></a>（4）分配槽号</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-cli --cluster reshard 192.168.20.10:6381</span><br></pre></td></tr></table></figure>
+
+<p><strong>说明：</strong></p>
+<blockquote>
+<p><strong>192.168.20.10:6381</strong>：集群中任意节点 ip:port</p>
+</blockquote>
+<p><strong>执行结果</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">root@dev:/data# redis-cli --cluster reshard 192.168.20.10:6381</span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Performing Cluster Check (using node 192.168.20.10:6381)</span></span><br><span class="line">M: e3b687667d24189134183edac32bf9a4f69c6033 192.168.20.10:6381</span><br><span class="line">   slots:[0-5460] (5461 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">M: 981842c6e96abe8abc34326400565e0b2c44dd0f 192.168.20.10:6382</span><br><span class="line">   slots:[5461-10922] (5462 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">S: 4f65496819a0490760d4e1375fb7a371732a1ba8 192.168.20.10:6386</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates 1b826b5348a69af7054e04c3908ee066e9649ae0</span><br><span class="line">S: c450e9af3b9d84c4e8cee6e70e7317628c4a9960 192.168.20.10:6384</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates e3b687667d24189134183edac32bf9a4f69c6033</span><br><span class="line">M: 1b826b5348a69af7054e04c3908ee066e9649ae0 192.168.20.10:6383</span><br><span class="line">   slots:[10923-16383] (5461 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">S: 88be3f5ac4cd4c468004e829f3857666e9ff9bc5 192.168.20.10:6385</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates 981842c6e96abe8abc34326400565e0b2c44dd0f</span><br><span class="line">M: c4629e200d17cfa3625d5769e279e02948a1386b 192.168.20.10:6387</span><br><span class="line">   slots: (0 slots) master</span><br><span class="line">[OK] All nodes agree about slots configuration.</span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Check <span class="keyword">for</span> open slots...</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Check slots coverage...</span></span><br><span class="line">[OK] All 16384 slots covered.</span><br><span class="line">How many slots do you want to move (from 1 to 16384)? 4096        # 设置槽数据 16384/master 台数</span><br><span class="line">What is the receiving node ID? c4629e200d17cfa3625d5769e279e02948a1386b    # 输入新节点 node id</span><br><span class="line">Please enter all the source node IDs.</span><br><span class="line">    Type &#x27;all&#x27; to user all the nodes as source nodes for the hash slots.</span><br><span class="line">    Type &#x27;done&#x27; once you entered all the source nodes IDs.</span><br><span class="line">Source node #1: all                  # 表示全部节点重新分配槽号</span><br></pre></td></tr></table></figure>
+
+<h4 id="（5）再次查看节点信息"><a href="#（5）再次查看节点信息" class="headerlink" title="（5）再次查看节点信息"></a>（5）再次查看节点信息</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-cli --cluster check 192.168.20.10:6381</span><br></pre></td></tr></table></figure>
+
+<p><strong>执行结果：</strong></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">root@dev:/data# redis-cli --cluster check 192.168.20.10:6381 </span><br><span class="line">192.168.20.10:6381 (e3b68766...) -&gt; 0 keys | 4096 slots | 1 slaves.</span><br><span class="line">192.168.20.10:6382 (981842c6...) -&gt; 1 keys | 4096 slots | 1 slaves.</span><br><span class="line">192.168.20.10:6383 (1b826b53...) -&gt; 0 keys | 4096 slots | 1 slaves.</span><br><span class="line">192.168.20.10:6387 (c4629e20...) -&gt; 0 keys | 4096 slots | 0 slaves.</span><br><span class="line">[OK] 1 keys in 4 masters.</span><br><span class="line">0.00 keys per slot on average.</span><br><span class="line">&gt;&gt;&gt; Performing Cluster Check (using node 192.168.20.10:6381)</span><br><span class="line">M: e3b687667d24189134183edac32bf9a4f69c6033 192.168.20.10:6381</span><br><span class="line">   slots:[1365-5460] (4096 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">M: 981842c6e96abe8abc34326400565e0b2c44dd0f 192.168.20.10:6382</span><br><span class="line">   slots:[6827-10922] (4096 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">S: 4f65496819a0490760d4e1375fb7a371732a1ba8 192.168.20.10:6386</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates 1b826b5348a69af7054e04c3908ee066e9649ae0</span><br><span class="line">S: c450e9af3b9d84c4e8cee6e70e7317628c4a9960 192.168.20.10:6384</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates e3b687667d24189134183edac32bf9a4f69c6033</span><br><span class="line">M: 1b826b5348a69af7054e04c3908ee066e9649ae0 192.168.20.10:6383</span><br><span class="line">   slots:[12288-16383] (4096 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">S: 88be3f5ac4cd4c468004e829f3857666e9ff9bc5 192.168.20.10:6385</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates 981842c6e96abe8abc34326400565e0b2c44dd0f</span><br><span class="line">M: c4629e200d17cfa3625d5769e279e02948a1386b 192.168.20.10:6387</span><br><span class="line">   slots:[0-1364],[5461-6826],[10923-12287] (4096 slots) master</span><br><span class="line">[OK] All nodes agree about slots configuration.</span><br><span class="line">&gt;&gt;&gt; Check for open slots...</span><br><span class="line">&gt;&gt;&gt; Check slots coverage...</span><br><span class="line">[OK] All 16384 slots covered.</span><br></pre></td></tr></table></figure>
+
+<p>可以看出每个节点都分配了 4096 个槽号，但是 <strong>新加入的节点所分配的槽号并不是连续的</strong>。</p>
+<p>因为对于新加入的节点，要重新分配槽号成本较大，故从三个旧节点移动部分槽号给新节点。</p>
+<h3 id="4-为新加入的master节点分配从节点"><a href="#4-为新加入的master节点分配从节点" class="headerlink" title="4.为新加入的master节点分配从节点"></a>4.为新加入的master节点分配从节点</h3><h4 id="（1）将-6388-设置为-6387-从节点"><a href="#（1）将-6388-设置为-6387-从节点" class="headerlink" title="（1）将 6388 设置为 6387 从节点"></a>（1）将 6388 设置为 6387 从节点</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-cli --cluster add-node 192.168.20.10:6388 192.168.20.10:6387 --cluster-slave --cluster-master-id c4629e200d17cfa3625d5769e279e02948a1386b</span><br></pre></td></tr></table></figure>
+
+<p><strong>说明：</strong></p>
+<blockquote>
+<p><strong>add-node</strong>：后边分别为新加入的节点和节点对应的master<br><strong>cluster-slave</strong>：表示新加入的节点是slave节点<br><strong>–cluster-master-id</strong>：表示slave对应的master的node ID</p>
+</blockquote>
+<p><strong>执行结果：</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">root@dev:/data# redis-cli --cluster add-node 192.168.20.10:6388 192.168.20.10:6387 --cluster-slave --cluster-master-id c4629e200d17cfa3625d5769e279e02948a1386b</span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Adding node 192.168.20.10:6388 to cluster 192.168.20.10:6387</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Performing Cluster Check (using node 192.168.20.10:6387)</span></span><br><span class="line">M: c4629e200d17cfa3625d5769e279e02948a1386b 192.168.20.10:6387</span><br><span class="line">   slots:[0-1364],[5461-6826],[10923-12287] (4096 slots) master</span><br><span class="line">M: 1b826b5348a69af7054e04c3908ee066e9649ae0 192.168.20.10:6383</span><br><span class="line">   slots:[12288-16383] (4096 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">S: c450e9af3b9d84c4e8cee6e70e7317628c4a9960 192.168.20.10:6384</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates e3b687667d24189134183edac32bf9a4f69c6033</span><br><span class="line">S: 88be3f5ac4cd4c468004e829f3857666e9ff9bc5 192.168.20.10:6385</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates 981842c6e96abe8abc34326400565e0b2c44dd0f</span><br><span class="line">M: e3b687667d24189134183edac32bf9a4f69c6033 192.168.20.10:6381</span><br><span class="line">   slots:[1365-5460] (4096 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">M: 981842c6e96abe8abc34326400565e0b2c44dd0f 192.168.20.10:6382</span><br><span class="line">   slots:[6827-10922] (4096 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">S: 4f65496819a0490760d4e1375fb7a371732a1ba8 192.168.20.10:6386</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates 1b826b5348a69af7054e04c3908ee066e9649ae0</span><br><span class="line">[OK] All nodes agree about slots configuration.</span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Check <span class="keyword">for</span> open slots...</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Check slots coverage...</span></span><br><span class="line">[OK] All 16384 slots covered.</span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Send CLUSTER MEET to node 192.168.20.10:6388 to make it join the cluster.</span></span><br><span class="line">Waiting for the cluster to join</span><br><span class="line"><span class="meta"></span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Configure node as replica of 192.168.20.10:6387.</span></span><br><span class="line">[OK] New node added correctly.</span><br></pre></td></tr></table></figure>
+
+<h4 id="（2）查看节点信息"><a href="#（2）查看节点信息" class="headerlink" title="（2）查看节点信息"></a>（2）查看节点信息</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-cli --cluster check 192.168.20.10:6381</span><br></pre></td></tr></table></figure>
+
+<p><strong>执行结果：</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line">root@dev:/data# redis-cli --cluster check 192.168.20.10:6381</span><br><span class="line">192.168.20.10:6381 (e3b68766...) -&gt; 0 keys | 4096 slots | 1 slaves.</span><br><span class="line">192.168.20.10:6382 (981842c6...) -&gt; 1 keys | 4096 slots | 1 slaves.</span><br><span class="line">192.168.20.10:6383 (1b826b53...) -&gt; 0 keys | 4096 slots | 1 slaves.</span><br><span class="line">192.168.20.10:6387 (c4629e20...) -&gt; 0 keys | 4096 slots | 1 slaves.</span><br><span class="line">[OK] 1 keys in 4 masters.</span><br><span class="line">0.00 keys per slot on average.</span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Performing Cluster Check (using node 192.168.20.10:6381)</span></span><br><span class="line">M: e3b687667d24189134183edac32bf9a4f69c6033 192.168.20.10:6381</span><br><span class="line">   slots:[1365-5460] (4096 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">S: 7f81ef37a7ae89311f0c58542a3b92b87879e8a5 192.168.20.10:6388</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates c4629e200d17cfa3625d5769e279e02948a1386b</span><br><span class="line">M: 981842c6e96abe8abc34326400565e0b2c44dd0f 192.168.20.10:6382</span><br><span class="line">   slots:[6827-10922] (4096 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">S: 4f65496819a0490760d4e1375fb7a371732a1ba8 192.168.20.10:6386</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates 1b826b5348a69af7054e04c3908ee066e9649ae0</span><br><span class="line">S: c450e9af3b9d84c4e8cee6e70e7317628c4a9960 192.168.20.10:6384</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates e3b687667d24189134183edac32bf9a4f69c6033</span><br><span class="line">M: 1b826b5348a69af7054e04c3908ee066e9649ae0 192.168.20.10:6383</span><br><span class="line">   slots:[12288-16383] (4096 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">S: 88be3f5ac4cd4c468004e829f3857666e9ff9bc5 192.168.20.10:6385</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates 981842c6e96abe8abc34326400565e0b2c44dd0f</span><br><span class="line">M: c4629e200d17cfa3625d5769e279e02948a1386b 192.168.20.10:6387</span><br><span class="line">   slots:[0-1364],[5461-6826],[10923-12287] (4096 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">[OK] All nodes agree about slots configuration.</span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Check <span class="keyword">for</span> open slots...</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Check slots coverage...</span></span><br><span class="line">[OK] All 16384 slots covered.</span><br></pre></td></tr></table></figure>
+
+<p>可以看出从节点已加入成功。</p>
+<h2 id="六、redis集群哈希槽收缩"><a href="#六、redis集群哈希槽收缩" class="headerlink" title="六、redis集群哈希槽收缩"></a>六、redis集群哈希槽收缩</h2><h3 id="（1）删除master对应slave节点"><a href="#（1）删除master对应slave节点" class="headerlink" title="（1）删除master对应slave节点"></a>（1）删除master对应slave节点</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-cli --cluster del-node 192.168.20.10:6388 7f81ef37a7ae89311f0c58542a3b92b87879e8a5</span><br></pre></td></tr></table></figure>
+
+<p><strong>说明：</strong></p>
+<blockquote>
+<p><strong>192.168.20.10:6388</strong>：对应被删除节点<br><strong>7f81ef37a7ae89311f0c58542a3b92b87879e8a5</strong>：对应被删除节点 node id</p>
+</blockquote>
+<p><strong>执行结果：</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">root@dev:/data# redis-cli --cluster del-node 192.168.20.10:6388 7f81ef37a7ae89311f0c58542a3b92b87879e8a5</span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Removing node 7f81ef37a7ae89311f0c58542a3b92b87879e8a5 from cluster 192.168.20.10:6388</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Sending CLUSTER FORGET messages to the cluster...</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; SHUTDOWN the node.</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="（2）查看节点信息-1"><a href="#（2）查看节点信息-1" class="headerlink" title="（2）查看节点信息"></a>（2）查看节点信息</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-cli --cluster check 192.168.20.10:6381</span><br></pre></td></tr></table></figure>
+
+<p><strong>执行结果：</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">root@dev:/data# redis-cli --cluster check 192.168.20.10:6381</span><br><span class="line">192.168.20.10:6381 (e3b68766...) -&gt; 0 keys | 4096 slots | 1 slaves.</span><br><span class="line">192.168.20.10:6382 (981842c6...) -&gt; 1 keys | 4096 slots | 1 slaves.</span><br><span class="line">192.168.20.10:6383 (1b826b53...) -&gt; 0 keys | 4096 slots | 1 slaves.</span><br><span class="line">192.168.20.10:6387 (c4629e20...) -&gt; 0 keys | 4096 slots | 0 slaves.</span><br><span class="line">[OK] 1 keys in 4 masters.</span><br><span class="line">0.00 keys per slot on average.</span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Performing Cluster Check (using node 192.168.20.10:6381)</span></span><br><span class="line">M: e3b687667d24189134183edac32bf9a4f69c6033 192.168.20.10:6381</span><br><span class="line">   slots:[1365-5460] (4096 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">M: 981842c6e96abe8abc34326400565e0b2c44dd0f 192.168.20.10:6382</span><br><span class="line">   slots:[6827-10922] (4096 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">S: 4f65496819a0490760d4e1375fb7a371732a1ba8 192.168.20.10:6386</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates 1b826b5348a69af7054e04c3908ee066e9649ae0</span><br><span class="line">S: c450e9af3b9d84c4e8cee6e70e7317628c4a9960 192.168.20.10:6384</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates e3b687667d24189134183edac32bf9a4f69c6033</span><br><span class="line">M: 1b826b5348a69af7054e04c3908ee066e9649ae0 192.168.20.10:6383</span><br><span class="line">   slots:[12288-16383] (4096 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">S: 88be3f5ac4cd4c468004e829f3857666e9ff9bc5 192.168.20.10:6385</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates 981842c6e96abe8abc34326400565e0b2c44dd0f</span><br><span class="line">M: c4629e200d17cfa3625d5769e279e02948a1386b 192.168.20.10:6387</span><br><span class="line">   slots:[0-1364],[5461-6826],[10923-12287] (4096 slots) master</span><br><span class="line">[OK] All nodes agree about slots configuration.</span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Check <span class="keyword">for</span> open slots...</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Check slots coverage...</span></span><br><span class="line">[OK] All 16384 slots covered.</span><br></pre></td></tr></table></figure>
+
+<p>可以看出集群中已无 6388 节点。</p>
+<h4 id="（3）查看容器"><a href="#（3）查看容器" class="headerlink" title="（3）查看容器"></a>（3）查看容器</h4><p>退出容器，查看容器状态，可以看到 <code>redis-node-8</code> 容器已被停用</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">root@dev:~# docker ps </span><br><span class="line">CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS               NAMES</span><br><span class="line">c9827168c61d        redis:5.0.7         &quot;docker-entrypoint.s…&quot;   2 hours ago         Up 2 hours                              redis-node-7</span><br><span class="line">d1ad96f4a4ee        redis:5.0.7         &quot;docker-entrypoint.s…&quot;   9 days ago          Up 3 hours                              redis6</span><br><span class="line">db82428f5225        redis:5.0.7         &quot;docker-entrypoint.s…&quot;   9 days ago          Up 3 hours                              redis5</span><br><span class="line">5a0c7a3516f5        redis:5.0.7         &quot;docker-entrypoint.s…&quot;   9 days ago          Up 2 hours                              redis4</span><br><span class="line">cf9863611d0b        redis:5.0.7         &quot;docker-entrypoint.s…&quot;   9 days ago          Up 3 hours                              redis3</span><br><span class="line">7fa64b2a8071        redis:5.0.7         &quot;docker-entrypoint.s…&quot;   9 days ago          Up 3 hours                              redis2</span><br><span class="line">eae771794f0c        redis:5.0.7         &quot;docker-entrypoint.s…&quot;   9 days ago          Up 2 hours                              redis1</span><br></pre></td></tr></table></figure>
+
+<h4 id="（4）重新分配-6387-的槽号"><a href="#（4）重新分配-6387-的槽号" class="headerlink" title="（4）重新分配 6387 的槽号"></a>（4）重新分配 6387 的槽号</h4><p>需先进入任意一台redis容器</p>
+<p>执行命令</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-cli --cluster reshard 192.168.20.10:6381</span><br></pre></td></tr></table></figure>
+
+<p><strong>执行结果：</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">root@dev:/data# redis-cli --cluster reshard 192.168.20.10:6381</span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Performing Cluster Check (using node 192.168.20.10:6381)</span></span><br><span class="line">M: e3b687667d24189134183edac32bf9a4f69c6033 192.168.20.10:6381</span><br><span class="line">   slots:[1365-5460] (4096 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">M: 981842c6e96abe8abc34326400565e0b2c44dd0f 192.168.20.10:6382</span><br><span class="line">   slots:[6827-10922] (4096 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">S: 4f65496819a0490760d4e1375fb7a371732a1ba8 192.168.20.10:6386</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates 1b826b5348a69af7054e04c3908ee066e9649ae0</span><br><span class="line">S: c450e9af3b9d84c4e8cee6e70e7317628c4a9960 192.168.20.10:6384</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates e3b687667d24189134183edac32bf9a4f69c6033</span><br><span class="line">M: 1b826b5348a69af7054e04c3908ee066e9649ae0 192.168.20.10:6383</span><br><span class="line">   slots:[12288-16383] (4096 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">S: 88be3f5ac4cd4c468004e829f3857666e9ff9bc5 192.168.20.10:6385</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates 981842c6e96abe8abc34326400565e0b2c44dd0f</span><br><span class="line">M: c4629e200d17cfa3625d5769e279e02948a1386b 192.168.20.10:6387</span><br><span class="line">   slots:[0-1364],[5461-6826],[10923-12287] (4096 slots) master</span><br><span class="line">[OK] All nodes agree about slots configuration.</span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Check <span class="keyword">for</span> open slots...</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Check slots coverage...</span></span><br><span class="line">[OK] All 16384 slots covered.</span><br><span class="line">How many slots do you want to move (from 1 to 16384)? 4096      # 被删除的槽的数量</span><br><span class="line">What is the receiving node ID? e3b687667d24189134183edac32bf9a4f69c6033   # 接手被删除槽号的 node id，这里指定给 6381。这里只能输入一个node id，若想将槽号分配给多个 node 需要多次执行该命令</span><br><span class="line">Please enter all the source node IDs.</span><br><span class="line">  Type &#x27;all&#x27; to use all the nodes as source nodes for the hash slots.</span><br><span class="line">  Type &#x27;done&#x27; once you entered all the source nodes IDs.</span><br><span class="line">Source node #1: c4629e200d17cfa3625d5769e279e02948a1386b     # 删除槽号的node id</span><br><span class="line">Source node #2: done          # done 表示输入node id 结束（这里可以输入多个node id）</span><br><span class="line">Do you want to proceed with the proposed reshard plan (yes/no)? yes</span><br></pre></td></tr></table></figure>
+
+<h4 id="（5）再次查看节点信息-1"><a href="#（5）再次查看节点信息-1" class="headerlink" title="（5）再次查看节点信息"></a>（5）再次查看节点信息</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-cli --cluster check 192.168.20.10:6381</span><br></pre></td></tr></table></figure>
+
+<p><strong>执行结果：</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">root@dev:/data# redis-cli --cluster check 192.168.20.10:6381</span><br><span class="line">192.168.20.10:6381 (e3b68766...) -&gt; 0 keys | 8192 slots | 1 slaves.</span><br><span class="line">192.168.20.10:6382 (981842c6...) -&gt; 1 keys | 4096 slots | 1 slaves.</span><br><span class="line">192.168.20.10:6383 (1b826b53...) -&gt; 0 keys | 4096 slots | 1 slaves.</span><br><span class="line">192.168.20.10:6387 (c4629e20...) -&gt; 0 keys | 0 slots | 0 slaves.</span><br><span class="line">[OK] 1 keys in 4 masters.</span><br><span class="line">0.00 keys per slot on average.</span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Performing Cluster Check (using node 192.168.20.10:6381)</span></span><br><span class="line">M: e3b687667d24189134183edac32bf9a4f69c6033 192.168.20.10:6381</span><br><span class="line">   slots:[0-6826],[10923-12287] (8192 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">M: 981842c6e96abe8abc34326400565e0b2c44dd0f 192.168.20.10:6382</span><br><span class="line">   slots:[6827-10922] (4096 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">S: 4f65496819a0490760d4e1375fb7a371732a1ba8 192.168.20.10:6386</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates 1b826b5348a69af7054e04c3908ee066e9649ae0</span><br><span class="line">S: c450e9af3b9d84c4e8cee6e70e7317628c4a9960 192.168.20.10:6384</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates e3b687667d24189134183edac32bf9a4f69c6033</span><br><span class="line">M: 1b826b5348a69af7054e04c3908ee066e9649ae0 192.168.20.10:6383</span><br><span class="line">   slots:[12288-16383] (4096 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">S: 88be3f5ac4cd4c468004e829f3857666e9ff9bc5 192.168.20.10:6385</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates 981842c6e96abe8abc34326400565e0b2c44dd0f</span><br><span class="line">M: c4629e200d17cfa3625d5769e279e02948a1386b 192.168.20.10:6387</span><br><span class="line">   slots: (0 slots) master</span><br><span class="line">[OK] All nodes agree about slots configuration.</span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Check <span class="keyword">for</span> open slots...</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Check slots coverage...</span></span><br><span class="line">[OK] All 16384 slots covered.</span><br></pre></td></tr></table></figure>
+
+<p>这里可以看到 6387 已不包含任何槽号。</p>
+<h4 id="（6）删除节点-6387"><a href="#（6）删除节点-6387" class="headerlink" title="（6）删除节点 6387"></a>（6）删除节点 6387</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-cli --cluster del-node 192.168.20.10:6387 c4629e200d17cfa3625d5769e279e02948a1386b</span><br></pre></td></tr></table></figure>
+
+<p><strong>执行结果：</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">root@dev:/data# redis-cli --cluster del-node 192.168.20.10:6387 c4629e200d17cfa3625d5769e279e02948a1386b</span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Removing node c4629e200d17cfa3625d5769e279e02948a1386b from cluster 192.168.20.10:6387</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Sending CLUSTER FORGET messages to the cluster...</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; SHUTDOWN the node.</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="（7）再次查看节点信息"><a href="#（7）再次查看节点信息" class="headerlink" title="（7）再次查看节点信息"></a>（7）再次查看节点信息</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">redis-cli --cluster check 192.168.20.10:6381</span><br></pre></td></tr></table></figure>
+
+<p><strong>执行结果：</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line">root@dev:/data# redis-cli --cluster check 192.168.20.10:6381</span><br><span class="line">192.168.20.10:6381 (e3b68766...) -&gt; 0 keys | 8192 slots | 1 slaves.</span><br><span class="line">192.168.20.10:6382 (981842c6...) -&gt; 1 keys | 4096 slots | 1 slaves.</span><br><span class="line">192.168.20.10:6383 (1b826b53...) -&gt; 0 keys | 4096 slots | 1 slaves.</span><br><span class="line">[OK] 1 keys in 3 masters.</span><br><span class="line">0.00 keys per slot on average.</span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Performing Cluster Check (using node 192.168.20.10:6381)</span></span><br><span class="line">M: e3b687667d24189134183edac32bf9a4f69c6033 192.168.20.10:6381</span><br><span class="line">   slots:[0-6826],[10923-12287] (8192 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">M: 981842c6e96abe8abc34326400565e0b2c44dd0f 192.168.20.10:6382</span><br><span class="line">   slots:[6827-10922] (4096 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">S: 4f65496819a0490760d4e1375fb7a371732a1ba8 192.168.20.10:6386</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates 1b826b5348a69af7054e04c3908ee066e9649ae0</span><br><span class="line">S: c450e9af3b9d84c4e8cee6e70e7317628c4a9960 192.168.20.10:6384</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates e3b687667d24189134183edac32bf9a4f69c6033</span><br><span class="line">M: 1b826b5348a69af7054e04c3908ee066e9649ae0 192.168.20.10:6383</span><br><span class="line">   slots:[12288-16383] (4096 slots) master</span><br><span class="line">   1 additional replica(s)</span><br><span class="line">S: 88be3f5ac4cd4c468004e829f3857666e9ff9bc5 192.168.20.10:6385</span><br><span class="line">   slots: (0 slots) slave</span><br><span class="line">   replicates 981842c6e96abe8abc34326400565e0b2c44dd0f</span><br><span class="line">[OK] All nodes agree about slots configuration.</span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Check <span class="keyword">for</span> open slots...</span></span><br><span class="line"><span class="meta">&gt;</span><span class="bash">&gt;&gt; Check slots coverage...</span></span><br><span class="line">[OK] All 16384 slots covered.</span><br></pre></td></tr></table></figure>
+
+<p>可以看出 6387 节点已被删除。</p>
+
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                    <div class="article-prev">
+                        <a class="prev"
+                           rel="prev"
+                           href="/posts/29635/"
+                        >
+                            <span class="left arrow-icon flex-center">
+                              <i class="fas fa-chevron-left"></i>
+                            </span>
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">快速部署 Zookeeper</span>
+                                <span class="post-nav-item">Prev posts</span>
+                            </span>
+                        </a>
+                    </div>
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/posts/9379/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">快速部署 Redis</span>
+                                <span class="post-nav-item">Next posts</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2021</span>
+              -
+            
+            2022&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">JD</a>
+        </div>
+        
+            <script async  src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <div class="website-count info-item">
+                
+                    <span id="busuanzi_container_site_uv">
+                        Visitor Count&nbsp;<span id="busuanzi_value_site_uv"></span>&ensp;
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv">
+                        Totalview&nbsp;<span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="theme-info info-item">
+            Powered by <a target="_blank" href="https://hexo.io">Hexo</a>&nbsp;|&nbsp;Theme&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.3</a>
+        </div>
+        
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="arrow-up fas fa-arrow-up"></i>
+                <span class="percent"></span>
+            </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%88%9B%E5%BB%BA%E7%BD%91%E7%BB%9C"><span class="nav-text">一、创建网络</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%88%9B%E5%BB%BA-Redis-%E5%AE%B9%E5%99%A8"><span class="nav-text">二、创建 Redis 容器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%90%AF%E5%8A%A8%E5%AE%B9%E5%99%A8"><span class="nav-text">三、启动容器</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E5%88%9B%E5%BB%BA%E9%9B%86%E7%BE%A4"><span class="nav-text">四、创建集群</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E8%BF%9B%E5%85%A5redis1%E5%AE%B9%E5%99%A8%E4%B8%AD"><span class="nav-text">1.进入redis1容器中</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E9%85%8D%E7%BD%AE%E4%B8%80%E4%B8%BB%E4%B8%80%E4%BB%8E"><span class="nav-text">2.配置一主一从</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E6%9F%A5%E7%9C%8B%E9%9B%86%E7%BE%A4%E4%BF%A1%E6%81%AF"><span class="nav-text">3.查看集群信息</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%881%EF%BC%89%E8%BF%9B%E5%85%A5redis%E5%AE%A2%E6%88%B7%E7%AB%AF"><span class="nav-text">（1）进入redis客户端</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%882%EF%BC%89%E6%9F%A5%E7%9C%8B%E9%9B%86%E7%BE%A4%E4%BF%A1%E6%81%AF"><span class="nav-text">（2）查看集群信息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%883%EF%BC%89%E6%9F%A5%E7%9C%8B%E8%8A%82%E7%82%B9%E4%BF%A1%E6%81%AF"><span class="nav-text">（3）查看节点信息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%884%EF%BC%89%E6%9F%A5%E7%9C%8B%E9%9B%86%E7%BE%A4%E6%A7%BD%E4%BD%8D%E4%BF%A1%E6%81%AF"><span class="nav-text">（4）查看集群槽位信息</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81redis%E9%9B%86%E7%BE%A4%E5%93%88%E5%B8%8C%E6%A7%BD%E6%89%A9%E5%AE%B9"><span class="nav-text">五、redis集群哈希槽扩容</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%96%B0%E5%A2%9E%E4%B8%A4%E5%8F%B0redis"><span class="nav-text">1.新增两台redis</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E5%90%AF%E5%8A%A8%E5%AE%B9%E5%99%A8"><span class="nav-text">2.启动容器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E6%B7%BB%E5%8A%A06387%E4%B8%BAmaster%E8%8A%82%E7%82%B9"><span class="nav-text">3.添加6387为master节点</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%881%EF%BC%89%E8%BF%9B%E5%85%A5%E5%AE%B9%E5%99%A8%E5%86%85"><span class="nav-text">（1）进入容器内</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%882%EF%BC%89%E6%B7%BB%E5%8A%A0%E8%8A%82%E7%82%B9"><span class="nav-text">（2）添加节点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%883%EF%BC%89%E6%9F%A5%E7%9C%8B%E8%8A%82%E7%82%B9%E4%BF%A1%E6%81%AF-1"><span class="nav-text">（3）查看节点信息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%884%EF%BC%89%E5%88%86%E9%85%8D%E6%A7%BD%E5%8F%B7"><span class="nav-text">（4）分配槽号</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%885%EF%BC%89%E5%86%8D%E6%AC%A1%E6%9F%A5%E7%9C%8B%E8%8A%82%E7%82%B9%E4%BF%A1%E6%81%AF"><span class="nav-text">（5）再次查看节点信息</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E4%B8%BA%E6%96%B0%E5%8A%A0%E5%85%A5%E7%9A%84master%E8%8A%82%E7%82%B9%E5%88%86%E9%85%8D%E4%BB%8E%E8%8A%82%E7%82%B9"><span class="nav-text">4.为新加入的master节点分配从节点</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%881%EF%BC%89%E5%B0%86-6388-%E8%AE%BE%E7%BD%AE%E4%B8%BA-6387-%E4%BB%8E%E8%8A%82%E7%82%B9"><span class="nav-text">（1）将 6388 设置为 6387 从节点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%882%EF%BC%89%E6%9F%A5%E7%9C%8B%E8%8A%82%E7%82%B9%E4%BF%A1%E6%81%AF"><span class="nav-text">（2）查看节点信息</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81redis%E9%9B%86%E7%BE%A4%E5%93%88%E5%B8%8C%E6%A7%BD%E6%94%B6%E7%BC%A9"><span class="nav-text">六、redis集群哈希槽收缩</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%881%EF%BC%89%E5%88%A0%E9%99%A4master%E5%AF%B9%E5%BA%94slave%E8%8A%82%E7%82%B9"><span class="nav-text">（1）删除master对应slave节点</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%882%EF%BC%89%E6%9F%A5%E7%9C%8B%E8%8A%82%E7%82%B9%E4%BF%A1%E6%81%AF-1"><span class="nav-text">（2）查看节点信息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%883%EF%BC%89%E6%9F%A5%E7%9C%8B%E5%AE%B9%E5%99%A8"><span class="nav-text">（3）查看容器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%884%EF%BC%89%E9%87%8D%E6%96%B0%E5%88%86%E9%85%8D-6387-%E7%9A%84%E6%A7%BD%E5%8F%B7"><span class="nav-text">（4）重新分配 6387 的槽号</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%885%EF%BC%89%E5%86%8D%E6%AC%A1%E6%9F%A5%E7%9C%8B%E8%8A%82%E7%82%B9%E4%BF%A1%E6%81%AF-1"><span class="nav-text">（5）再次查看节点信息</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%886%EF%BC%89%E5%88%A0%E9%99%A4%E8%8A%82%E7%82%B9-6387"><span class="nav-text">（6）删除节点 6387</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%887%EF%BC%89%E5%86%8D%E6%AC%A1%E6%9F%A5%E7%9C%8B%E8%8A%82%E7%82%B9%E4%BF%A1%E6%81%AF"><span class="nav-text">（7）再次查看节点信息</span></a></li></ol></li></ol></li></ol>
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="Search..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="popup-btn-close">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+</main>
+
+
+
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/main.js"></script>
+
+<script src="/js/header-shrink.js"></script>
+
+<script src="/js/back2top.js"></script>
+
+<script src="/js/dark-light-toggle.js"></script>
+
+
+
+    
+<script src="/js/local-search.js"></script>
+
+
+
+
+    
+<script src="/js/code-copy.js"></script>
+
+
+
+
+
+<div class="post-scripts">
+    
+        
+<script src="/js/left-side-toggle.js"></script>
+
+<script src="/js/libs/anime.min.js"></script>
+
+<script src="/js/toc.js"></script>
+
+    
+</div>
+
+
+
+</body>
+</html>

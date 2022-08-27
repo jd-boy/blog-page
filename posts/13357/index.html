@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="JD">
+    
+    <title>
+        
+            Nginx location 匹配规则 |
+        
+        Bean You
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <link rel="shortcut icon" href="http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico">
+    
+<link rel="stylesheet" href="/css/font-awesome.min.css">
+
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"jzcupid.cn","root":"/","language":"en","path":"search.json"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":false,"expand_all":false,"init_open":false},"style":{"primary_color":"#0066CC","avatar":"http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico","favicon":"http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":true,"scale":true},"first_screen":{"enable":true,"background_img":"/images/bg.svg","description":"征途～是星辰大海"},"scroll":{"progress_bar":{"enable":false},"percent":{"enable":true}}},"local_search":{"enable":true,"trigger":"auto","preload":true},"code_copy":{"enable":true,"style":"default"},"pjax":{"enable":false},"lazyload":{"enable":false},"version":"3.4.3"};
+    KEEP.language_ago = {"second":"%s seconds ago","minute":"%s minutes ago","hour":"%s hours ago","day":"%s days ago","week":"%s weeks ago","month":"%s months ago","year":"%s years ago"};
+  </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                Bean You
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                首页
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/categories"
+                            >
+                                分类
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >
+                                标签
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                归档
+                            </a>
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="fas fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">首页</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/categories">分类</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags">标签</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">归档</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">Nginx location 匹配规则</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">JD</span>
+                        
+                            <span class="author-label">Lv5</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2021-12-17 15:27:40
+    </span>
+    
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>&nbsp;
+                    </li>
+                
+                    <li>
+                        &gt; <a href="/categories/%E8%BF%90%E7%BB%B4/Nginx/">Nginx</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+    
+
+    
+    
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fas fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <h2 id="一、url匹配规则"><a href="#一、url匹配规则" class="headerlink" title="一、url匹配规则"></a>一、url匹配规则</h2><figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">location [=|~|~*|<span class="built_in">^</span>~|@] /uri/ &#123;</span><br><span class="line">  ...</span><br><span class="line">&#125; </span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>=</code>：表示精确匹配后面的url</li>
+<li><code>~</code>：表示正则匹配，但是区分大小写</li>
+<li><code>~*</code>：正则匹配，不区分大小写</li>
+<li><code>^~</code>：表示普通字符匹配，如果该选项匹配，只匹配该选项，不匹配别的选项，一般用来匹配目录</li>
+<li><code>@</code>：”@” 定义一个命名的 location，使用在内部定向时，例如 error_page</li>
+</ul>
+<p>上述匹配规则的优先匹配顺序：</p>
+<ol>
+<li>= 前缀的指令严格匹配这个查询。如果找到，停止搜索；</li>
+<li>所有剩下的常规字符串，最长的匹配。如果这个匹配使用 ^~ 前缀，搜索停止；</li>
+<li>正则表达式，在配置文件中定义的顺序；</li>
+<li>如果第 3 条规则产生匹配的话，结果被使用。否则，使用第 2 条规则的结果。</li>
+</ol>
+<h2 id="目标地址处理规则"><a href="#目标地址处理规则" class="headerlink" title="目标地址处理规则"></a>目标地址处理规则</h2><p>匹配到uri后，接下来要代理到目标服务地址。</p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">upstream api<span class="built_in">_</span>server &#123;</span><br><span class="line">  server 10.0.101.62:8081;</span><br><span class="line">  server 10.0.101.61:8082;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">location / &#123;</span><br><span class="line">        rewrite <span class="built_in">^</span>(.*)<span class="built_in">$</span> http://10.0.101.62:8000/my-module<span class="built_in">$</span>1 break;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">location <span class="built_in">^</span>~ /my-module/ &#123;</span><br><span class="line">    root   /data/my-module/dist;</span><br><span class="line">    rewrite <span class="built_in">^</span>/my-module/(.*)<span class="built_in">$</span>  /<span class="built_in">$</span>1 break;</span><br><span class="line">    index  index.html index.htm;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">location /my-module/api &#123;</span><br><span class="line">    proxy<span class="built_in">_</span>pass  http://api<span class="built_in">_</span>server;</span><br><span class="line">    proxy<span class="built_in">_</span>set<span class="built_in">_</span>header Host <span class="built_in">$</span>host;</span><br><span class="line">    proxy<span class="built_in">_</span>set<span class="built_in">_</span>header  X-Real-IP        <span class="built_in">$</span>remote<span class="built_in">_</span>addr;</span><br><span class="line">    proxy<span class="built_in">_</span>set<span class="built_in">_</span>header  X-Forwarded-For  <span class="built_in">$</span>proxy<span class="built_in">_</span>add<span class="built_in">_</span>x<span class="built_in">_</span>forwarded<span class="built_in">_</span>for;</span><br><span class="line">    proxy<span class="built_in">_</span>set<span class="built_in">_</span>header  your-custome-header    &quot;myHeader&quot;;</span><br><span class="line">    proxy<span class="built_in">_</span>set<span class="built_in">_</span>header X-NginX-Proxy true;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上述配置，默认访问<code>/</code>会重定向到<code>/my-module</code>, 然后直接返回<code>/data/my-module/dist</code>下的html等静态文件。</p>
+<p>访问<code>/my-module/api</code>则会代理到我们api服务器地址，是一个默认的round-robin负载均衡配置。</p>
+<p>下面是访问localhost的日志, 访问首页一共进行了2次重定向。</p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">Request URL: http://10.0.101.62:8000/</span><br><span class="line">Request Method: GET</span><br><span class="line">Status Code: 302 Moved Temporarily</span><br><span class="line">Location: http://10.0.101.62:8000/flash/</span><br><span class="line"></span><br><span class="line">Request URL: http://10.0.101.62:8000/flash/</span><br><span class="line">Request Method: GET</span><br><span class="line">Status Code: 302 Moved Temporarily</span><br><span class="line">Location: http://10.0.101.62:8000/flash/index.html</span><br><span class="line"></span><br><span class="line">Request URL: http://10.0.101.62:8000/flash/index.html</span><br><span class="line">Request Method: GET</span><br><span class="line">Status Code: 304 Not Modified</span><br></pre></td></tr></table></figure>
+
+<h3 id="alias与root的区别"><a href="#alias与root的区别" class="headerlink" title="alias与root的区别"></a>alias与root的区别</h3><ul>
+<li><strong>root</strong> 实际访问文件路径会拼接URL中的路径</li>
+<li><strong>alias</strong> 实际访问文件路径不会拼接URL中的路径</li>
+</ul>
+<p><strong>alias 示例：</strong></p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">location <span class="built_in">^</span>~ /sta/ &#123;  </span><br><span class="line">   alias /usr/local/nginx/html/static/;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>请求：<code>http://test.com/sta/sta1.html</code><br>实际访问：<code>/usr/local/nginx/html/static/sta1.html</code> 文件</p>
+<p><strong>root 示例：</strong></p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">location <span class="built_in">^</span>~ /tea/ &#123;  </span><br><span class="line">   root /usr/local/nginx/html/;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>请求：<code>http://test.com/tea/tea1.html</code><br>实际访问：<code>/usr/local/nginx/html/tea/tea1.html</code> 文件</p>
+<p>显然，第二次重定向是不需要的，本意是访问/flash/的时候，直接访问对应目录下的html静态文件。 但因为root拼接flash导致找不到对应文件，要重写url，去掉flash这个模块前缀，使用了<code>rewrite</code>, 而<code>rewrite</code>会返回302重定向。</p>
+<p>接下来，我们修改<code>root</code>为<code>alias</code></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"> location ^~ /flash/ &#123;</span><br><span class="line">    alias   /data/flash/dist/;</span><br><span class="line">    #rewrite ^/flash/(.*)$  /$1 break;</span><br><span class="line">    index  index.html index.htm;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>直接重定向1次后返回html</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Request URL: http://10.0.101.62:8000/</span><br><span class="line">Request Method: GET</span><br><span class="line">Status Code: 302 Moved Temporarily</span><br><span class="line"></span><br><span class="line">Request URL: http://10.0.101.62:8000/flash/</span><br><span class="line">Request Method: GET</span><br><span class="line">Status Code: 200 OK (from disk cache)</span><br></pre></td></tr></table></figure>
+
+<h3 id="last-和-break-关键字的区别"><a href="#last-和-break-关键字的区别" class="headerlink" title="last 和 break 关键字的区别"></a>last 和 break 关键字的区别</h3><p>只用到了break，即匹配到此处后不会继续跳。</p>
+<h3 id="permanent-和-redirect-关键字的区别"><a href="#permanent-和-redirect-关键字的区别" class="headerlink" title="permanent 和 redirect 关键字的区别"></a>permanent 和 redirect 关键字的区别</h3><ul>
+<li>rewrite … permanent 永久性重定向，请求日志中的状态码为301</li>
+<li>rewrite … redirect 临时重定向，请求日志中的状态码为302</li>
+</ul>
+<p>我们常用的80端口转443，即http转https的一种配置方案为：</p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    listen 80;</span><br><span class="line">    server<span class="built_in">_</span>name demo.com;</span><br><span class="line">    rewrite <span class="built_in">^</span>(.*)<span class="built_in">$</span> https://<span class="built_in">$</span>&#123;server<span class="built_in">_</span>name&#125;<span class="built_in">$</span>1 permanent; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>会返回301永久重定向到对应的https：</p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Request URL: http://demo.com/flash/index.html</span><br><span class="line">Request Method: GET</span><br><span class="line">Status Code: 301 Moved Permanently</span><br><span class="line">Location: https://demo/flash/index.html</span><br></pre></td></tr></table></figure>
+
+<h2 id="二、一些使用场景"><a href="#二、一些使用场景" class="headerlink" title="二、一些使用场景"></a>二、一些使用场景</h2><p>上述demo差不多就是我平时用的前后端分离的代理配置方案。下面是一些遇到过的场景。</p>
+<p>配置一个静态文件下载服务，我们下面软件会经常看到index /的页面。</p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">        listen       8888;        <span class="params">#</span>端口</span><br><span class="line">        server<span class="built_in">_</span>name  <span class="built_in">_</span>;   <span class="params">#</span>服务名</span><br><span class="line"></span><br><span class="line">        charset utf-8,gbk;</span><br><span class="line">        root    /data/download;  <span class="params">#</span>显示的根索引目录</span><br><span class="line">        autoindex on;             <span class="params">#</span>开启索引功能</span><br><span class="line">        autoindex<span class="built_in">_</span>exact<span class="built_in">_</span>size off; <span class="params">#</span> 关闭计算文件确切大小（单位bytes），只显示大概大小（单位kb、mb、gb）</span><br><span class="line">        autoindex<span class="built_in">_</span>localtime on;   <span class="params">#</span> 显示本机时间而非 GMT 时间</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>配置http重定向到https</p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    listen 80;</span><br><span class="line">    server<span class="built_in">_</span>name demo.com;</span><br><span class="line">    rewrite <span class="built_in">^</span>(.*)<span class="built_in">$</span> https://<span class="built_in">$</span>&#123;server<span class="built_in">_</span>name&#125;<span class="built_in">$</span>1 permanent; </span><br><span class="line">&#125;</span><br><span class="line">                   </span><br><span class="line">server &#123;</span><br><span class="line">    listen       443;</span><br><span class="line">    server<span class="built_in">_</span>name  demo.com;</span><br><span class="line">    charset utf-8;</span><br><span class="line">    location / &#123;</span><br><span class="line">       alias   /data/web;</span><br><span class="line">       index  index.html index.htm;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>配置静态前端页面</p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">location / &#123;</span><br><span class="line">    alias   /data/web;</span><br><span class="line">    index  index.html index.htm;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>配置反向代理, 比如我们访问<a class="link"   target="_blank" rel="noopener" href="http://demo.com/api/aaa/bbb%EF%BC%8C%E6%88%91%E4%BB%AC%E6%83%B3%E8%A6%81%E4%BB%A3%E7%90%86%E5%88%B0http://api.com/api/aaa/bbb" >http://demo.com/api/aaa/bbb，我们想要代理到http://api.com/api/aaa/bbb<i class="fas fa-external-link-alt"></i></a>, 只切换了域名，uri相同。</p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">upstream api<span class="built_in">_</span>server &#123;</span><br><span class="line">  server 10.0.101.62:8081;</span><br><span class="line">  server 10.0.101.61:8082;</span><br><span class="line">&#125;</span><br><span class="line">location /api &#123;</span><br><span class="line">    proxy<span class="built_in">_</span>pass  http://api<span class="built_in">_</span>server;</span><br><span class="line">    proxy<span class="built_in">_</span>set<span class="built_in">_</span>header Host <span class="built_in">$</span>host;</span><br><span class="line">    proxy<span class="built_in">_</span>set<span class="built_in">_</span>header  X-Real-IP        <span class="built_in">$</span>remote<span class="built_in">_</span>addr;</span><br><span class="line">    proxy<span class="built_in">_</span>set<span class="built_in">_</span>header  X-Forwarded-For  <span class="built_in">$</span>proxy<span class="built_in">_</span>add<span class="built_in">_</span>x<span class="built_in">_</span>forwarded<span class="built_in">_</span>for;</span><br><span class="line">    proxy<span class="built_in">_</span>set<span class="built_in">_</span>header  your-custome-header    &quot;myHeader&quot;;</span><br><span class="line">    proxy<span class="built_in">_</span>set<span class="built_in">_</span>header X-NginX-Proxy true;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>配置反向代理时，移除前缀。比如我们的服务<a class="link"   target="_blank" rel="noopener" href="http://demo.com/users/aaa/bbb" >http://demo.com/users/aaa/bbb<i class="fas fa-external-link-alt"></i></a>, 我们想要代理到<a class="link"   target="_blank" rel="noopener" href="http://users.com/aaa/bbb%EF%BC%8C%E5%8D%B3%E5%88%87%E6%8D%A2%E5%9F%9F%E5%90%8D%E7%9A%84%E5%90%8C%E6%97%B6%EF%BC%8C%E5%8E%BB%E6%8E%89users%E5%89%8D%E7%BC%80%E3%80%82%E5%8C%BA%E5%88%AB%E6%98%AFproxy_pass" >http://users.com/aaa/bbb，即切换域名的同时，去掉users前缀。区别是proxy_pass<i class="fas fa-external-link-alt"></i></a> 结尾的<code>/</code>.</p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">location <span class="built_in">^</span>~/users/ &#123;</span><br><span class="line">    proxy<span class="built_in">_</span>set<span class="built_in">_</span>header Host <span class="built_in">$</span>host;</span><br><span class="line">    proxy<span class="built_in">_</span>set<span class="built_in">_</span>header  X-Real-IP        <span class="built_in">$</span>remote<span class="built_in">_</span>addr;</span><br><span class="line">    proxy<span class="built_in">_</span>set<span class="built_in">_</span>header  X-Forwarded-For  <span class="built_in">$</span>proxy<span class="built_in">_</span>add<span class="built_in">_</span>x<span class="built_in">_</span>forwarded<span class="built_in">_</span>for;</span><br><span class="line">    proxy<span class="built_in">_</span>set<span class="built_in">_</span>header X-NginX-Proxy true;</span><br><span class="line"></span><br><span class="line">    proxy<span class="built_in">_</span>pass http://users.com/;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>反向代理时，想要自定义修改uri。使用rewrite正则修改。</p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="params">#</span> 修改uri，去掉了flash的前缀，<span class="built_in">$</span>1表示正则匹配到的字符串内容。</span><br><span class="line">location <span class="built_in">^</span>~ /flash/ &#123;</span><br><span class="line">    root   /data/flash/dist/;</span><br><span class="line">    rewrite <span class="built_in">^</span>/flash/(.*)<span class="built_in">$</span>  /<span class="built_in">$</span>1 break;</span><br><span class="line">    index  index.html index.htm;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="params">#</span> 修改uri, 重新代理到新的地址</span><br><span class="line">location <span class="built_in">^</span>~/order/ &#123;</span><br><span class="line">    proxy<span class="built_in">_</span>set<span class="built_in">_</span>header Host <span class="built_in">$</span>host;</span><br><span class="line">    proxy<span class="built_in">_</span>set<span class="built_in">_</span>header  X-Real-IP        <span class="built_in">$</span>remote<span class="built_in">_</span>addr;</span><br><span class="line">    proxy<span class="built_in">_</span>set<span class="built_in">_</span>header  X-Forwarded-For  <span class="built_in">$</span>proxy<span class="built_in">_</span>add<span class="built_in">_</span>x<span class="built_in">_</span>forwarded<span class="built_in">_</span>for;</span><br><span class="line">    proxy<span class="built_in">_</span>set<span class="built_in">_</span>header X-NginX-Proxy true;</span><br><span class="line"></span><br><span class="line">    rewrite <span class="built_in">^</span>/order/(.*)<span class="built_in">$</span> /<span class="built_in">$</span>1 break;</span><br><span class="line">    proxy<span class="built_in">_</span>pass http://order;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>代理跨域, 比如bing每日一图，不支持我们ajax获取图片地址，我们可以自己写一个支持的接口。</p>
+<p><a href="http://101.200.218.760/proxy/bing/HPImageArchive.aspx?format=js&amp;idx=0&amp;n=1">http://101.200.218.760/proxy/bing/HPImageArchive.aspx?format=js&amp;idx=0&amp;n=1</a></p>
+<p>代理对象为：<br><a class="link"   target="_blank" rel="noopener" href="https://cn.bing.com/HPImageArchive.aspx?format=js&amp;idx=0&amp;n=1" >https://cn.bing.com/HPImageArchive.aspx?format=js&amp;idx=0&amp;n=1<i class="fas fa-external-link-alt"></i></a></p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">location <span class="built_in">^</span>~/proxy/bing/ &#123;</span><br><span class="line">    add<span class="built_in">_</span>header &#x27;Access-Control-Allow-Origin&#x27; &#x27;http://localhost:8088&#x27;;</span><br><span class="line">    add<span class="built_in">_</span>header &#x27;Cache-Control&#x27; &#x27;public, max-age=604800&#x27;;</span><br><span class="line"></span><br><span class="line">    add<span class="built_in">_</span>header &#x27;Access-Control-Allow-Credentials&#x27; &#x27;true&#x27;;</span><br><span class="line">    add<span class="built_in">_</span>header &#x27;Access-Control-Allow-Methods&#x27; &#x27;GET, POST, OPTIONS&#x27;;</span><br><span class="line"></span><br><span class="line">    rewrite <span class="built_in">^</span>/proxy/bing/(.*)<span class="built_in">$</span> /<span class="built_in">$</span>1 break;</span><br><span class="line">    proxy<span class="built_in">_</span>pass https://cn.bing.com/; </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                    <div class="article-prev">
+                        <a class="prev"
+                           rel="prev"
+                           href="/posts/2191/"
+                        >
+                            <span class="left arrow-icon flex-center">
+                              <i class="fas fa-chevron-left"></i>
+                            </span>
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">Redis 延迟排查</span>
+                                <span class="post-nav-item">Prev posts</span>
+                            </span>
+                        </a>
+                    </div>
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/posts/10118/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">I/O模型与单服务器高性能架构</span>
+                                <span class="post-nav-item">Next posts</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2021</span>
+              -
+            
+            2022&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">JD</a>
+        </div>
+        
+            <script async  src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <div class="website-count info-item">
+                
+                    <span id="busuanzi_container_site_uv">
+                        Visitor Count&nbsp;<span id="busuanzi_value_site_uv"></span>&ensp;
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv">
+                        Totalview&nbsp;<span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="theme-info info-item">
+            Powered by <a target="_blank" href="https://hexo.io">Hexo</a>&nbsp;|&nbsp;Theme&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.3</a>
+        </div>
+        
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="arrow-up fas fa-arrow-up"></i>
+                <span class="percent"></span>
+            </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81url%E5%8C%B9%E9%85%8D%E8%A7%84%E5%88%99"><span class="nav-text">一、url匹配规则</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%9B%AE%E6%A0%87%E5%9C%B0%E5%9D%80%E5%A4%84%E7%90%86%E8%A7%84%E5%88%99"><span class="nav-text">目标地址处理规则</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#alias%E4%B8%8Eroot%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-text">alias与root的区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#last-%E5%92%8C-break-%E5%85%B3%E9%94%AE%E5%AD%97%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-text">last 和 break 关键字的区别</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#permanent-%E5%92%8C-redirect-%E5%85%B3%E9%94%AE%E5%AD%97%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-text">permanent 和 redirect 关键字的区别</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E4%B8%80%E4%BA%9B%E4%BD%BF%E7%94%A8%E5%9C%BA%E6%99%AF"><span class="nav-text">二、一些使用场景</span></a></li></ol>
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="Search..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="popup-btn-close">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+</main>
+
+
+
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/main.js"></script>
+
+<script src="/js/header-shrink.js"></script>
+
+<script src="/js/back2top.js"></script>
+
+<script src="/js/dark-light-toggle.js"></script>
+
+
+
+    
+<script src="/js/local-search.js"></script>
+
+
+
+
+    
+<script src="/js/code-copy.js"></script>
+
+
+
+
+
+<div class="post-scripts">
+    
+        
+<script src="/js/left-side-toggle.js"></script>
+
+<script src="/js/libs/anime.min.js"></script>
+
+<script src="/js/toc.js"></script>
+
+    
+</div>
+
+
+
+</body>
+</html>

@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="JD">
+    
+    <title>
+        
+            数据库故障恢复机制的前世今生 |
+        
+        Bean You
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <link rel="shortcut icon" href="http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico">
+    
+<link rel="stylesheet" href="/css/font-awesome.min.css">
+
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"jzcupid.cn","root":"/","language":"en","path":"search.json"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":false,"expand_all":false,"init_open":false},"style":{"primary_color":"#0066CC","avatar":"http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico","favicon":"http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":true,"scale":true},"first_screen":{"enable":true,"background_img":"/images/bg.svg","description":"征途～是星辰大海"},"scroll":{"progress_bar":{"enable":false},"percent":{"enable":true}}},"local_search":{"enable":true,"trigger":"auto","preload":true},"code_copy":{"enable":true,"style":"default"},"pjax":{"enable":false},"lazyload":{"enable":false},"version":"3.4.3"};
+    KEEP.language_ago = {"second":"%s seconds ago","minute":"%s minutes ago","hour":"%s hours ago","day":"%s days ago","week":"%s weeks ago","month":"%s months ago","year":"%s years ago"};
+  </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                Bean You
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                首页
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/categories"
+                            >
+                                分类
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >
+                                标签
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                归档
+                            </a>
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="fas fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">首页</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/categories">分类</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags">标签</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">归档</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">数据库故障恢复机制的前世今生</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">JD</span>
+                        
+                            <span class="author-label">Lv5</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2022-01-05 13:07:05
+    </span>
+    
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/categories/MySQL/">MySQL</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+    
+
+    
+    
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fas fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>在数据库系统发展的历史长河中，故障恢复问题始终伴随左右，也深刻影响着数据库结构的发展变化。</p>
+<p>通过故障恢复机制，可以实现数据库的两个至关重要的特性：<strong>Durability of Updates</strong> 以及 <strong>Failure Atomic</strong>，也就是我们常说的的ACID中的A和D。</p>
+<p>磁盘数据库由于其卓越的性价比一直以来都占据数据库应用的主流位置。然而，由于需要协调内存和磁盘两种截然不同的存储介质，在处理故障恢复问题时也增加了很多的复杂度。随着学术界及工程界的共同努力及硬件本身的变化，磁盘数据库的故障恢复机制也不断的迭代更新，尤其近些年来，随着NVM的浮现，围绕新硬件的研究也如雨后春笋出现。</p>
+<p>本文希望通过分析不同时间点的关键研究成果，来梳理数据库故障恢复问题的本质，其发展及优化方向，以及随着硬件变化而发生的变化。</p>
+<p> 文章将首先描述故障恢复问题本身；然后按照基本的时间顺序介绍传统数据库中故障恢复机制的演进及优化；之后思考新硬件带来的机遇与挑战；并引出围绕新硬件的两个不同方向的研究成果；最后进行总结。</p>
+<h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p>数据库系统运行过程中可能遇到的故障类型主要包括，Transaction Failure，Process Failure，System Failure以及Media Failure。其中Transaction Failure可能是主动回滚或者冲突后强制Abort；Process Failure指的是由于各种原因导致的进程退出，进程内存内容会丢失；System Failure来源于操作系统或硬件故障；而Media Failure则是存储介质的不可恢复损坏。数据库系统需要正确合理的处理这些故障，从而保证系统的正确性。为此需要提供两个特性：</p>
+<ul>
+<li><strong>Durability of Updates：已经Commit的事务的修改，故障恢复后仍然存在；</strong></li>
+<li><strong>Failure Atomic：失败事务的所有修改都不可见</strong>。</li>
+</ul>
+<p>因此，故障恢复的问题描述为：<strong>即使在出现故障的情况下，数据库依然能够通过提供Durability及Atomic特性，保证恢复后的数据库状态正确。</strong>然而，要解决这个问题并不是一个简单的事情，为了不显著牺牲数据库性能，长久以来人们对故障恢复机制进行了一系列的探索。</p>
+<h2 id="一、Shadow-Paging"><a href="#一、Shadow-Paging" class="headerlink" title="一、Shadow Paging"></a>一、Shadow Paging</h2><p>1981年，JIM GRAY等人在《<a class="link"   target="_blank" rel="noopener" href="http://courses.cs.washington.edu/courses/cse550/09au/papers/CSE550.GrayTM.pdf" >The Recovery Manager of the System R Database Manager<i class="fas fa-external-link-alt"></i></a>》中采用了一种非常直观的解决方式Shadow Paging[1]。System R的磁盘数据采用Page为最小的组织单位，一个File由多个Page组成，并通过称为Direcotry的元数据进行索引，每个Directory项纪录了当前文件的Page Table，指向其包含的所有Page。采用Shadow Paging的文件称为Shadow File，如下图中的File B所示，这种文件会包含两个Directory项，Current及Shadow。</p>
+<p><img src="http://qiniu.jzcupid.cn/blog/shadow_paging.png" alt="shadow paging">事务对文件进行修改时，会获得新的Page，并加入Current的Page Table，所有的修改都只发生在Current Directory；事务Commit时，Current指向的Page刷盘，并通过原子的操作将Current的Page Table合并到Shadow Directory中，之后再返回应用Commit成功；事务Abort时只需要简单的丢弃Current指向的Page；如果过程中发生故障，只需要恢复Shadow Directory，相当于对所有未提交事务的回滚操作。Shadow Paging很方便的实现了：</p>
+<ul>
+<li><strong>Durability of Updates</strong>：事务完成Commit后，所有修改的Page已经落盘，合并到Shadow后，其所有的修改可以在故障后恢复出来。</li>
+<li><strong>Failure Atomic</strong>：回滚的事务由于没有Commit，从未影响Shadow Directory，因此其所有修改不可见。</li>
+</ul>
+<p>虽然Shadow Paging设计简单直观，但它的一些<strong>缺点</strong>导致其并没有成为主流，首先，不支持Page内并发，一个Commit操作会导致其Page上所有事务的修改被提交，因此一个Page内只能包含一个事务的修改；其次，不断修改Page的物理位置，导致很难将相关的页维护在一起，破坏局部性；另外，对大事务而言，Commit过程在关键路径上修改Shadow Directory的开销可能很大，同时这个操作还必须保证原子；最后，增加了垃圾回收的负担，包括对失败事务的Current Pages和提交事务的Old Pages的回收。</p>
+<h2 id="二、WAL"><a href="#二、WAL" class="headerlink" title="二、WAL"></a>二、WAL</h2><p>由于传统磁盘顺序访问性能远好于随机访问，采用Logging的故障恢复机制意图利用顺序写的Log来记录对数据库的操作，并在故障恢复后通过Log内容将数据库恢复到正确的状态。简单的说，每次修改数据内容前先顺序写对应的Log，同时<strong>为了保证恢复时可以从Log中看到最新的数据库状态，要求Log先于数据内容落盘，也就是常说的Write Ahead Log，WAL</strong>。除此之外，事务完成Commit前还需要在Log中记录对应的Commit标记，以供恢复时了解当前的事务状态，因此还需要关注Commit标记和事务中数据内容的落盘顺序。根据Log中记录的内容可以分为三类：Undo-Only，Redo-Only，Redo-Undo。</p>
+<p><strong>Undo-Only Logging</strong></p>
+<p>Undo-Only Logging的Log记录可以表示未&lt;T, X, v&gt;，事务T修改了X的值，X的旧值是v。事务提交时，需要通过强制Flush保证Commit标记落盘前，对应事务的所有数据落盘，即<strong>落盘顺序为Log记录-&gt;Data-&gt;Commit标记</strong>。恢复时可以根据Commit标记判断事务的状态，并通过Undo Log中记录的旧值将未提交事务的修改回滚。我们来审视一下Undo-Only对Durability及Atomic的保证：</p>
+<ul>
+<li>Durability of Updates：Data强制刷盘保证，已经Commit的事务由于其所有Data都已经在Commit标记之前落盘，因此会一直存在；</li>
+<li>Failure Atomic：Undo Log内容保证，失败事务的已刷盘的修改会在恢复阶段通过Undo日志回滚，不再可见。</li>
+</ul>
+<p>然而Undo-Only依然有不能Page内并发的问题，如果两个事务的修改落到一个Page中，一个事务提交前需要的强制Flush操作，会导致同Page所有事务的Data落盘，可能会早于对应的Log项从而损害WAL。同时，也会导致关键路径上过于频繁的磁盘随机访问。</p>
+<p><strong>Redo-Only Logging</strong></p>
+<p>不同于Undo-Only，采用Redo-Only的Log中记录的是修改后的新值。对应地，Commit时需要保证，Log中的Commit标记在事务的任何数据之前落盘，即<strong>落盘顺序为Log记录-&gt;Commit标记-&gt;Data</strong>。恢复时同样根据Commit标记判断事务状态，并通过Redo Log中记录的新值将已经Commit，但数据没有落盘的事务修改重放。</p>
+<ul>
+<li>Durability of Updates：Redo Log内容保证，已提交事务的未刷盘的修改，利用Redo Log中的内容重放，之后可见；</li>
+<li>Failure Atomic：阻止Commit前Data落盘保证，失败事务的修改不会出现在磁盘上，自然不可见。</li>
+</ul>
+<p>Redo-Only同样有不能Page内并发的问题，Page中的多个不同事务，只要有一个未提交就不能刷盘，这些数据全部都需要维护在内存中，造成较大的内存压力。</p>
+<p><strong>Redo-Undo Logging</strong></p>
+<p>可以看出的只有Undo或Redo的问题，主要来自于对Commit标记及Data落盘顺序的限制，而这种限制归根结底来源于Log信息中对新值或旧值的缺失。因此Redo-Undo采用同时记录新值和旧值的方式，来<strong>消除Commit和Data之间刷盘顺序的限制</strong>。</p>
+<ul>
+<li>Durability of Updates：Redo 内容保证，已提交事务的未刷盘的修改，利用Redo Log中的内容重放，之后可见；</li>
+<li>Failure Atomic：Undo内容保证，失败事务的已刷盘的修改会在恢复阶段通过Undo日志回滚，不再可见。</li>
+</ul>
+<p>如此一来，同Page的不同事务提交就变得非常简单。同时可以将连续的数据攒着进行批量的刷盘已利用磁盘较高的顺序写性能。</p>
+<h2 id="三、Force-and-Steal"><a href="#三、Force-and-Steal" class="headerlink" title="三、Force and Steal"></a>三、Force and Steal</h2><p>从上面看出，<strong>Redo和Undo内容分别可以保证Durability和Atomic两个特性，其中一种信息的缺失需要用严格的刷盘顺序来弥补</strong>。这里关注的刷盘顺序包含两个维度：</p>
+<ul>
+<li><strong>Force or No-Force</strong>：Commit时是否需要强制刷盘，采用Force的方式由于所有的已提交事务的数据一定已经存在于磁盘，自然而然地保证了Durability；</li>
+<li><strong>No-Steal or Steal</strong>，Commit前数据是否可以提前刷盘，采用No-Steal的方式由于保证事务提交前修改不会出现在磁盘上，自然而然地保证了Atomic。</li>
+</ul>
+<p>总结一下，<strong>实现Durability可以通过记录Redo信息或要求Force刷盘顺序，实现Atomic需要记录Undo信息或要求No-Steal刷盘顺序</strong>，组合得到如下四种模式，如下图所示：</p>
+<p><img src="http://qiniu.jzcupid.cn/blog/quadrant.png" alt="quadrant"></p>
+<h2 id="四、ARIES，一统江湖"><a href="#四、ARIES，一统江湖" class="headerlink" title="四、ARIES，一统江湖"></a>四、ARIES，一统江湖</h2><p>1992年，IBM的研究员们发表了《<a class="link"   target="_blank" rel="noopener" href="https://cs.stanford.edu/people/chrismre/cs345/rl/aries.pdf" >ARIES: a transaction recovery method supporting fine-granularity locking and partial rollbacks using write-ahead logging<i class="fas fa-external-link-alt"></i></a>》[2]，其中提出的ARIES逐步成为磁盘数据库实现故障恢复的标配，ARIES本质是一种Redo-Undo的WAL实现。 <strong>Normal过程：</strong>修改数据之前先追加Log记录，Log内容同时包括Redo和Undo信息，每个日志记录产生一个标记其在日志中位置的递增LSN（Log Sequence Number）；数据Page中记录最后修改的日志项LSN，以此来判断Page中的内容的新旧程度，实现幂等。故障恢复阶段需要通过Log中的内容恢复数据库状态，为了减少恢复时需要处理的日志量，ARIES会在正常运行期间周期性的生成Checkpoint，Checkpoint中除了当前的日志LSN之外，还需要记录当前活跃事务的最新LSN，以及所有脏页，供恢复时决定重放Redo的开始位置。需要注意的是，由于生成Checkpoint时数据库还在正常提供服务（Fuzzy Checkpoint），其中记录的活跃事务及Dirty Page信息并不一定准确，因此需要Recovery阶段通过Log内容进行修正。</p>
+<p><strong>Recover过程：</strong>故障恢复包含三个阶段：Analysis，Redo和Undo。Analysis阶段的任务主要是利用Checkpoint及Log中的信息确认后续Redo和Undo阶段的操作范围，通过Log修正Checkpoint中记录的Dirty Page集合信息，并用其中涉及最小的LSN位置作为下一步Redo的开始位置RedoLSN。同时修正Checkpoint中记录的活跃事务集合（未提交事务），作为Undo过程的回滚对象；Redo阶段从Analysis获得的RedoLSN出发，重放所有的Log中的Redo内容，注意这里也包含了未Commit事务；最后Undo阶段对所有未提交事务利用Undo信息进行回滚，通过Log的PrevLSN可以顺序找到事务所有需要回滚的修改。</p>
+<p>除此之外，ARIES还包含了许多优化设计，例如通过特殊的日志记录类型CLRs避免嵌套Recovery带来的日志膨胀，支持细粒度锁，并发Recovery等。[3]认为，ARIES有两个主要的设计目标：</p>
+<ul>
+<li><strong>Feature：提供丰富灵活的实现事务的接口：</strong>包括提供灵活的存储方式、提供细粒度的锁、支持基于Savepoint的事务部分回滚、通过Logical Undo以获得更高的并发、通过Page-Oriented Redo实现简单的可并发的Recovery过程。</li>
+<li><strong>Performance：充分利用内存和磁盘介质特性，获得极致的性能：</strong>采用No-Force避免大量同步的磁盘随机写、采用Steal及时重用宝贵的内存资源、基于Page来简化恢复和缓存管理。</li>
+</ul>
+<h2 id="五、NVM带来的机遇与挑战"><a href="#五、NVM带来的机遇与挑战" class="headerlink" title="五、NVM带来的机遇与挑战"></a>五、NVM带来的机遇与挑战</h2><p>从Shadow Paging到WAL，再到ARIES，一直围绕着两个主题：减少同步写以及尽量用顺序写代替随机写。而这些正是由于磁盘性能远小于内存，且磁盘顺序访问远好于随机访问。然而随着NVM磁盘的出现以及对其成为主流的预期，使得我们必须要重新审视我们所做的一切。相对于传统的HDD及SSD，NVM最大的优势在于：</p>
+<ul>
+<li>接近内存的高性能</li>
+<li>顺序访问和随机访问差距不大</li>
+<li>按字节寻址而不是Block</li>
+</ul>
+<p>在这种情况下，再来看ARIES的实现：</p>
+<ul>
+<li>No-force and Steal：同时维护Redo， Undo和数据造成的三倍写放大，来换取磁盘顺序写的性能，但在NVM上这种取舍变得很不划算；</li>
+<li>Pages：为了迁就磁盘基于Block的访问接口，采用Page的存储管理方式，而内存本身是按字节寻址的，因此，这种适配也带来很大的复杂度。在同样按字节寻址的NVM上可以消除。</li>
+</ul>
+<p>近年来，众多的研究尝试为NVM量身定制更合理的故障恢复机制，我们这里介绍其中两种比较有代表性的研究成果，MARS希望充分利用NVM并发及内部带宽的优势，将更多的任务交给硬件实现；而WBL则尝试重构当前的Log方式。</p>
+<h2 id="六、MARS"><a href="#六、MARS" class="headerlink" title="六、MARS"></a>六、MARS</h2><p>发表在2013年的SOSP上的《<a class="link"   target="_blank" rel="noopener" href="https://cseweb.ucsd.edu/~swanson/papers/SOSP2013-MARS.pdf" >“From ARIES to MARS: Transaction support for next-generation, solid-state drives.” <i class="fas fa-external-link-alt"></i></a>》提出了一种尽量保留ARIES特性，但更适合NVM的故障恢复算法MARS[3]。MARS取消了Undo Log，保留的Redo Log也不同于传统的Append-Only，而是可以随机访问的。如下图所示，每个事务会占有一个唯一的TID，对应的Metadata中记录了Log和Data的位置。<img src="http://catkang.github.io/assets/img/crash_recovery/mars.png" alt="mars">正常访问时，所有的数据修改都在对应的Redo Log中进行，不影响真实数据，由于没有Undo Log，需要采用No-Steal的方式，阻止Commit前的数据写回；Commit时会先设置事务状态为COMMITTED，之后利用NVM的内部带宽将Redo中的所有内容并发拷贝回Metadata中记录的数据位置。如果在COMMITED标记设置后发生故障，恢复时可以根据Redo Log中的内容重放。其<strong>本质是一种Redo加No-Steal的实现方式</strong>：</p>
+<ul>
+<li>Durability of Updates： Redo实现，故障后重放Redo；</li>
+<li>Failure Atomic：未Commit事务的修改只存在于Redo Log，重启后会被直接丢弃。</li>
+</ul>
+<p>可以看出，MARS的Redo虽然称之为Log，但其实已经不同于传统意义上的顺序写文件，允许随机访问，更像是一种临时的存储空间，类似于Shadow的东西。之所以在Commit时进行数据拷贝而不是像Shadow Paging一样的元信息修改，笔者认为是为了保持数据的局部性，并且得益于硬件优异的内部带宽。</p>
+<h2 id="七、WBL"><a href="#七、WBL" class="headerlink" title="七、WBL"></a>七、WBL</h2><p>不同于MARS保留Redo信息的思路，2016年VLDB上的《<a class="link"   target="_blank" rel="noopener" href="http://www.vldb.org/pvldb/vol10/p337-arulraj.pdf" > “Write Behind Logging” <i class="fas fa-external-link-alt"></i></a>》只保留了Undo信息。笔者认为这篇论文中关于WBL的介绍里，用大量笔墨介绍了算法上的优化部分，为了抓住其本质，这里先介绍最基本的WBL算法：WBL去掉了传统的Append Only的Redo和Undo日志，但仍然需要保留Undo信息用来回滚未提交事务。事务Commit前需要将其所有的修改强制刷盘，之后在Log中记录Commit标记，也就是这里说的Write Behind Log。恢复过程中通过分析Commit标记将为提交的事务通过Undo信息回滚。可以看出WBL算法本身非常简单，在这个基础上，WBL做了如下优化：</p>
+<ul>
+<li>Group Commit：周期性的检查内存中的修改，同样在所有修改刷盘之后再写Log，Log项中记录Commit并落盘的最新事务TimeStamp cp，保证早于cp的所有事务修改都已经落盘；同时记录当前分配出去的最大TimeStamp cd；也就是说此时所有有修改但未提交的事务Timestamp都落在cp和cd之间。Reovery的时候只需对这部分数据进行回滚；</li>
+<li>针对多版本数据库，多版本信息已经起到了undo的作用，因此不需要再额外记录undo信息；</li>
+<li>延迟回滚：Recovery后不急于对未提交事务进行回滚，而是直接提供服务，一组(cp, cd)称为一个gap，每一次故障恢复都可能引入新的gap，通过对比事务Timestamp和gap集合，来判断数据的可见性，需要依靠后台垃圾回收线程真正的进行回滚和对gap的清理，如下图所示；</li>
+<li><img src="http://qiniu.jzcupid.cn/blog/wbl.png" alt="image-20190116010114230">可以看出，WBL本质并没有什么新颖，是一个<strong>Force加Undo的实现方式</strong>，其正确性保证如下：</li>
+<li>Durability of Updates：Commit事务的数据刷盘后才进行Commit，因此Commit事务的数据一定在Recovery后存在</li>
+<li>Failure Atomic：通过记录的Undo信息或多版本时的历史版本信息，在Recovery后依靠后台垃圾回收线程进行回滚。</li>
+</ul>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a><strong>总结</strong></h2><p>数据库故障恢复问题本质是要在容忍故障发生的情况下保证数据库的正确性，而这种正确性需要通过提供Durability of Updates和Failure Atomic来保证。其中Duribility of Update要保证Commit事务数据在恢复后存在，可以通过Force机制或者通过Redo信息回放来保证；对应的，Failure Atomic需要保证未Commit事务的修改再恢复后消失，可以通过No-Steal机制或者通过Undo信息回滚来保证。根据保证Durability和Atomic的不同方式，对本文提到的算法进行分类，如下：</p>
+<p><img src="http://qiniu.jzcupid.cn/blog/classify.png" alt="classify"></p>
+<ul>
+<li>Shadow Paging可以看做是采用了Force加No-Steal的方式，没有Log信息，在Commit时，通过原子的修改Directory元信息完成数据的持久化更新，但由于其对Page内并发的限制等问题，没有成为主流；</li>
+<li>Logging的实现方式增加了Redo或Undo日志，记录恢复需要的信息，从而放松Force或No-Steal机制对刷盘顺序的限制，从而尽量用磁盘顺序写代替随机写获得较好的性能。ARIES算法是在这一方向上的集大成者，其对上层应用提供了丰富灵活的接口，采用了No-Force加Steal机制，将传统磁盘上的性能发挥到极致，从而成为传统磁盘数据故障恢复问题的标准解决方案；</li>
+<li>随着NVM设备的逐步出现，其接近内存的性能、同样优异的顺序访问和随机访问表现，以及基于字节的寻址方式，促使人们开始重新审视数据库故障恢复的实现。其核心思路在于充分利用NVM硬件特性，减少Log机制导致的写放大以及设计较复杂的问题；</li>
+<li>MARS作为其中的佼佼者之一，在NVM上维护可以随机访问的Redo日志，同时采用Force加Steal的缓存策略，充分利用NVM优异的随机写性能和内部带宽。</li>
+<li>WBL从另一个方向进行改造，保留Undo信息，采用No-Force加No-Steal的缓存策略，并通过Group Commit及延迟回滚等优化，减少日志信息，缩短恢复时间。</li>
+</ul>
+<p>本文介绍了磁盘数据库一路走来的核心发展思路，但距离真正的实现还有巨大的距离和众多的设计细节，如对Logical Log或Physical Log的选择、并发Recovery、Fuzzy Checkpoing、Nested Top Actions等，之后会用单独的文章以InnoDB为例来深入探究其设计和实现细节。</p>
+
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                    <div class="article-prev">
+                        <a class="prev"
+                           rel="prev"
+                           href="/posts/59699/"
+                        >
+                            <span class="left arrow-icon flex-center">
+                              <i class="fas fa-chevron-left"></i>
+                            </span>
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">庖丁解InnoDB之REDO LOG</span>
+                                <span class="post-nav-item">Prev posts</span>
+                            </span>
+                        </a>
+                    </div>
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/posts/48999/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">k8s命令</span>
+                                <span class="post-nav-item">Next posts</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2021</span>
+              -
+            
+            2022&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">JD</a>
+        </div>
+        
+            <script async  src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <div class="website-count info-item">
+                
+                    <span id="busuanzi_container_site_uv">
+                        Visitor Count&nbsp;<span id="busuanzi_value_site_uv"></span>&ensp;
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv">
+                        Totalview&nbsp;<span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="theme-info info-item">
+            Powered by <a target="_blank" href="https://hexo.io">Hexo</a>&nbsp;|&nbsp;Theme&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.3</a>
+        </div>
+        
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="arrow-up fas fa-arrow-up"></i>
+                <span class="percent"></span>
+            </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%97%AE%E9%A2%98"><span class="nav-text">问题</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81Shadow-Paging"><span class="nav-text">一、Shadow Paging</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81WAL"><span class="nav-text">二、WAL</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81Force-and-Steal"><span class="nav-text">三、Force and Steal</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81ARIES%EF%BC%8C%E4%B8%80%E7%BB%9F%E6%B1%9F%E6%B9%96"><span class="nav-text">四、ARIES，一统江湖</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81NVM%E5%B8%A6%E6%9D%A5%E7%9A%84%E6%9C%BA%E9%81%87%E4%B8%8E%E6%8C%91%E6%88%98"><span class="nav-text">五、NVM带来的机遇与挑战</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81MARS"><span class="nav-text">六、MARS</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81WBL"><span class="nav-text">七、WBL</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-text">总结</span></a></li></ol>
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="Search..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="popup-btn-close">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+</main>
+
+
+
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/main.js"></script>
+
+<script src="/js/header-shrink.js"></script>
+
+<script src="/js/back2top.js"></script>
+
+<script src="/js/dark-light-toggle.js"></script>
+
+
+
+    
+<script src="/js/local-search.js"></script>
+
+
+
+
+    
+<script src="/js/code-copy.js"></script>
+
+
+
+
+
+<div class="post-scripts">
+    
+        
+<script src="/js/left-side-toggle.js"></script>
+
+<script src="/js/libs/anime.min.js"></script>
+
+<script src="/js/toc.js"></script>
+
+    
+</div>
+
+
+
+</body>
+</html>
