@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="JD">
+    
+    <title>
+        
+            Kafka 核心配置 |
+        
+        Bean You
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <link rel="shortcut icon" href="http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico">
+    
+<link rel="stylesheet" href="/css/font-awesome.min.css">
+
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"jzcupid.cn","root":"/","language":"en","path":"search.json"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":false,"expand_all":false,"init_open":false},"style":{"primary_color":"#0066CC","avatar":"http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico","favicon":"http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":true,"scale":true},"first_screen":{"enable":true,"background_img":"/images/bg.svg","description":"何妨吟啸且徐行"},"scroll":{"progress_bar":{"enable":false},"percent":{"enable":true}}},"local_search":{"enable":true,"trigger":"auto","preload":true},"code_copy":{"enable":true,"style":"default"},"pjax":{"enable":false},"lazyload":{"enable":false},"version":"3.4.3"};
+    KEEP.language_ago = {"second":"%s seconds ago","minute":"%s minutes ago","hour":"%s hours ago","day":"%s days ago","week":"%s weeks ago","month":"%s months ago","year":"%s years ago"};
+  </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                Bean You
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                首页
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/categories"
+                            >
+                                分类
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >
+                                标签
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                归档
+                            </a>
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="fas fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">首页</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/categories">分类</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags">标签</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">归档</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">Kafka 核心配置</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">JD</span>
+                        
+                            <span class="author-label">Lv5</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2022-08-28 15:22:00
+    </span>
+    
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>&nbsp;
+                    </li>
+                
+                    <li>
+                        &gt; <a href="/categories/%E8%BF%90%E7%BB%B4/Kafka/">Kafka</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+    
+
+    
+    
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fas fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <h2 id="一、producer-核心配置"><a href="#一、producer-核心配置" class="headerlink" title="一、producer 核心配置"></a>一、producer 核心配置</h2><p><a class="link"   target="_blank" rel="noopener" href="https://kafka.apache.org/documentation/#producerconfigs" >Producer 配置官方文档<i class="fas fa-external-link-alt"></i></a></p>
+<h4 id="1、acks-：发送应答（默认值：1）"><a href="#1、acks-：发送应答（默认值：1）" class="headerlink" title="1、acks ：发送应答（默认值：1）"></a>1、acks ：发送应答（默认值：1）</h4><p>生产者在考虑完成请求之前要求leader收到的确认的数量。这控制了发送的记录的持久性。允许以下设置:</p>
+<ol>
+<li><strong>acks=0：</strong>设置为0，则生产者将完全不等待来自服务器的任何确认。记录将立即添加到socket缓冲区，并被认为已发送。在这种情况下，不能保证服务器已经收到记录，重试配置将不会生效(因为客户机通常不会知道任何失败)。每个记录返回的偏移量总是-1。</li>
+<li>**acks=1:**leader会将记录写到本地日志中，但不会等待所有follower的完全确认。在这种情况下，如果leader在记录失败后立即失败，但在追随者复制记录之前失败，那么记录就会丢失。</li>
+<li>**acks=all / -1:**leader将等待完整的同步副本来确认记录。这保证了只要至少有一个同步副本仍然存在，记录就不会丢失。这是最有力的保证。这相当于acks=-1设置。</li>
+</ol>
+<h4 id="2、batch-size：批量发送大小（默认：16384，16K）"><a href="#2、batch-size：批量发送大小（默认：16384，16K）" class="headerlink" title="2、batch.size：批量发送大小（默认：16384，16K）"></a>2、batch.size：批量发送大小（默认：16384，16K）</h4><p>缓存到本地内存，批量发送大小，意思每次发送16K到broke。当多个记录被发送到同一个分区时，生产者将尝试将记录批处理成更少的请求。这有助于客户机和服务器上的性能。此配置以字节为单位控制默认批处理大小。</p>
+<h4 id="3、bootstrap-servers：服务器地址"><a href="#3、bootstrap-servers：服务器地址" class="headerlink" title="3、bootstrap.servers：服务器地址"></a>3、bootstrap.servers：服务器地址</h4><p>broke服务器地址，多个用逗号割开。</p>
+<h4 id="4、buffer-memory：生产者最大可用缓存-默认：33554432，32M"><a href="#4、buffer-memory：生产者最大可用缓存-默认：33554432，32M" class="headerlink" title="4、buffer.memory：生产者最大可用缓存 (默认：33554432，32M)"></a>4、buffer.memory：生产者最大可用缓存 (默认：33554432，32M)</h4><p>生产者可以用来缓冲等待发送到服务器的记录的总内存字节。如果记录被发送的速度超过了它们可以被发送到服务器的速度，那么生产者将阻塞 <code>max.block.ms</code>。然后它会抛出一个异常。</p>
+<p>该设置应该大致与生成器将使用的总内存相对应，但不是硬绑定，因为生成器使用的并非所有内存都用于缓冲。一些额外的内存将用于压缩(如果启用了压缩)以及维护飞行中的请求。</p>
+<p>生产者产生的消息缓存到本地，每次批量发送batch.size大小到服务器。</p>
+<h4 id="5、client-id：生产者ID-默认“”"><a href="#5、client-id：生产者ID-默认“”" class="headerlink" title="5、client.id：生产者ID(默认“”)"></a>5、client.id：生产者ID(默认“”)</h4><p>请求时传递给服务器的id字符串。这样做的目的是通过允许在服务器端请求日志中包含逻辑应用程序名称，从而能够跟踪ip/端口之外的请求源。</p>
+<h4 id="6、compression-type：压缩类型（默认值：producer）"><a href="#6、compression-type：压缩类型（默认值：producer）" class="headerlink" title="6、compression.type：压缩类型（默认值：producer）"></a>6、compression.type：压缩类型（默认值：producer）</h4><p>指定给定主题的最终压缩类型。此配置接受标准压缩编解码器(“gzip”、“snappy”、“lz4”、“zstd”)。它还接受“未压缩”，相当于没有压缩;以及“生产者”，即保留生产者设置的原始压缩编解码器。</p>
+<p>“gzip”：压缩效率高，适合高内存、CPU</p>
+<p>“snappy”：适合带宽敏感性，压缩力度大</p>
+<h4 id="retries-失败重试次数（默认：2147483647）"><a href="#retries-失败重试次数（默认：2147483647）" class="headerlink" title="retries:失败重试次数（默认：2147483647）"></a>retries:失败重试次数（默认：2147483647）</h4><p>异常是RetriableException类型或者TransactionManager允许重试；</p>
+<p>transactionManager.canRetry()后面会分析；先看看哪些异常是RetriableException类型异常。</p>
+<p><img src="https://img2018.cnblogs.com/blog/843808/201812/843808-20181213103108421-940591020.png" alt="img"></p>
+<p>设置大于零的值将导致客户端重新发送任何发送失败并可能出现暂时错误的记录。请注意，此重试与客户端在接收到错误时憎恨记录没有什么不同。如果 <code>delivery.timeout.ms</code> 配置的超时时间在确认成功之前先过期，那么在重试次数用尽之前，生成请求就会失败。用户通常应该选择不设置这个配置，而是使用 <code>delivery.timeout.ms</code> 来控制重试行为。</p>
+<p>启用等幂需要此配置值大于0。如果设置了冲突配置且未显式启用幂等性，则禁用幂等性。</p>
+<p>允许重试，同时将 <code>able.idempotence</code> 设置为 <code>false</code>，将 <code>max.in.flight.requests.per.connect</code> 设置为1，这可能会改变记录的顺序，因为如果将两个批处理发送到一个分区，第一个失败并重试，但第二个成功，那么第二个批处理中的记录可能会首先出现。</p>
+<p><strong>retry.backoff.ms：重试阻塞时间（默认：100）</strong></p>
+<p>这避免了在某些失败场景下以紧密循环的方式重复发送请求。</p>
+<h4 id="8、delivery-timeout-ms：传输时间（默认：120000，2分钟）"><a href="#8、delivery-timeout-ms：传输时间（默认：120000，2分钟）" class="headerlink" title="8、delivery.timeout.ms：传输时间（默认：120000，2分钟）"></a>8、delivery.timeout.ms：传输时间（默认：120000，2分钟）</h4><p>调用 send ()返回后报告成功或失败的时间上限。这限制了记录在发送之前延迟的总时间、等待代理确认的时间(如果预期的话)以及允许可检索的发送失败的时间。如果遇到不可恢复的错误，重试已经用尽，或者该记录被添加到一批已经达到提前交付截止期限的记录中，生产者可能会报告未能在此配置之前发送记录。</p>
+<p>此配置的值应大于或等于 <code>request.timeout.ms</code> 和 <code>linger.ms</code> 之和。</p>
+<h4 id="9、connections-max-idle-ms：关闭空闲连接时间（默认：540000）"><a href="#9、connections-max-idle-ms：关闭空闲连接时间（默认：540000）" class="headerlink" title="9、connections.max.idle.ms：关闭空闲连接时间（默认：540000）"></a>9、connections.max.idle.ms：关闭空闲连接时间（默认：540000）</h4><p> 在此配置指定的毫秒数之后关闭空闲连接。</p>
+<h4 id="10、enable-idempotence：开启幂等（默认-false）"><a href="#10、enable-idempotence：开启幂等（默认-false）" class="headerlink" title="10、enable.idempotence：开启幂等（默认:false）"></a>10、enable.idempotence：开启幂等（默认:false）</h4><p>当设置为“true”时，生产者将确保在流中准确地写入每个消息的副本。如果“false”，则由于代理失败而导致生产者重试，等等，可能会在流中写入重试消息的副本。请注意，启用幂等需要使用max.in.flight.requests.per.connection,连接小于或等于5，重试大于0且ack必须为“all”。如果用户没有显式地设置这些值，将选择合适的值。如果设置了不兼容的值，就会抛出ConfigException。</p>
+<h4 id="11、max-in-flight-requests-per-connection：单个连接上发送的未确认请求的最大数量（默认：5）"><a href="#11、max-in-flight-requests-per-connection：单个连接上发送的未确认请求的最大数量（默认：5）" class="headerlink" title="11、max.in.flight.requests.per.connection：单个连接上发送的未确认请求的最大数量（默认：5）"></a>11、max.in.flight.requests.per.connection：单个连接上发送的未确认请求的最大数量（默认：5）</h4><p>阻塞前客户端在单个连接上发送的未确认请求的最大数量。请注意，如果该设置设置为大于1，并且发送失败，则有由于重试(即，如果启用重试)。</p>
+<h4 id="12、interceptor-classes：拦截器（默认：无）"><a href="#12、interceptor-classes：拦截器（默认：无）" class="headerlink" title="12、interceptor.classes：拦截器（默认：无）"></a>12、interceptor.classes：拦截器（默认：无）</h4><p>用作拦截器的类的列表。实现接口：org.apache.kafka.clients.producer。ProducerInterceptor接口允许将生产者接收到的记录发布到Kafka集群之前拦截它们(可能还会发生突变)。默认情况下，没有拦截器。</p>
+<h4 id="13、key-serializer-key序列化器（默认无）"><a href="#13、key-serializer-key序列化器（默认无）" class="headerlink" title="13、key.serializer:key序列化器（默认无）"></a>13、key.serializer:key序列化器（默认无）</h4><p>实现org.apache.kafka.common. serialize .Serializer接口的key的序列化器类。String可配置：class org.apache.kafka.common.serialization.StringSerializer。</p>
+<h4 id="14、value-serializer-value序列化器（默认无）"><a href="#14、value-serializer-value序列化器（默认无）" class="headerlink" title="14、value.serializer:value序列化器（默认无）"></a>14、value.serializer:value序列化器（默认无）</h4><p>序列化器类的值，该值实现org.apache.kafka.common. serialize .Serializer接口。String可配置：class org.apache.kafka.common.serialization.StringSerializer</p>
+<h4 id="15、linger-ms：发送延迟时间（默认：0）"><a href="#15、linger-ms：发送延迟时间（默认：0）" class="headerlink" title="15、linger.ms：发送延迟时间（默认：0）"></a>15、linger.ms：发送延迟时间（默认：0）</h4><p>为减少负载和客户端的请求数量，生产者不会一条一条发送，而是会逗留一段时间批量发送。<code>batch.size</code> 和 <code>linger.ms</code> 满足任何一个条件都会发送。</p>
+<h4 id="16、max-block-ms：阻塞时间（默认：60000，一分钟）"><a href="#16、max-block-ms：阻塞时间（默认：60000，一分钟）" class="headerlink" title="16、max.block.ms：阻塞时间（默认：60000，一分钟）"></a>16、max.block.ms：阻塞时间（默认：60000，一分钟）</h4><p>配置控制KafkaProducer.send()和KafkaProducer.partitionsFor()阻塞的时间。由于缓冲区已满或元数据不可用，也会阻塞。用户提供的序列化器或分区程序中的阻塞将不计入此超时。</p>
+<h4 id="17、max-request-size：最大请求字节大小（默认：1048576，1M）"><a href="#17、max-request-size：最大请求字节大小（默认：1048576，1M）" class="headerlink" title="17、max.request.size：最大请求字节大小（默认：1048576，1M）"></a>17、max.request.size：最大请求字节大小（默认：1048576，1M）</h4><p>请求的最大字节大小。此设置将限制生产者在单个请求中发送记录批的数量，以避免发送大量请求。这也有效地限制了最大记录批大小。注意，服务器对记录批处理大小有自己的上限，这可能与此不同。</p>
+<h4 id="18、metric-reporters：自定义指标报告器"><a href="#18、metric-reporters：自定义指标报告器" class="headerlink" title="18、metric.reporters：自定义指标报告器"></a>18、metric.reporters：自定义指标报告器</h4><p>用作指标报告器的类的列表。metricsreporter接口实现了org.apache.kafka.common.metrics.MetricsReporter接口，该接口允许插入将在创建新度量时得到通知的类。JmxReporter始终包含在注册JMX统计信息中。</p>
+<h4 id="19、partitioner-class：自定义分区策略"><a href="#19、partitioner-class：自定义分区策略" class="headerlink" title="19、partitioner.class：自定义分区策略"></a>19、partitioner.class：自定义分区策略</h4><p>实现接口 <code>org.apache.kafka.clients.producer.Partitioner，默认值：org.apache.kafka.clients.producer.internals.DefaultPartitioner</code></p>
+<h4 id="20、request-timeout-ms：请求超时时间（默认：30000）"><a href="#20、request-timeout-ms：请求超时时间（默认：30000）" class="headerlink" title="20、request.timeout.ms：请求超时时间（默认：30000）"></a>20、request.timeout.ms：请求超时时间（默认：30000）</h4><p>配置控制客户机等待请求响应的最长时间。如果在超时超时之前没有收到响应，客户端将在需要时重新发送请求，或者在重试耗尽时失败请求。这个应该大于replica.lag.time.max。ms(代理配置)，以减少由于不必要的生产者重试而导致消息重复的可能性。</p>
+<h4 id="21、receive-buffer-bytes（默认：32768，32K）"><a href="#21、receive-buffer-bytes（默认：32768，32K）" class="headerlink" title="21、receive.buffer.bytes（默认：32768，32K）"></a>21、receive.buffer.bytes（默认：32768，32K）</h4><p>读取数据时使用的TCP接收缓冲区(SO_RCVBUF)的大小。如果值是-1，将使用OS默认值。</p>
+<h4 id="22、send-buffer-bytes（默认：131072-128K）"><a href="#22、send-buffer-bytes（默认：131072-128K）" class="headerlink" title="22、send.buffer.bytes（默认：131072,128K）"></a>22、send.buffer.bytes（默认：131072,128K）</h4><p>发送数据时使用的TCP发送缓冲区(SO_SNDBUF)的大小。如果值是-1，将使用OS默认值。</p>
+<h4 id="retry-backoff-ms：重试阻塞时间（默认：100）"><a href="#retry-backoff-ms：重试阻塞时间（默认：100）" class="headerlink" title="retry.backoff.ms：重试阻塞时间（默认：100）"></a>retry.backoff.ms：重试阻塞时间（默认：100）</h4><p>这避免了在某些失败场景下以紧密循环的方式重复发送请求。</p>
+<h2 id="二、consumer核心配置"><a href="#二、consumer核心配置" class="headerlink" title="二、consumer核心配置"></a>二、consumer核心配置</h2><p><a class="link"   target="_blank" rel="noopener" href="https://kafka.apache.org/documentation/#consumerconfigs" >Consumer 配置官方文档<i class="fas fa-external-link-alt"></i></a></p>
+<h4 id="1、enable-auto-commit：开启自动提交（默认-true）"><a href="#1、enable-auto-commit：开启自动提交（默认-true）" class="headerlink" title="1、enable.auto.commit：开启自动提交（默认:true）"></a>1、enable.auto.commit：开启自动提交（默认:true）</h4><p>如果为true，consumer的偏移量将在后台定期提交。</p>
+<h4 id="2、auto-commit-interval-ms：自动提交频率（默认：5000）"><a href="#2、auto-commit-interval-ms：自动提交频率（默认：5000）" class="headerlink" title="2、auto.commit.interval.ms：自动提交频率（默认：5000）"></a>2、auto.commit.interval.ms：自动提交频率（默认：5000）</h4><p>如果enable.auto.commit设置为true，则使用者偏移量自动提交到Kafka的频率(毫秒)。</p>
+<h4 id="client-id：客户ID"><a href="#client-id：客户ID" class="headerlink" title="client.id：客户ID"></a>client.id：客户ID</h4><p>便于跟踪日志。</p>
+<h4 id="4、check-crcs：是否开启数据校验（默认：true）"><a href="#4、check-crcs：是否开启数据校验（默认：true）" class="headerlink" title="4、check.crcs：是否开启数据校验（默认：true）"></a>4、check.crcs：是否开启数据校验（默认：true）</h4><p>自动检查消耗的记录的CRC32。这确保不会发生对消息的在线或磁盘损坏。此检查增加了一些开销，因此在寻求极端性能的情况下可能禁用此检查。</p>
+<h4 id="5、bootstrap-servers：服务器配置"><a href="#5、bootstrap-servers：服务器配置" class="headerlink" title="5、bootstrap.servers：服务器配置"></a>5、bootstrap.servers：服务器配置</h4><p>多个用都好隔开。</p>
+<h4 id="6、connections-max-idle-ms：关闭空间连接时间（默认：540000）"><a href="#6、connections-max-idle-ms：关闭空间连接时间（默认：540000）" class="headerlink" title="6、connections.max.idle.ms：关闭空间连接时间（默认：540000）"></a>6、connections.max.idle.ms：关闭空间连接时间（默认：540000）</h4><p>在此配置指定的毫秒数之后关闭空闲连接。</p>
+<h4 id="7、group-id：群组（默认：“”）"><a href="#7、group-id：群组（默认：“”）" class="headerlink" title="7、group.id：群组（默认：“”）"></a>7、group.id：群组（默认：“”）</h4><p>唯一标识用户群组，同一个group每个partition只会分配到一个consumer。</p>
+<h4 id="max-poll-records：拉起最大记录（默认：500）"><a href="#max-poll-records：拉起最大记录（默认：500）" class="headerlink" title="max.poll.records：拉起最大记录（默认：500）"></a>max.poll.records：拉起最大记录（默认：500）</h4><p>单次轮询()调用中返回的记录的最大数量。</p>
+<h4 id="9、max-poll-interval-ms：拉取记录间隔（默认：300000，5分钟）"><a href="#9、max-poll-interval-ms：拉取记录间隔（默认：300000，5分钟）" class="headerlink" title="9、max.poll.interval.ms：拉取记录间隔（默认：300000，5分钟）"></a>9、max.poll.interval.ms：拉取记录间隔（默认：300000，5分钟）</h4><p>使用消费者组管理时轮询()调用之间的最大延迟。这为使用者在获取更多记录之前空闲的时间设置了上限。如果在此超时过期之前没有调用poll()，则认为使用者失败，组将重新平衡，以便将分区重新分配给另一个成员。</p>
+<h4 id="10、request-timeout-ms：请求超时时间（默认：30000-，30S）"><a href="#10、request-timeout-ms：请求超时时间（默认：30000-，30S）" class="headerlink" title="10、request.timeout.ms：请求超时时间（默认：30000 ，30S）"></a>10、request.timeout.ms：请求超时时间（默认：30000 ，30S）</h4><p>配置控制客户机等待请求响应的最长时间。如果在超时超时之前没有收到响应，客户端将在需要时重新发送请求，或者在重试耗尽时失败请求。</p>
+<h4 id="11、session-timeout-ms：consumer-session超时"><a href="#11、session-timeout-ms：consumer-session超时" class="headerlink" title="11、session.timeout.ms：consumer session超时"></a>11、session.timeout.ms：consumer session超时</h4><p>用于检测worker程序失败的超时。worker定期发送心跳，以向代理表明其活性。如果在此会话超时过期之前代理没有接收到心跳，则代理将从组中删除。请注意，该值必须位于group.min.session.timeout在broker配置中配置的允许范围内group.max.session.timeout.ms。</p>
+<h4 id="12、auto-offset-reset-初始偏移量-默认：latest"><a href="#12、auto-offset-reset-初始偏移量-默认：latest" class="headerlink" title="12、auto.offset.reset:初始偏移量 (默认：latest)"></a>12、auto.offset.reset:初始偏移量 (默认：latest)</h4><p>如果Kafka中没有初始偏移量，或者服务器上不再存在当前偏移量(例如，因为该数据已被删除)，该怎么办:</p>
+<p>earliest:自动重置偏移到最早的偏移</p>
+<p>latest:自动将偏移量重置为最新偏移量</p>
+<p>none:如果没有为使用者的组找到以前的偏移量，则向使用者抛出exception</p>
+<p>anything else:向使用者抛出异常</p>
+<h4 id="13、key-deserializer"><a href="#13、key-deserializer" class="headerlink" title="13、key.deserializer"></a>13、key.deserializer</h4><p>用于实现org.apache.kafka.common. serialize .Deserializer接口的key的反序列化类，class org.apache.kafka.common.serialization.StringDeserializer</p>
+<h4 id="14、value-deserializer"><a href="#14、value-deserializer" class="headerlink" title="14、value.deserializer"></a>14、value.deserializer</h4><p>用于实现org.apache.kafka.common. serialize .Deserializer接口的value的反序列化类，class org.apache.kafka.common.serialization.StringDeserializer</p>
+<h4 id="15、max-partition-fetch-bytes"><a href="#15、max-partition-fetch-bytes" class="headerlink" title="15、max.partition.fetch.bytes"></a>15、max.partition.fetch.bytes</h4><p>每个分区服务器将返回的最大数据量。记录由consumer成批提取。如果fetch的第一个非空分区中的第一个记录批处理大于这个限制，那么仍然会返回批处理，以确保使用者能够取得进展。broker接受的最大记录批处理大小是通过message.max定义的。字节(broker配置)或max.message。字节(topic配置)。看fetch.max.bytes用于限制consumer请求大小的字节。</p>
+<h4 id="16、partition-assignment-strategy：consumer订阅分区策略"><a href="#16、partition-assignment-strategy：consumer订阅分区策略" class="headerlink" title="16、partition.assignment.strategy：consumer订阅分区策略"></a>16、partition.assignment.strategy：consumer订阅分区策略</h4><p>（默认：class org.apache.kafka.clients.consumer.RangeAssignor）</p>
+<p>当使用组管理时，客户端将使用分区分配策略的类名在使用者实例之间分配分区所有权。</p>
+<h4 id="17、fetch-max-bytes：拉取最大字节（默认：52428800，50M）"><a href="#17、fetch-max-bytes：拉取最大字节（默认：52428800，50M）" class="headerlink" title="17、fetch.max.bytes：拉取最大字节（默认：52428800，50M）"></a>17、fetch.max.bytes：拉取最大字节（默认：52428800，50M）</h4><p>服务器应该为获取请求返回的最大数据量。记录由使用者成批地获取，并且如果获取的第一个非空分区中的第一个记录批处理大于这个值，仍然会返回记录批处理，以确保使用者能够取得进展。因此，这不是一个绝对最大值。代理接受的最大记录批处理大小是通过message.max定义的。字节(代理配置)或max.message。字节(主题配置)。请注意，使用者并行执行多个获取。</p>
+<h4 id="18、heartbeat-interval-ms：心跳时间（默认：3000-3S）"><a href="#18、heartbeat-interval-ms：心跳时间（默认：3000-3S）" class="headerlink" title="18、heartbeat.interval.ms：心跳时间（默认：3000, 3S）"></a>18、heartbeat.interval.ms：心跳时间（默认：3000, 3S）</h4><p>使用Kafka的组管理工具时，从心跳到消费者协调器的预期时间。心跳被用来确保消费者的会话保持活跃，并在新消费者加入或离开组时促进再平衡。该值必须设置为小于session.timeout.ms的1/3。它可以调整甚至更低，以控制正常再平衡的预期时间。</p>
+<h4 id="19、fetch-max-wait-ms：拉取阻塞时间（默认：500）"><a href="#19、fetch-max-wait-ms：拉取阻塞时间（默认：500）" class="headerlink" title="19、fetch.max.wait.ms：拉取阻塞时间（默认：500）"></a>19、fetch.max.wait.ms：拉取阻塞时间（默认：500）</h4><p>如果没有足够的数据立即满足fetch.min.bytes提供的要求，服务器在响应fetch请求之前将阻塞的最长时间。</p>
+<h4 id="20、fetch-min-bytes：拉取最小字节数（默认：1）"><a href="#20、fetch-min-bytes：拉取最小字节数（默认：1）" class="headerlink" title="20、fetch.min.bytes：拉取最小字节数（默认：1）"></a>20、fetch.min.bytes：拉取最小字节数（默认：1）</h4><p>服务器应该为获取请求返回的最小数据量。如果没有足够的数据可用，请求将等待那么多数据累积后再响应请求。默认的1字节设置意味着，只要数据的一个字节可用，或者获取请求超时等待数据到达，就会响应获取请求。将此设置为大于1的值将导致服务器等待更大数量的数据累积，这可以稍微提高服务器吞吐量，但代价是增加一些延迟。</p>
+<h4 id="21、exclude-internal-topics-公开内部topic-默认：true"><a href="#21、exclude-internal-topics-公开内部topic-默认：true" class="headerlink" title="21、exclude.internal.topics:公开内部topic(默认：true)"></a>21、exclude.internal.topics:公开内部topic(默认：true)</h4><p>是否应该将来自内部主题(如偏移量)的记录公开给使用者，consumer共享offset。如果设置为true，从内部主题接收记录的唯一方法是订阅它。</p>
+<h4 id="22、isolation-level-隔离级别：默认：read-uncommitted）"><a href="#22、isolation-level-隔离级别：默认：read-uncommitted）" class="headerlink" title="22、isolation.level(隔离级别：默认：read_uncommitted）"></a>22、isolation.level(隔离级别：默认：read_uncommitted）</h4><p>控制如何以事务方式读取写入的消息。如果设置为read_committed, consumer.poll()将只返回已提交的事务消息。如果设置为read_uncommitted’(默认)，consumer.poll()将返回所有消息，甚至是已经中止的事务消息。在任何一种模式下，非事务性消息都将无条件返回。</p>
+<p><a class="link"   target="_blank" rel="noopener" href="https://www.cnblogs.com/wangzhuxing/p/10111831.html#_labelTop" >回到顶部<i class="fas fa-external-link-alt"></i></a></p>
+<h2 id="三、broke配置"><a href="#三、broke配置" class="headerlink" title="三、broke配置"></a>三、broke配置</h2><h4 id="1、zookeeper-connect：zk地址"><a href="#1、zookeeper-connect：zk地址" class="headerlink" title="1、zookeeper.connect：zk地址"></a>1、zookeeper.connect：zk地址</h4><p>多个用逗号隔开。</p>
+<h4 id="2、advertised-host-name（默认：null）"><a href="#2、advertised-host-name（默认：null）" class="headerlink" title="2、advertised.host.name（默认：null）"></a>2、advertised.host.name（默认：null）</h4><p>不赞成使用:</p>
+<p>在server.properties 里还有另一个参数是解决这个问题的， <strong>advertised.host.name</strong>参数用来配置返回的host.name值，把这个参数配置为外网IP地址即可。</p>
+<p>这个参数默认没有启用，默认是返回的<code>java.net.InetAddress.getCanonicalHostName</code>的值，在我的mac上这个值并不等于<code>hostname</code>的值而是返回IP，但在linux上这个值就是<code>hostname</code>的值。</p>
+<h4 id="3、advertised-listeners"><a href="#3、advertised-listeners" class="headerlink" title="3、advertised.listeners"></a>3、advertised.listeners</h4><p>hostname和端口注册到zk给生产者和消费者使用的，如果没有设置，将会使用listeners的配置，如果listeners也没有配置，将使用<a class="link"   target="_blank" rel="noopener" href="http://java.net.inetaddress.getcanonicalhostname/" >java.net.InetAddress.getCanonicalHostName<i class="fas fa-external-link-alt"></i></a>()来获取这个hostname和port，对于ipv4，基本就是localhost了。</p>
+<h4 id="4、auto-create-topics-enable（自动创建topic，默认：true）"><a href="#4、auto-create-topics-enable（自动创建topic，默认：true）" class="headerlink" title="4、auto.create.topics.enable（自动创建topic，默认：true）"></a>4、auto.create.topics.enable（自动创建topic，默认：true）</h4><p>第一次发动消息时，自动创建topic。</p>
+<h4 id="5、auto-leader-rebalance-enable：自动rebalance-默认：true"><a href="#5、auto-leader-rebalance-enable：自动rebalance-默认：true" class="headerlink" title="5、auto.leader.rebalance.enable：自动rebalance(默认：true)"></a>5、auto.leader.rebalance.enable：自动rebalance(默认：true)</h4><p>支持自动领导平衡。如果需要，后台线程定期检查并触发leader balance。</p>
+<h4 id="6、background-threads：处理线程（默认：10）"><a href="#6、background-threads：处理线程（默认：10）" class="headerlink" title="6、background.threads：处理线程（默认：10）"></a>6、background.threads：处理线程（默认：10）</h4><p>用于各种后台处理任务的线程数。</p>
+<h4 id="7、broker-id-默认：-1"><a href="#7、broker-id-默认：-1" class="headerlink" title="7、broker.id 默认：-1"></a>7、broker.id 默认：-1</h4><p>此服务器的broke id。如果未设置，将生成唯一的代理id。为了避免zookeeper生成的broke id和用户配置的broke id之间的冲突，生成的代理id从reserve .broker.max开始id + 1。</p>
+<h4 id="8、compression-type：压缩类型，默认：producer"><a href="#8、compression-type：压缩类型，默认：producer" class="headerlink" title="8、compression.type：压缩类型，默认：producer"></a>8、compression.type：压缩类型，默认：producer</h4><p>指定给定主题的最终压缩类型。此配置接受标准压缩编解码器(“gzip”、“snappy”、“lz4”、“zstd”)。它还接受“未压缩”，相当于没有压缩;以及“producer”，即保留producer设置的原始压缩编解码器。</p>
+<h4 id="9、delete-topic-enable-删除topic-默认：true"><a href="#9、delete-topic-enable-删除topic-默认：true" class="headerlink" title="9、delete.topic.enable 删除topic(默认：true)"></a>9、delete.topic.enable 删除topic(默认：true)</h4><p>允许删除主题。如果关闭此配置，则通过管理工具删除主题将无效。</p>
+<h4 id="10、leader-imbalance-check-interval-seconds（rebalance检测频率，默认：300）"><a href="#10、leader-imbalance-check-interval-seconds（rebalance检测频率，默认：300）" class="headerlink" title="10、leader.imbalance.check.interval.seconds（rebalance检测频率，默认：300）"></a>10、leader.imbalance.check.interval.seconds（rebalance检测频率，默认：300）</h4><p>控制器触发分区rebalance检查的频率。</p>
+<h4 id="11、leader-imbalance-per-broker-percentage（触发rebalance比率，默认：10，10-）"><a href="#11、leader-imbalance-per-broker-percentage（触发rebalance比率，默认：10，10-）" class="headerlink" title="11、leader.imbalance.per.broker.percentage（触发rebalance比率，默认：10，10%）"></a>11、leader.imbalance.per.broker.percentage（触发rebalance比率，默认：10，10%）</h4><p>每个broke允许的lead不平衡比率。如果控制器超过每个broke的这个值，控制器将触发一个leader balance。该值以百分比指定。</p>
+<h4 id="12、log-dir（日志目录，默认：-tmp-kafka-logs）"><a href="#12、log-dir（日志目录，默认：-tmp-kafka-logs）" class="headerlink" title="12、log.dir（日志目录，默认：/tmp/kafka-logs）"></a>12、log.dir（日志目录，默认：/tmp/kafka-logs）</h4><p>保存日志数据的目录。</p>
+<h4 id="13、log-dirs"><a href="#13、log-dirs" class="headerlink" title="13、log.dirs"></a>13、log.dirs</h4><p>保存日志数据的目录。如果未设置，则为日志中的值。使用dir。</p>
+<h4 id="14、log-flush-interval-messages（默认：9223372036854775807）"><a href="#14、log-flush-interval-messages（默认：9223372036854775807）" class="headerlink" title="14、log.flush.interval.messages（默认：9223372036854775807）"></a>14、log.flush.interval.messages（默认：9223372036854775807）</h4><p>在将消息刷新到磁盘之前，日志分区上累积的消息数量</p>
+<h4 id="15、log-flush-interval-ms（默认：null）"><a href="#15、log-flush-interval-ms（默认：null）" class="headerlink" title="15、log.flush.interval.ms（默认：null）"></a>15、log.flush.interval.ms（默认：null）</h4><p>任何主题中的消息在刷新到磁盘之前保存在内存中的最长时间。如果没有设置，则使用log.flush.scheduler.interval.ms中的值。</p>
+<h4 id="16、log-flush-offset-checkpoint-interval-ms（默认：60000）"><a href="#16、log-flush-offset-checkpoint-interval-ms（默认：60000）" class="headerlink" title="16、log.flush.offset.checkpoint.interval.ms（默认：60000）"></a>16、log.flush.offset.checkpoint.interval.ms（默认：60000）</h4><p>作为日志恢复点的上次刷新的持久记录的更新频率。</p>
+<h4 id="17、log-retention-bytes-保存日志文件的最大值（默认：-1）"><a href="#17、log-retention-bytes-保存日志文件的最大值（默认：-1）" class="headerlink" title="17、log.retention.bytes 保存日志文件的最大值（默认：-1）"></a>17、log.retention.bytes 保存日志文件的最大值（默认：-1）</h4><p>删除前日志的最大大小。</p>
+<h4 id="18、log-retention-hours日志文件最大保存时间（小时）默认：168，一周"><a href="#18、log-retention-hours日志文件最大保存时间（小时）默认：168，一周" class="headerlink" title="18、log.retention.hours日志文件最大保存时间（小时）默认：168，一周"></a>18、log.retention.hours日志文件最大保存时间（小时）默认：168，一周</h4><p>日志文件最大保存时间。</p>
+<h4 id="19、log-retention-minutes日志文件最大保存时间（分钟）默认：null"><a href="#19、log-retention-minutes日志文件最大保存时间（分钟）默认：null" class="headerlink" title="19、log.retention.minutes日志文件最大保存时间（分钟）默认：null"></a>19、log.retention.minutes日志文件最大保存时间（分钟）默认：null</h4><h4 id="20、log-retention-ms日志文件最大保存时间（毫秒）默认：null"><a href="#20、log-retention-ms日志文件最大保存时间（毫秒）默认：null" class="headerlink" title="20、log.retention.ms日志文件最大保存时间（毫秒）默认：null"></a>20、log.retention.ms日志文件最大保存时间（毫秒）默认：null</h4><h4 id="21、log-roll-hours-新segment产生时间，默认：168，一周"><a href="#21、log-roll-hours-新segment产生时间，默认：168，一周" class="headerlink" title="21、log.roll.hours:新segment产生时间，默认：168，一周"></a>21、log.roll.hours:新segment产生时间，默认：168，一周</h4><p>即使文件没有到达log.segment.bytes，只要文件创建时间到达此属性，就会创建新文件。</p>
+<h4 id="22、log-roll-ms-新segment产生时间"><a href="#22、log-roll-ms-新segment产生时间" class="headerlink" title="22、log.roll.ms :新segment产生时间"></a>22、log.roll.ms :新segment产生时间</h4><p>滚出新日志段之前的最大时间(以毫秒为单位)。如果未设置，则为log.roll中的值使用。</p>
+<h4 id="23、log-segment-bytes：segment文件最大值，默认：1073741824（1G）"><a href="#23、log-segment-bytes：segment文件最大值，默认：1073741824（1G）" class="headerlink" title="23、log.segment.bytes：segment文件最大值，默认：1073741824（1G）"></a>23、log.segment.bytes：segment文件最大值，默认：1073741824（1G）</h4><h4 id="24、log-segment-delete-delay-ms：segment删除等待时间，-默认：60000"><a href="#24、log-segment-delete-delay-ms：segment删除等待时间，-默认：60000" class="headerlink" title="24、log.segment.delete.delay.ms：segment删除等待时间， 默认：60000"></a>24、log.segment.delete.delay.ms：segment删除等待时间， 默认：60000</h4><p>从文件系统中删除文件之前等待的时间量。</p>
+<h4 id="25、message-max-bytes-最大batch-size-默认：1000012，0-9M"><a href="#25、message-max-bytes-最大batch-size-默认：1000012，0-9M" class="headerlink" title="25、message.max.bytes 最大batch size 默认：1000012，0.9M"></a>25、message.max.bytes 最大batch size 默认：1000012，0.9M</h4><p>Kafka允许的最大记录batch size。如果增加了这个值，并且存在大于0.10.2的使用者，那么还必须增加consumer的fetch大小，以便他们能够获取这么大的记录批。在最新的消息格式版本中，记录总是按批进行分组，以提高效率。在以前的消息格式版本中，未压缩记录没有分组成批，这种限制只适用于单个记录。可以使用主题级别max.message设置每个主题。字节的配置。</p>
+<h4 id="26、min-insync-replicas（insync中最小副本值）"><a href="#26、min-insync-replicas（insync中最小副本值）" class="headerlink" title="26、min.insync.replicas（insync中最小副本值）"></a>26、min.insync.replicas（insync中最小副本值）</h4><p>当producer将acks设置为“all”(或“-1”)时，min.insync。副本指定必须确认写操作成功的最小副本数量。如果不能满足这个最小值，则生产者将引发一个异常(要么是NotEnoughReplicas，要么是NotEnoughReplicasAfterAppend)。</p>
+<p>当一起使用时，min.insync.replicas和ack允许您执行更大的持久性保证。一个典型的场景是创建一个复制因子为3的主题，设置min.insync复制到2个，用“all”配置发送。将确保如果大多数副本没有收到写操作，则生产者将引发异常。</p>
+<h4 id="27、num-io-threads，默认：8"><a href="#27、num-io-threads，默认：8" class="headerlink" title="27、num.io.threads，默认：8"></a>27、num.io.threads，默认：8</h4><p>服务器用于处理请求的线程数，其中可能包括磁盘I/O。</p>
+<h4 id="28、num-network-threads，默认：3"><a href="#28、num-network-threads，默认：3" class="headerlink" title="28、num.network.threads，默认：3"></a>28、num.network.threads，默认：3</h4><p>服务器用于接收来自网络的请求和向网络发送响应的线程数。</p>
+<h4 id="29、num-recovery-threads-per-data-dir-默认：1"><a href="#29、num-recovery-threads-per-data-dir-默认：1" class="headerlink" title="29、num.recovery.threads.per.data.dir 默认：1"></a>29、num.recovery.threads.per.data.dir 默认：1</h4><p>每个数据目录在启动时用于日志恢复和在关闭时用于刷新的线程数。</p>
+<h4 id="30、num-replica-alter-log-dirs-threads-默认：null"><a href="#30、num-replica-alter-log-dirs-threads-默认：null" class="headerlink" title="30、num.replica.alter.log.dirs.threads 默认：null"></a>30、num.replica.alter.log.dirs.threads 默认：null</h4><p>可以在日志目录(可能包括磁盘I/O)之间移动副本的线程数。</p>
+<h4 id="31、num-replica-fetchers"><a href="#31、num-replica-fetchers" class="headerlink" title="31、num.replica.fetchers"></a>31、num.replica.fetchers</h4><p>从leader复制数据到follower的线程数。</p>
+<h4 id="32、offset-metadata-max-bytes-默认：4096"><a href="#32、offset-metadata-max-bytes-默认：4096" class="headerlink" title="32、offset.metadata.max.bytes 默认：4096"></a>32、offset.metadata.max.bytes 默认：4096</h4><p>与offset提交关联的metadata的最大大小。</p>
+<h4 id="33、offsets-commit-timeout-ms-默认：5000"><a href="#33、offsets-commit-timeout-ms-默认：5000" class="headerlink" title="33、offsets.commit.timeout.ms 默认：5000"></a>33、offsets.commit.timeout.ms 默认：5000</h4><p>偏移量提交将被延迟，直到偏移量主题的所有副本收到提交或达到此超时。这类似于生产者请求超时。</p>
+<h4 id="34、offsets-topic-num-partitions-默认：50"><a href="#34、offsets-topic-num-partitions-默认：50" class="headerlink" title="34、offsets.topic.num.partitions 默认：50"></a>34、offsets.topic.num.partitions 默认：50</h4><p>偏移量提交主题的分区数量(部署后不应更改)。</p>
+<h4 id="35、offsets-topic-replication-factor-副本大小-默认：3"><a href="#35、offsets-topic-replication-factor-副本大小-默认：3" class="headerlink" title="35、offsets.topic.replication.factor 副本大小,默认：3"></a>35、offsets.topic.replication.factor 副本大小,默认：3</h4><p>低于上述值，主题将创建失败。</p>
+<h4 id="36、offsets-topic-segment-bytes-默认104857600-100M"><a href="#36、offsets-topic-segment-bytes-默认104857600-100M" class="headerlink" title="36、offsets.topic.segment.bytes 默认104857600 ,100M"></a>36、offsets.topic.segment.bytes 默认104857600 ,100M</h4><p>segment映射文件（index）文件大小，以便加快日志压缩和缓存负载。</p>
+<h4 id="37、queued-max-requests-默认：500"><a href="#37、queued-max-requests-默认：500" class="headerlink" title="37、queued.max.requests 默认：500"></a>37、queued.max.requests 默认：500</h4><p>阻塞网络线程之前允许排队的请求数。</p>
+<h4 id="38、replica-fetch-min-bytes默认：1"><a href="#38、replica-fetch-min-bytes默认：1" class="headerlink" title="38、replica.fetch.min.bytes默认：1"></a>38、replica.fetch.min.bytes默认：1</h4><p>每个fetch响应所需的最小字节。如果字节不够，则等待replicaMaxWaitTimeMs。</p>
+<h4 id="39、replica-lag-time-max-ms-默认：10000"><a href="#39、replica-lag-time-max-ms-默认：10000" class="headerlink" title="39、replica.lag.time.max.ms 默认：10000"></a>39、replica.lag.time.max.ms 默认：10000</h4><p>如果follower 没有发送任何获取请求，或者至少在这段时间没有消耗到leader日志的结束偏移量，那么leader将从isr中删除follower 。</p>
+<h4 id="40、transaction-max-timeout-ms-默认：900000"><a href="#40、transaction-max-timeout-ms-默认：900000" class="headerlink" title="40、transaction.max.timeout.ms 默认：900000"></a>40、transaction.max.timeout.ms 默认：900000</h4><p>事务执行最长时间，超时则抛出异常。</p>
+<h3 id="41、unclean-leader-election-enable-默认：false"><a href="#41、unclean-leader-election-enable-默认：false" class="headerlink" title="41、unclean.leader.election.enable 默认：false"></a>41、unclean.leader.election.enable 默认：false</h3><p>是否选举ISR以外的副本作为leader,会导致数据丢失。</p>
+<h3 id="42、zookeeper-connection-timeout-ms"><a href="#42、zookeeper-connection-timeout-ms" class="headerlink" title="42、zookeeper.connection.timeout.ms"></a>42、zookeeper.connection.timeout.ms</h3><p>客户端等待与zookeeper建立连接的最长时间。如果未设置，则用zookeeper.session.timeout中的值。</p>
+<h3 id="43、zookeeper-max-in-flight-requests"><a href="#43、zookeeper-max-in-flight-requests" class="headerlink" title="43、zookeeper.max.in.flight.requests"></a>43、zookeeper.max.in.flight.requests</h3><p>阻塞之前consumer将发送给Zookeeper的未确认请求的最大数量。</p>
+<h3 id="44、group-max-session-timeout-ms"><a href="#44、group-max-session-timeout-ms" class="headerlink" title="44、group.max.session.timeout.ms"></a>44、group.max.session.timeout.ms</h3><p>注册使用者允许的最大会话超时。超时时间越长，消费者在心跳之间处理消息的时间就越多，而检测故障的时间就越长。</p>
+<h3 id="45、group-min-session-timeout-ms"><a href="#45、group-min-session-timeout-ms" class="headerlink" title="45、group.min.session.timeout.ms"></a>45、group.min.session.timeout.ms</h3><p>注册使用者允许的最小会话超时。更短的超时导致更快的故障检测，但代价是更频繁的用户心跳，这可能会压倒broke资源。</p>
+<h3 id="46、num-partitions-默认：1"><a href="#46、num-partitions-默认：1" class="headerlink" title="46、num.partitions 默认：1"></a>46、num.partitions 默认：1</h3><p>每个主题的默认日志分区数量。</p>
+
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/posts/18302/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">搭建 Minio</span>
+                                <span class="post-nav-item">Next posts</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2021</span>
+              -
+            
+            2022&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">JD</a>
+        </div>
+        
+            <script async  src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <div class="website-count info-item">
+                
+                    <span id="busuanzi_container_site_uv">
+                        Visitor Count&nbsp;<span id="busuanzi_value_site_uv"></span>&ensp;
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv">
+                        Totalview&nbsp;<span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="theme-info info-item">
+            Powered by <a target="_blank" href="https://hexo.io">Hexo</a>&nbsp;|&nbsp;Theme&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.3</a>
+        </div>
+        
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="arrow-up fas fa-arrow-up"></i>
+                <span class="percent"></span>
+            </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81producer-%E6%A0%B8%E5%BF%83%E9%85%8D%E7%BD%AE"><span class="nav-text">一、producer 核心配置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81acks-%EF%BC%9A%E5%8F%91%E9%80%81%E5%BA%94%E7%AD%94%EF%BC%88%E9%BB%98%E8%AE%A4%E5%80%BC%EF%BC%9A1%EF%BC%89"><span class="nav-text">1、acks ：发送应答（默认值：1）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81batch-size%EF%BC%9A%E6%89%B9%E9%87%8F%E5%8F%91%E9%80%81%E5%A4%A7%E5%B0%8F%EF%BC%88%E9%BB%98%E8%AE%A4%EF%BC%9A16384%EF%BC%8C16K%EF%BC%89"><span class="nav-text">2、batch.size：批量发送大小（默认：16384，16K）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3%E3%80%81bootstrap-servers%EF%BC%9A%E6%9C%8D%E5%8A%A1%E5%99%A8%E5%9C%B0%E5%9D%80"><span class="nav-text">3、bootstrap.servers：服务器地址</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4%E3%80%81buffer-memory%EF%BC%9A%E7%94%9F%E4%BA%A7%E8%80%85%E6%9C%80%E5%A4%A7%E5%8F%AF%E7%94%A8%E7%BC%93%E5%AD%98-%E9%BB%98%E8%AE%A4%EF%BC%9A33554432%EF%BC%8C32M"><span class="nav-text">4、buffer.memory：生产者最大可用缓存 (默认：33554432，32M)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5%E3%80%81client-id%EF%BC%9A%E7%94%9F%E4%BA%A7%E8%80%85ID-%E9%BB%98%E8%AE%A4%E2%80%9C%E2%80%9D"><span class="nav-text">5、client.id：生产者ID(默认“”)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6%E3%80%81compression-type%EF%BC%9A%E5%8E%8B%E7%BC%A9%E7%B1%BB%E5%9E%8B%EF%BC%88%E9%BB%98%E8%AE%A4%E5%80%BC%EF%BC%9Aproducer%EF%BC%89"><span class="nav-text">6、compression.type：压缩类型（默认值：producer）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#retries-%E5%A4%B1%E8%B4%A5%E9%87%8D%E8%AF%95%E6%AC%A1%E6%95%B0%EF%BC%88%E9%BB%98%E8%AE%A4%EF%BC%9A2147483647%EF%BC%89"><span class="nav-text">retries:失败重试次数（默认：2147483647）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#8%E3%80%81delivery-timeout-ms%EF%BC%9A%E4%BC%A0%E8%BE%93%E6%97%B6%E9%97%B4%EF%BC%88%E9%BB%98%E8%AE%A4%EF%BC%9A120000%EF%BC%8C2%E5%88%86%E9%92%9F%EF%BC%89"><span class="nav-text">8、delivery.timeout.ms：传输时间（默认：120000，2分钟）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#9%E3%80%81connections-max-idle-ms%EF%BC%9A%E5%85%B3%E9%97%AD%E7%A9%BA%E9%97%B2%E8%BF%9E%E6%8E%A5%E6%97%B6%E9%97%B4%EF%BC%88%E9%BB%98%E8%AE%A4%EF%BC%9A540000%EF%BC%89"><span class="nav-text">9、connections.max.idle.ms：关闭空闲连接时间（默认：540000）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#10%E3%80%81enable-idempotence%EF%BC%9A%E5%BC%80%E5%90%AF%E5%B9%82%E7%AD%89%EF%BC%88%E9%BB%98%E8%AE%A4-false%EF%BC%89"><span class="nav-text">10、enable.idempotence：开启幂等（默认:false）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#11%E3%80%81max-in-flight-requests-per-connection%EF%BC%9A%E5%8D%95%E4%B8%AA%E8%BF%9E%E6%8E%A5%E4%B8%8A%E5%8F%91%E9%80%81%E7%9A%84%E6%9C%AA%E7%A1%AE%E8%AE%A4%E8%AF%B7%E6%B1%82%E7%9A%84%E6%9C%80%E5%A4%A7%E6%95%B0%E9%87%8F%EF%BC%88%E9%BB%98%E8%AE%A4%EF%BC%9A5%EF%BC%89"><span class="nav-text">11、max.in.flight.requests.per.connection：单个连接上发送的未确认请求的最大数量（默认：5）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#12%E3%80%81interceptor-classes%EF%BC%9A%E6%8B%A6%E6%88%AA%E5%99%A8%EF%BC%88%E9%BB%98%E8%AE%A4%EF%BC%9A%E6%97%A0%EF%BC%89"><span class="nav-text">12、interceptor.classes：拦截器（默认：无）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#13%E3%80%81key-serializer-key%E5%BA%8F%E5%88%97%E5%8C%96%E5%99%A8%EF%BC%88%E9%BB%98%E8%AE%A4%E6%97%A0%EF%BC%89"><span class="nav-text">13、key.serializer:key序列化器（默认无）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#14%E3%80%81value-serializer-value%E5%BA%8F%E5%88%97%E5%8C%96%E5%99%A8%EF%BC%88%E9%BB%98%E8%AE%A4%E6%97%A0%EF%BC%89"><span class="nav-text">14、value.serializer:value序列化器（默认无）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#15%E3%80%81linger-ms%EF%BC%9A%E5%8F%91%E9%80%81%E5%BB%B6%E8%BF%9F%E6%97%B6%E9%97%B4%EF%BC%88%E9%BB%98%E8%AE%A4%EF%BC%9A0%EF%BC%89"><span class="nav-text">15、linger.ms：发送延迟时间（默认：0）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#16%E3%80%81max-block-ms%EF%BC%9A%E9%98%BB%E5%A1%9E%E6%97%B6%E9%97%B4%EF%BC%88%E9%BB%98%E8%AE%A4%EF%BC%9A60000%EF%BC%8C%E4%B8%80%E5%88%86%E9%92%9F%EF%BC%89"><span class="nav-text">16、max.block.ms：阻塞时间（默认：60000，一分钟）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#17%E3%80%81max-request-size%EF%BC%9A%E6%9C%80%E5%A4%A7%E8%AF%B7%E6%B1%82%E5%AD%97%E8%8A%82%E5%A4%A7%E5%B0%8F%EF%BC%88%E9%BB%98%E8%AE%A4%EF%BC%9A1048576%EF%BC%8C1M%EF%BC%89"><span class="nav-text">17、max.request.size：最大请求字节大小（默认：1048576，1M）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#18%E3%80%81metric-reporters%EF%BC%9A%E8%87%AA%E5%AE%9A%E4%B9%89%E6%8C%87%E6%A0%87%E6%8A%A5%E5%91%8A%E5%99%A8"><span class="nav-text">18、metric.reporters：自定义指标报告器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#19%E3%80%81partitioner-class%EF%BC%9A%E8%87%AA%E5%AE%9A%E4%B9%89%E5%88%86%E5%8C%BA%E7%AD%96%E7%95%A5"><span class="nav-text">19、partitioner.class：自定义分区策略</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#20%E3%80%81request-timeout-ms%EF%BC%9A%E8%AF%B7%E6%B1%82%E8%B6%85%E6%97%B6%E6%97%B6%E9%97%B4%EF%BC%88%E9%BB%98%E8%AE%A4%EF%BC%9A30000%EF%BC%89"><span class="nav-text">20、request.timeout.ms：请求超时时间（默认：30000）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#21%E3%80%81receive-buffer-bytes%EF%BC%88%E9%BB%98%E8%AE%A4%EF%BC%9A32768%EF%BC%8C32K%EF%BC%89"><span class="nav-text">21、receive.buffer.bytes（默认：32768，32K）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#22%E3%80%81send-buffer-bytes%EF%BC%88%E9%BB%98%E8%AE%A4%EF%BC%9A131072-128K%EF%BC%89"><span class="nav-text">22、send.buffer.bytes（默认：131072,128K）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#retry-backoff-ms%EF%BC%9A%E9%87%8D%E8%AF%95%E9%98%BB%E5%A1%9E%E6%97%B6%E9%97%B4%EF%BC%88%E9%BB%98%E8%AE%A4%EF%BC%9A100%EF%BC%89"><span class="nav-text">retry.backoff.ms：重试阻塞时间（默认：100）</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81consumer%E6%A0%B8%E5%BF%83%E9%85%8D%E7%BD%AE"><span class="nav-text">二、consumer核心配置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81enable-auto-commit%EF%BC%9A%E5%BC%80%E5%90%AF%E8%87%AA%E5%8A%A8%E6%8F%90%E4%BA%A4%EF%BC%88%E9%BB%98%E8%AE%A4-true%EF%BC%89"><span class="nav-text">1、enable.auto.commit：开启自动提交（默认:true）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81auto-commit-interval-ms%EF%BC%9A%E8%87%AA%E5%8A%A8%E6%8F%90%E4%BA%A4%E9%A2%91%E7%8E%87%EF%BC%88%E9%BB%98%E8%AE%A4%EF%BC%9A5000%EF%BC%89"><span class="nav-text">2、auto.commit.interval.ms：自动提交频率（默认：5000）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#client-id%EF%BC%9A%E5%AE%A2%E6%88%B7ID"><span class="nav-text">client.id：客户ID</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4%E3%80%81check-crcs%EF%BC%9A%E6%98%AF%E5%90%A6%E5%BC%80%E5%90%AF%E6%95%B0%E6%8D%AE%E6%A0%A1%E9%AA%8C%EF%BC%88%E9%BB%98%E8%AE%A4%EF%BC%9Atrue%EF%BC%89"><span class="nav-text">4、check.crcs：是否开启数据校验（默认：true）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5%E3%80%81bootstrap-servers%EF%BC%9A%E6%9C%8D%E5%8A%A1%E5%99%A8%E9%85%8D%E7%BD%AE"><span class="nav-text">5、bootstrap.servers：服务器配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6%E3%80%81connections-max-idle-ms%EF%BC%9A%E5%85%B3%E9%97%AD%E7%A9%BA%E9%97%B4%E8%BF%9E%E6%8E%A5%E6%97%B6%E9%97%B4%EF%BC%88%E9%BB%98%E8%AE%A4%EF%BC%9A540000%EF%BC%89"><span class="nav-text">6、connections.max.idle.ms：关闭空间连接时间（默认：540000）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7%E3%80%81group-id%EF%BC%9A%E7%BE%A4%E7%BB%84%EF%BC%88%E9%BB%98%E8%AE%A4%EF%BC%9A%E2%80%9C%E2%80%9D%EF%BC%89"><span class="nav-text">7、group.id：群组（默认：“”）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#max-poll-records%EF%BC%9A%E6%8B%89%E8%B5%B7%E6%9C%80%E5%A4%A7%E8%AE%B0%E5%BD%95%EF%BC%88%E9%BB%98%E8%AE%A4%EF%BC%9A500%EF%BC%89"><span class="nav-text">max.poll.records：拉起最大记录（默认：500）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#9%E3%80%81max-poll-interval-ms%EF%BC%9A%E6%8B%89%E5%8F%96%E8%AE%B0%E5%BD%95%E9%97%B4%E9%9A%94%EF%BC%88%E9%BB%98%E8%AE%A4%EF%BC%9A300000%EF%BC%8C5%E5%88%86%E9%92%9F%EF%BC%89"><span class="nav-text">9、max.poll.interval.ms：拉取记录间隔（默认：300000，5分钟）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#10%E3%80%81request-timeout-ms%EF%BC%9A%E8%AF%B7%E6%B1%82%E8%B6%85%E6%97%B6%E6%97%B6%E9%97%B4%EF%BC%88%E9%BB%98%E8%AE%A4%EF%BC%9A30000-%EF%BC%8C30S%EF%BC%89"><span class="nav-text">10、request.timeout.ms：请求超时时间（默认：30000 ，30S）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#11%E3%80%81session-timeout-ms%EF%BC%9Aconsumer-session%E8%B6%85%E6%97%B6"><span class="nav-text">11、session.timeout.ms：consumer session超时</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#12%E3%80%81auto-offset-reset-%E5%88%9D%E5%A7%8B%E5%81%8F%E7%A7%BB%E9%87%8F-%E9%BB%98%E8%AE%A4%EF%BC%9Alatest"><span class="nav-text">12、auto.offset.reset:初始偏移量 (默认：latest)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#13%E3%80%81key-deserializer"><span class="nav-text">13、key.deserializer</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#14%E3%80%81value-deserializer"><span class="nav-text">14、value.deserializer</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#15%E3%80%81max-partition-fetch-bytes"><span class="nav-text">15、max.partition.fetch.bytes</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#16%E3%80%81partition-assignment-strategy%EF%BC%9Aconsumer%E8%AE%A2%E9%98%85%E5%88%86%E5%8C%BA%E7%AD%96%E7%95%A5"><span class="nav-text">16、partition.assignment.strategy：consumer订阅分区策略</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#17%E3%80%81fetch-max-bytes%EF%BC%9A%E6%8B%89%E5%8F%96%E6%9C%80%E5%A4%A7%E5%AD%97%E8%8A%82%EF%BC%88%E9%BB%98%E8%AE%A4%EF%BC%9A52428800%EF%BC%8C50M%EF%BC%89"><span class="nav-text">17、fetch.max.bytes：拉取最大字节（默认：52428800，50M）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#18%E3%80%81heartbeat-interval-ms%EF%BC%9A%E5%BF%83%E8%B7%B3%E6%97%B6%E9%97%B4%EF%BC%88%E9%BB%98%E8%AE%A4%EF%BC%9A3000-3S%EF%BC%89"><span class="nav-text">18、heartbeat.interval.ms：心跳时间（默认：3000, 3S）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#19%E3%80%81fetch-max-wait-ms%EF%BC%9A%E6%8B%89%E5%8F%96%E9%98%BB%E5%A1%9E%E6%97%B6%E9%97%B4%EF%BC%88%E9%BB%98%E8%AE%A4%EF%BC%9A500%EF%BC%89"><span class="nav-text">19、fetch.max.wait.ms：拉取阻塞时间（默认：500）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#20%E3%80%81fetch-min-bytes%EF%BC%9A%E6%8B%89%E5%8F%96%E6%9C%80%E5%B0%8F%E5%AD%97%E8%8A%82%E6%95%B0%EF%BC%88%E9%BB%98%E8%AE%A4%EF%BC%9A1%EF%BC%89"><span class="nav-text">20、fetch.min.bytes：拉取最小字节数（默认：1）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#21%E3%80%81exclude-internal-topics-%E5%85%AC%E5%BC%80%E5%86%85%E9%83%A8topic-%E9%BB%98%E8%AE%A4%EF%BC%9Atrue"><span class="nav-text">21、exclude.internal.topics:公开内部topic(默认：true)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#22%E3%80%81isolation-level-%E9%9A%94%E7%A6%BB%E7%BA%A7%E5%88%AB%EF%BC%9A%E9%BB%98%E8%AE%A4%EF%BC%9Aread-uncommitted%EF%BC%89"><span class="nav-text">22、isolation.level(隔离级别：默认：read_uncommitted）</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81broke%E9%85%8D%E7%BD%AE"><span class="nav-text">三、broke配置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81zookeeper-connect%EF%BC%9Azk%E5%9C%B0%E5%9D%80"><span class="nav-text">1、zookeeper.connect：zk地址</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81advertised-host-name%EF%BC%88%E9%BB%98%E8%AE%A4%EF%BC%9Anull%EF%BC%89"><span class="nav-text">2、advertised.host.name（默认：null）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3%E3%80%81advertised-listeners"><span class="nav-text">3、advertised.listeners</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#4%E3%80%81auto-create-topics-enable%EF%BC%88%E8%87%AA%E5%8A%A8%E5%88%9B%E5%BB%BAtopic%EF%BC%8C%E9%BB%98%E8%AE%A4%EF%BC%9Atrue%EF%BC%89"><span class="nav-text">4、auto.create.topics.enable（自动创建topic，默认：true）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#5%E3%80%81auto-leader-rebalance-enable%EF%BC%9A%E8%87%AA%E5%8A%A8rebalance-%E9%BB%98%E8%AE%A4%EF%BC%9Atrue"><span class="nav-text">5、auto.leader.rebalance.enable：自动rebalance(默认：true)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#6%E3%80%81background-threads%EF%BC%9A%E5%A4%84%E7%90%86%E7%BA%BF%E7%A8%8B%EF%BC%88%E9%BB%98%E8%AE%A4%EF%BC%9A10%EF%BC%89"><span class="nav-text">6、background.threads：处理线程（默认：10）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#7%E3%80%81broker-id-%E9%BB%98%E8%AE%A4%EF%BC%9A-1"><span class="nav-text">7、broker.id 默认：-1</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#8%E3%80%81compression-type%EF%BC%9A%E5%8E%8B%E7%BC%A9%E7%B1%BB%E5%9E%8B%EF%BC%8C%E9%BB%98%E8%AE%A4%EF%BC%9Aproducer"><span class="nav-text">8、compression.type：压缩类型，默认：producer</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#9%E3%80%81delete-topic-enable-%E5%88%A0%E9%99%A4topic-%E9%BB%98%E8%AE%A4%EF%BC%9Atrue"><span class="nav-text">9、delete.topic.enable 删除topic(默认：true)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#10%E3%80%81leader-imbalance-check-interval-seconds%EF%BC%88rebalance%E6%A3%80%E6%B5%8B%E9%A2%91%E7%8E%87%EF%BC%8C%E9%BB%98%E8%AE%A4%EF%BC%9A300%EF%BC%89"><span class="nav-text">10、leader.imbalance.check.interval.seconds（rebalance检测频率，默认：300）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#11%E3%80%81leader-imbalance-per-broker-percentage%EF%BC%88%E8%A7%A6%E5%8F%91rebalance%E6%AF%94%E7%8E%87%EF%BC%8C%E9%BB%98%E8%AE%A4%EF%BC%9A10%EF%BC%8C10-%EF%BC%89"><span class="nav-text">11、leader.imbalance.per.broker.percentage（触发rebalance比率，默认：10，10%）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#12%E3%80%81log-dir%EF%BC%88%E6%97%A5%E5%BF%97%E7%9B%AE%E5%BD%95%EF%BC%8C%E9%BB%98%E8%AE%A4%EF%BC%9A-tmp-kafka-logs%EF%BC%89"><span class="nav-text">12、log.dir（日志目录，默认：&#x2F;tmp&#x2F;kafka-logs）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#13%E3%80%81log-dirs"><span class="nav-text">13、log.dirs</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#14%E3%80%81log-flush-interval-messages%EF%BC%88%E9%BB%98%E8%AE%A4%EF%BC%9A9223372036854775807%EF%BC%89"><span class="nav-text">14、log.flush.interval.messages（默认：9223372036854775807）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#15%E3%80%81log-flush-interval-ms%EF%BC%88%E9%BB%98%E8%AE%A4%EF%BC%9Anull%EF%BC%89"><span class="nav-text">15、log.flush.interval.ms（默认：null）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#16%E3%80%81log-flush-offset-checkpoint-interval-ms%EF%BC%88%E9%BB%98%E8%AE%A4%EF%BC%9A60000%EF%BC%89"><span class="nav-text">16、log.flush.offset.checkpoint.interval.ms（默认：60000）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#17%E3%80%81log-retention-bytes-%E4%BF%9D%E5%AD%98%E6%97%A5%E5%BF%97%E6%96%87%E4%BB%B6%E7%9A%84%E6%9C%80%E5%A4%A7%E5%80%BC%EF%BC%88%E9%BB%98%E8%AE%A4%EF%BC%9A-1%EF%BC%89"><span class="nav-text">17、log.retention.bytes 保存日志文件的最大值（默认：-1）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#18%E3%80%81log-retention-hours%E6%97%A5%E5%BF%97%E6%96%87%E4%BB%B6%E6%9C%80%E5%A4%A7%E4%BF%9D%E5%AD%98%E6%97%B6%E9%97%B4%EF%BC%88%E5%B0%8F%E6%97%B6%EF%BC%89%E9%BB%98%E8%AE%A4%EF%BC%9A168%EF%BC%8C%E4%B8%80%E5%91%A8"><span class="nav-text">18、log.retention.hours日志文件最大保存时间（小时）默认：168，一周</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#19%E3%80%81log-retention-minutes%E6%97%A5%E5%BF%97%E6%96%87%E4%BB%B6%E6%9C%80%E5%A4%A7%E4%BF%9D%E5%AD%98%E6%97%B6%E9%97%B4%EF%BC%88%E5%88%86%E9%92%9F%EF%BC%89%E9%BB%98%E8%AE%A4%EF%BC%9Anull"><span class="nav-text">19、log.retention.minutes日志文件最大保存时间（分钟）默认：null</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#20%E3%80%81log-retention-ms%E6%97%A5%E5%BF%97%E6%96%87%E4%BB%B6%E6%9C%80%E5%A4%A7%E4%BF%9D%E5%AD%98%E6%97%B6%E9%97%B4%EF%BC%88%E6%AF%AB%E7%A7%92%EF%BC%89%E9%BB%98%E8%AE%A4%EF%BC%9Anull"><span class="nav-text">20、log.retention.ms日志文件最大保存时间（毫秒）默认：null</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#21%E3%80%81log-roll-hours-%E6%96%B0segment%E4%BA%A7%E7%94%9F%E6%97%B6%E9%97%B4%EF%BC%8C%E9%BB%98%E8%AE%A4%EF%BC%9A168%EF%BC%8C%E4%B8%80%E5%91%A8"><span class="nav-text">21、log.roll.hours:新segment产生时间，默认：168，一周</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#22%E3%80%81log-roll-ms-%E6%96%B0segment%E4%BA%A7%E7%94%9F%E6%97%B6%E9%97%B4"><span class="nav-text">22、log.roll.ms :新segment产生时间</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#23%E3%80%81log-segment-bytes%EF%BC%9Asegment%E6%96%87%E4%BB%B6%E6%9C%80%E5%A4%A7%E5%80%BC%EF%BC%8C%E9%BB%98%E8%AE%A4%EF%BC%9A1073741824%EF%BC%881G%EF%BC%89"><span class="nav-text">23、log.segment.bytes：segment文件最大值，默认：1073741824（1G）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#24%E3%80%81log-segment-delete-delay-ms%EF%BC%9Asegment%E5%88%A0%E9%99%A4%E7%AD%89%E5%BE%85%E6%97%B6%E9%97%B4%EF%BC%8C-%E9%BB%98%E8%AE%A4%EF%BC%9A60000"><span class="nav-text">24、log.segment.delete.delay.ms：segment删除等待时间， 默认：60000</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#25%E3%80%81message-max-bytes-%E6%9C%80%E5%A4%A7batch-size-%E9%BB%98%E8%AE%A4%EF%BC%9A1000012%EF%BC%8C0-9M"><span class="nav-text">25、message.max.bytes 最大batch size 默认：1000012，0.9M</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#26%E3%80%81min-insync-replicas%EF%BC%88insync%E4%B8%AD%E6%9C%80%E5%B0%8F%E5%89%AF%E6%9C%AC%E5%80%BC%EF%BC%89"><span class="nav-text">26、min.insync.replicas（insync中最小副本值）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#27%E3%80%81num-io-threads%EF%BC%8C%E9%BB%98%E8%AE%A4%EF%BC%9A8"><span class="nav-text">27、num.io.threads，默认：8</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#28%E3%80%81num-network-threads%EF%BC%8C%E9%BB%98%E8%AE%A4%EF%BC%9A3"><span class="nav-text">28、num.network.threads，默认：3</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#29%E3%80%81num-recovery-threads-per-data-dir-%E9%BB%98%E8%AE%A4%EF%BC%9A1"><span class="nav-text">29、num.recovery.threads.per.data.dir 默认：1</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#30%E3%80%81num-replica-alter-log-dirs-threads-%E9%BB%98%E8%AE%A4%EF%BC%9Anull"><span class="nav-text">30、num.replica.alter.log.dirs.threads 默认：null</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#31%E3%80%81num-replica-fetchers"><span class="nav-text">31、num.replica.fetchers</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#32%E3%80%81offset-metadata-max-bytes-%E9%BB%98%E8%AE%A4%EF%BC%9A4096"><span class="nav-text">32、offset.metadata.max.bytes 默认：4096</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#33%E3%80%81offsets-commit-timeout-ms-%E9%BB%98%E8%AE%A4%EF%BC%9A5000"><span class="nav-text">33、offsets.commit.timeout.ms 默认：5000</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#34%E3%80%81offsets-topic-num-partitions-%E9%BB%98%E8%AE%A4%EF%BC%9A50"><span class="nav-text">34、offsets.topic.num.partitions 默认：50</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#35%E3%80%81offsets-topic-replication-factor-%E5%89%AF%E6%9C%AC%E5%A4%A7%E5%B0%8F-%E9%BB%98%E8%AE%A4%EF%BC%9A3"><span class="nav-text">35、offsets.topic.replication.factor 副本大小,默认：3</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#36%E3%80%81offsets-topic-segment-bytes-%E9%BB%98%E8%AE%A4104857600-100M"><span class="nav-text">36、offsets.topic.segment.bytes 默认104857600 ,100M</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#37%E3%80%81queued-max-requests-%E9%BB%98%E8%AE%A4%EF%BC%9A500"><span class="nav-text">37、queued.max.requests 默认：500</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#38%E3%80%81replica-fetch-min-bytes%E9%BB%98%E8%AE%A4%EF%BC%9A1"><span class="nav-text">38、replica.fetch.min.bytes默认：1</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#39%E3%80%81replica-lag-time-max-ms-%E9%BB%98%E8%AE%A4%EF%BC%9A10000"><span class="nav-text">39、replica.lag.time.max.ms 默认：10000</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#40%E3%80%81transaction-max-timeout-ms-%E9%BB%98%E8%AE%A4%EF%BC%9A900000"><span class="nav-text">40、transaction.max.timeout.ms 默认：900000</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#41%E3%80%81unclean-leader-election-enable-%E9%BB%98%E8%AE%A4%EF%BC%9Afalse"><span class="nav-text">41、unclean.leader.election.enable 默认：false</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#42%E3%80%81zookeeper-connection-timeout-ms"><span class="nav-text">42、zookeeper.connection.timeout.ms</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#43%E3%80%81zookeeper-max-in-flight-requests"><span class="nav-text">43、zookeeper.max.in.flight.requests</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#44%E3%80%81group-max-session-timeout-ms"><span class="nav-text">44、group.max.session.timeout.ms</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#45%E3%80%81group-min-session-timeout-ms"><span class="nav-text">45、group.min.session.timeout.ms</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#46%E3%80%81num-partitions-%E9%BB%98%E8%AE%A4%EF%BC%9A1"><span class="nav-text">46、num.partitions 默认：1</span></a></li></ol></li></ol>
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="Search..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="popup-btn-close">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+</main>
+
+
+
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/main.js"></script>
+
+<script src="/js/header-shrink.js"></script>
+
+<script src="/js/back2top.js"></script>
+
+<script src="/js/dark-light-toggle.js"></script>
+
+
+
+    
+<script src="/js/local-search.js"></script>
+
+
+
+
+    
+<script src="/js/code-copy.js"></script>
+
+
+
+
+
+<div class="post-scripts">
+    
+        
+<script src="/js/left-side-toggle.js"></script>
+
+<script src="/js/libs/anime.min.js"></script>
+
+<script src="/js/toc.js"></script>
+
+    
+</div>
+
+
+
+</body>
+</html>
