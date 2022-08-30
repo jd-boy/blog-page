@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="JD">
+    
+    <title>
+        
+            加密数据模糊查询 |
+        
+        Bean You
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <link rel="shortcut icon" href="http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico">
+    
+<link rel="stylesheet" href="/css/font-awesome.min.css">
+
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"jzcupid.cn","root":"/","language":"en","path":"search.json"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":false,"expand_all":false,"init_open":false},"style":{"primary_color":"#0066CC","avatar":"http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico","favicon":"http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":true,"scale":true},"first_screen":{"enable":true,"background_img":"/images/bg.svg","description":"莫听穿林打叶声，何妨吟啸且徐行。"},"scroll":{"progress_bar":{"enable":false},"percent":{"enable":true}}},"local_search":{"enable":true,"trigger":"auto","preload":true},"code_copy":{"enable":true,"style":"default"},"pjax":{"enable":false},"lazyload":{"enable":false},"version":"3.4.3"};
+    KEEP.language_ago = {"second":"%s seconds ago","minute":"%s minutes ago","hour":"%s hours ago","day":"%s days ago","week":"%s weeks ago","month":"%s months ago","year":"%s years ago"};
+  </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                Bean You
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                首页
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/categories"
+                            >
+                                分类
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >
+                                标签
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                归档
+                            </a>
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="fas fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">首页</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/categories">分类</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags">标签</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">归档</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">加密数据模糊查询</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="http://qiniu.jzcupid.cn/blog%E5%9B%BE%E6%A0%87.ico">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">JD</span>
+                        
+                            <span class="author-label">Lv5</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2022-08-30 22:46:36
+    </span>
+    
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/categories/%E6%8A%80%E6%9C%AF%E6%96%B9%E6%A1%88/">技术方案</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+    
+
+    
+    
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fas fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <h2 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h2><p>对加密的数据模糊查询大致分为三类做法，如下所示：</p>
+<ul>
+<li>沙雕做法（不动脑思考直男的思路，只管实现功能从不深入思考问题）</li>
+<li>常规做法（思考了查询性能问题，也会使用一些存储空间换性能等做法）</li>
+<li>超神做法（比较高端的做法从算法层面上思考）</li>
+</ul>
+<p>我们就对这三种实现方法一一来讲讲实现思路和优劣性，首先我们先看沙雕做法。</p>
+<h2 id="二、沙雕做法"><a href="#二、沙雕做法" class="headerlink" title="二、沙雕做法"></a>二、沙雕做法</h2><ul>
+<li>将所有数据加载到内存中进行解密，解密后通过程序算法来模糊匹配</li>
+<li>将密文数据映射一份明文映射表，俗称tag表，然后模糊查询tag来关联密文数据</li>
+</ul>
+<h4 id="沙雕一"><a href="#沙雕一" class="headerlink" title="沙雕一"></a>沙雕一</h4><p>我们先来看看第一个做法，将所有数据加载到内存中进行解密，这个如果数据量小的话可以使用这个方式来做，这样做既简单又实惠，如果数据量大的话那就是灾难，我们来大致算一下。</p>
+<p>一个英文字母(不分大小写)占一个字节的空间，一个中文汉字占两个字节的空间，用DES来举例，<code>13800138000</code>加密后的串<code>HE9T75xNx6c5yLmS5l4r6Q==</code>占24个字节。</p>
+<table>
+<thead>
+<tr>
+<th align="left">条数</th>
+<th align="left">Bytes</th>
+<th align="left">MB</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">100w</td>
+<td align="left">2400万</td>
+<td align="left">22.89</td>
+</tr>
+<tr>
+<td align="left">1000w</td>
+<td align="left">2.4亿</td>
+<td align="left">228.89</td>
+</tr>
+<tr>
+<td align="left">1亿</td>
+<td align="left">24亿</td>
+<td align="left">2288.89</td>
+</tr>
+</tbody></table>
+<p>轻则上百兆，重则上千兆，这样分分钟给应用程序整成Out of memory，这样做如果数据少只有几百、几千、几万条时是完全可以这样做的，但是数据量大就强烈不建议了。</p>
+<h4 id="沙雕二"><a href="#沙雕二" class="headerlink" title="沙雕二"></a>沙雕二</h4><p>我们再来看第二个做法，将密文数据映射一份明文映射表，然后模糊查询映射表来关联密文数据，what？？？！！！那我们为什么要对数据加密呢，直接不加密不是更好么！</p>
+<p>我们既然对数据加密肯定是有安全诉求才会这样做，增加一个明文的映射表就违背了安全诉求，这样做既不安全也不方便完全是脱裤子放x，多此一举，强且不推荐。</p>
+<h3 id="三、常规做法"><a href="#三、常规做法" class="headerlink" title="三、常规做法"></a>三、常规做法</h3><p>我们接下来看看常规的做法，也是最广泛使用的方法，此类方法及满足的数据安全性，又对查询友好。</p>
+<ul>
+<li>在数据库实现加密算法函数，在模糊查询的时候使用<code>decode(key) like &#39;%partial%</code></li>
+<li>对密文数据进行分词组合，将分词组合的结果集分别进行加密，然后存储到扩展列，查询时通过<code>key like &#39;%partial%&#39;</code></li>
+</ul>
+<h4 id="常规一"><a href="#常规一" class="headerlink" title="常规一"></a>常规一</h4><p>在数据库中实现与程序一致的加解密算法，修改模糊查询条件，使用数据库加解密函数先解密再模糊查找，这样做的优点是实现成本低，开发使用成本低，只需要将以往的模糊查找稍微修改一下就可以实现，但是缺点也很明显，这样做无法利用数据库的索引来优化查询，甚至有一些数据库可能无法保证与程序实现一致的加解密算法，但是对于常规的加解密算法都可以保证与应用程序一致。</p>
+<p>如果对查询性能要求不是特别高、对数据安全性要求一般，可以使用常见的加解密算法比如说AES、DES之类的也是一个不错的选择。</p>
+<p>如果公司有自己的算法实现，并且没有提供多端的算法实现，要么找个算法好的人去研究吃透补全多端实现，要么放弃使用这个办法。</p>
+<h4 id="常规二"><a href="#常规二" class="headerlink" title="常规二"></a>常规二</h4><p>对密文数据进行分词组合，将分词组合的结果集分别进行加密，然后存储到扩展列，查询时通过key like ‘%partial%’，这是一个比较划算的实现方法，我们先来分析一下它的实现思路。</p>
+<p>先对字符进行固定长度的分组，将一个字段拆分为多个，比如说根据4位英文字符（半角），2个中文字符（全角）为一个检索条件，举个例子：</p>
+<blockquote>
+<p><code>ningyu1</code>使用4个字符为一组的加密方式，第一组ning ，第二组ingy ，第三组ngyu ，第四组gyu1 … 依次类推。</p>
+</blockquote>
+<p>如果需要检索所有包含检索条件4个字符的数据比如：ingy ，加密字符后通过 <code>key like “%partial%”</code> 查库。</p>
+<p>我们都知道加密后长度会增长，增长的这部分长度存储就是我们要花费的额外成本，典型的使用成本来换取速度，密文增长的幅度随着算法不同而不同以DES举例，<code>13800138000</code>加密前占11个字节，加密后的串<code>HE9T75xNx6c5yLmS5l4r6Q==</code>占24个字节，增长是2.18倍，所以一个优秀的算法是多么的重要，能为公司节省不少成本，但是话又说回来算法工程师的工资也不低，所以我也不知道是节省成本还是增加成本，哈哈哈…你们自己算吧。</p>
+<p>回到主题，这个方法虽然可以实现加密数据的模糊查询，但是对模糊查询的字符长度是有要求的，以我上面举的例子模糊查询字符原文长度必须大于等于4个英文/数字，或者2个汉字，再短的长度不建议支持，因为分词组合会增多从而导致存储的成本增加，反而安全性降低。</p>
+<p>大家是否都对接过 淘宝、拼多多、JD他们的api，他们对平台订单数据中的用户敏感数据就是加密的同时支持模糊查询，使用就是这个方法，下面我整理了几家电商平台的密文字段检索方案的说明，感兴趣的可以查看下面链接。</p>
+<ul>
+<li>淘宝密文字段检索方案：<a class="link"   target="_blank" rel="noopener" href="https://open.taobao.com/docV3.htm?docId=106213&amp;docType=1" >https://open.taobao.com/docV3.htm?docId=106213&amp;docType=1<i class="fas fa-external-link-alt"></i></a></li>
+<li>阿里巴巴文字段检索方案：<a class="link"   target="_blank" rel="noopener" href="https://jaq-doc.alibaba.com/docs/doc.htm?treeId=1&amp;articleId=106213&amp;docType=1" >https://jaq-doc.alibaba.com/docs/doc.htm?treeId=1&amp;articleId=106213&amp;docType=1<i class="fas fa-external-link-alt"></i></a></li>
+<li>拼多多密文字段检索方案：<a class="link"   target="_blank" rel="noopener" href="https://open.pinduoduo.com/application/document/browse?idStr=3407B605226E77F2" >https://open.pinduoduo.com/application/document/browse?idStr=3407B605226E77F2<i class="fas fa-external-link-alt"></i></a></li>
+<li>京东密文字段检索方案：<a class="link"   target="_blank" rel="noopener" href="https://jos.jd.com/commondoc?listId=345" >https://jos.jd.com/commondoc?listId=345<i class="fas fa-external-link-alt"></i></a></li>
+</ul>
+<blockquote>
+<p>ps. 基本上都是一样的，果然都是互相抄袭，连加密后的数据格式都一致。</p>
+</blockquote>
+<p>这个方法优点就是实现起来不算复杂，使用起来也较为简单，算是一个折中的做法，因为会有扩展字段存储成本会有升高，但是可利用数据库索引优化查询速度，推荐使用这个方法。</p>
+<h2 id="四、超神做法"><a href="#四、超神做法" class="headerlink" title="四、超神做法"></a>四、超神做法</h2><p>我们接下来看看优秀的做法，此类做法难度较高，都是从算法层面来考虑，有些甚至会设计一个新算法，虽然已有一些现成的算法参考，但是大多都是半成品无法拿来直接使用，所以还是要有人去深入研究和整合到自己的应用中去。</p>
+<p>从算法层面思考，甚至会设计一个新算法来支持模糊查找</p>
+<p>这个层面大多是专业算法工程师的研究领域，想要设计一个有序的、非不可逆的、密文长度不能增长过快的算法不是一件简单的事情，大致的思路是这样的，使用译码的方式进行加解密，保留密文和原文一样的顺序，从而支持密文模糊匹配，说的比较笼统因为我也不是这方面的专家没有更深一步的研究过，所以我从网上找了一些资料可以参考一下。</p>
+<ul>
+<li>数据库中字符数据的模糊匹配加密方法：<a class="link"   target="_blank" rel="noopener" href="https://www.jiamisoft.com/blog/6542-zifushujumohupipeijiamifangfa.html" >https://www.jiamisoft.com/blog/6542-zifushujumohupipeijiamifangfa.html<i class="fas fa-external-link-alt"></i></a></li>
+</ul>
+<p>这里提到的Hill密码处理和模糊匹配加密方法FMES可以重点看看.</p>
+<ul>
+<li>一种基于BloomFilter的改进型加密文本模糊搜索机制研究：<a class="link"   target="_blank" rel="noopener" href="http://kzyjc.cnjournals.com/html/2019/1/20190112.htm" >http://kzyjc.cnjournals.com/html/2019/1/20190112.htm<i class="fas fa-external-link-alt"></i></a></li>
+<li>支持快速查询的数据库如何加密：<a class="link"   target="_blank" rel="noopener" href="https://www.jiamisoft.com/blog/5961-kuaisuchaxunshujukujiami.html" >https://www.jiamisoft.com/blog/5961-kuaisuchaxunshujukujiami.html<i class="fas fa-external-link-alt"></i></a></li>
+<li>基于Lucene的云端搜索与密文基础上的模糊查询：<a class="link"   target="_blank" rel="noopener" href="https://www.cnblogs.com/arthurqin/p/6307153.html" >https://www.cnblogs.com/arthurqin/p/6307153.html<i class="fas fa-external-link-alt"></i></a></li>
+</ul>
+<p>基于Lucene的思路就跟我们上面介绍的常规做法二类似，对字符进行等长度分词，将分词后的结果集加密后存储，只不过存储的db不一样，一个是关系型数据库，一个是es搜索引擎。</p>
+<ul>
+<li>云存储中一种支持可验证的模糊查询加密方案：<a class="link"   target="_blank" rel="noopener" href="http://jeit.ie.ac.cn/fileDZYXXXB/journal/article/dzyxxxb/2017/7/PDF/160971.pdf" >http://jeit.ie.ac.cn/fileDZYXXXB/journal/article/dzyxxxb/2017/7/PDF/160971.pdf<i class="fas fa-external-link-alt"></i></a></li>
+</ul>
+
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/posts/48924/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">Github 实用技巧</span>
+                                <span class="post-nav-item">Next posts</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2021</span>
+              -
+            
+            2022&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">JD</a>
+        </div>
+        
+            <script async  src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <div class="website-count info-item">
+                
+                    <span id="busuanzi_container_site_uv">
+                        Visitor Count&nbsp;<span id="busuanzi_value_site_uv"></span>&ensp;
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv">
+                        Totalview&nbsp;<span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="theme-info info-item">
+            Powered by <a target="_blank" href="https://hexo.io">Hexo</a>&nbsp;|&nbsp;Theme&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.3</a>
+        </div>
+        
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="arrow-up fas fa-arrow-up"></i>
+                <span class="percent"></span>
+            </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="nav-text">一、前言</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%B2%99%E9%9B%95%E5%81%9A%E6%B3%95"><span class="nav-text">二、沙雕做法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B2%99%E9%9B%95%E4%B8%80"><span class="nav-text">沙雕一</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B2%99%E9%9B%95%E4%BA%8C"><span class="nav-text">沙雕二</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%B8%B8%E8%A7%84%E5%81%9A%E6%B3%95"><span class="nav-text">三、常规做法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B8%B8%E8%A7%84%E4%B8%80"><span class="nav-text">常规一</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B8%B8%E8%A7%84%E4%BA%8C"><span class="nav-text">常规二</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E8%B6%85%E7%A5%9E%E5%81%9A%E6%B3%95"><span class="nav-text">四、超神做法</span></a></li></ol>
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="Search..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="popup-btn-close">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+</main>
+
+
+
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/main.js"></script>
+
+<script src="/js/header-shrink.js"></script>
+
+<script src="/js/back2top.js"></script>
+
+<script src="/js/dark-light-toggle.js"></script>
+
+
+
+    
+<script src="/js/local-search.js"></script>
+
+
+
+
+    
+<script src="/js/code-copy.js"></script>
+
+
+
+
+
+<div class="post-scripts">
+    
+        
+<script src="/js/left-side-toggle.js"></script>
+
+<script src="/js/libs/anime.min.js"></script>
+
+<script src="/js/toc.js"></script>
+
+    
+</div>
+
+
+
+</body>
+</html>
