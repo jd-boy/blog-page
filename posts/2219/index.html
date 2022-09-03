@@ -9,7 +9,7 @@
     
     <title>
         
-            Kafka Java 客户端配置 Kerberos 认证 |
+            Log4j2 Disruptor 配置 |
         
         Bean You
     </title>
@@ -150,7 +150,7 @@
     <div class="article-content-container">
 
         <div class="article-title">
-            <span class="title-hover-animation">Kafka Java 客户端配置 Kerberos 认证</span>
+            <span class="title-hover-animation">Log4j2 Disruptor 配置</span>
         </div>
 
         
@@ -168,7 +168,7 @@
                     <div class="meta-info">
                         <div class="article-meta-info">
     <span class="article-date article-meta-item">
-        <i class="fas fa-edit"></i>&nbsp;2022-09-03 12:09:35
+        <i class="fas fa-edit"></i>&nbsp;2022-09-03 13:28:21
     </span>
     
         <span class="article-categories article-meta-item">
@@ -200,23 +200,12 @@
         
 
         <div class="article-content markdown-body">
-            <h2 id="一-、添加-Kafka-配置"><a href="#一-、添加-Kafka-配置" class="headerlink" title="一 、添加 Kafka 配置"></a>一 、添加 Kafka 配置</h2><figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">sasl.kerberos.service.name</span>=<span class="string">kafka</span></span><br><span class="line"><span class="meta">security.protocol</span>=<span class="string">SASL_PLAINTEXT</span></span><br><span class="line"><span class="meta">sasl.mechanism</span>=<span class="string">GSSAPI</span></span><br></pre></td></tr></table></figure>
+            <h4 id="1、队列满时丢弃"><a href="#1、队列满时丢弃" class="headerlink" title="1、队列满时丢弃"></a>1、队列满时丢弃</h4><p>默认是 <code>Blocking</code> </p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-Dlog4j2.AsyncQueueFullPolicy=Discard</span><br></pre></td></tr></table></figure>
 
-<h2 id="二、配置-krb5-conf"><a href="#二、配置-krb5-conf" class="headerlink" title="二、配置 krb5.conf"></a>二、配置 krb5.conf</h2><p>作为 java 系统参数</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-Djava.security.krb5.conf=/usr/local/kafka/krb5.conf</span><br></pre></td></tr></table></figure>
+<h4 id="2、更改-Disruptor-队列长度"><a href="#2、更改-Disruptor-队列长度" class="headerlink" title="2、更改 Disruptor 队列长度"></a>2、更改 Disruptor 队列长度</h4><p>队列默认大小 4096</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-DAsyncLogger.RingBufferSize=262144</span><br><span class="line">-DAsyncLoggerConfig.RingBufferSize=262144 </span><br></pre></td></tr></table></figure>
 
-<h4 id="krb5-conf-内容："><a href="#krb5-conf-内容：" class="headerlink" title="krb5.conf 内容："></a>krb5.conf 内容：</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line">#File modified by ipa-client-install</span><br><span class="line"></span><br><span class="line">includedir /etc/krb5.conf.d/</span><br><span class="line">includedir /var/lib/sss/pubconf/krb5.include.d/</span><br><span class="line"></span><br><span class="line">[libdefaults]</span><br><span class="line">  default_realm = DEMO.COM</span><br><span class="line">  dns_lookup_realm = false</span><br><span class="line">  dns_lookup_kdc = false</span><br><span class="line">  rdns = false</span><br><span class="line">  dns_canonicalize_hostname = false</span><br><span class="line">  ticket_lifetime = 24h</span><br><span class="line">  forwardable = true</span><br><span class="line">  udp_preference_limit = 0</span><br><span class="line">  #default_ccache_name = KEYRING:persistent:%&#123;uid&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">[realms]</span><br><span class="line">  DEMO.COM = &#123;</span><br><span class="line">    kdc = aa.demo.com:88</span><br><span class="line">    master_kdc = aa.demo.com:88</span><br><span class="line">    admin_server = aa.demo.com:749</span><br><span class="line">    kpasswd_server = aa.demo.com:464</span><br><span class="line">    default_domain = demo.com</span><br><span class="line">    pkinit_anchors = FILE:/var/lib/ipa-client/pki/kdc-ca-bundle.pem</span><br><span class="line">    pkinit_pool = FILE:/var/lib/ipa-client/pki/ca-bundle.pem</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">[domain_realm]</span><br><span class="line">  .demo.com = DEMO.COM</span><br><span class="line">  demo.com = DEMO.COM</span><br><span class="line">  bb.demo.com = DEMO.COM</span><br></pre></td></tr></table></figure>
-
-<h2 id="三、添加-keytab-配置"><a href="#三、添加-keytab-配置" class="headerlink" title="三、添加 keytab 配置"></a>三、添加 keytab 配置</h2><p>在 <code>/xxx</code> 目录下添加 <code>xxx.keytab</code></p>
-<h2 id="四、动态认证-OR-静态认证"><a href="#四、动态认证-OR-静态认证" class="headerlink" title="四、动态认证 OR 静态认证"></a>四、动态认证 OR 静态认证</h2><h3 id="1-动态认证"><a href="#1-动态认证" class="headerlink" title="1. 动态认证"></a>1. 动态认证</h3><p>添加 kafka 配置</p>
-<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">sasl.jaas.config</span>=<span class="string">com.sun.security.auth.module.Krb5LoginModule required useKeyTab=true storeKey=true keyTab=\&quot;/xxx/xxx.keytab\&quot; principal=\&quot;xxx@xxxx.COM\&quot;;</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="2-静态认证"><a href="#2-静态认证" class="headerlink" title="2. 静态认证"></a>2. 静态认证</h3><p>添加 java 系统参数</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-Djava.security.auth.login.config=/xxxxx/kafka_client_jaas.conf</span><br></pre></td></tr></table></figure>
-
-<h4 id="kafka-client-jaas-conf-内容："><a href="#kafka-client-jaas-conf-内容：" class="headerlink" title="kafka_client_jaas.conf 内容："></a>kafka_client_jaas.conf 内容：</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">KafkaClient &#123;</span><br><span class="line">   com.sun.security.auth.module.Krb5LoginModule required</span><br><span class="line">   useKeyTab=true</span><br><span class="line">   renewTicket=true</span><br><span class="line">   serviceName=&quot;kafka&quot;</span><br><span class="line">   keyTab=&quot;/xxxx/xxx.keytab&quot;</span><br><span class="line">   principal=&quot;xxx/bb.demo.com@DEMO.COM&quot;;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line">Client &#123;</span><br><span class="line">   com.sun.security.auth.module.Krb5LoginModule required</span><br><span class="line">   useKeyTab=true</span><br><span class="line">   serviceName=&quot;kafka&quot;</span><br><span class="line">   useTicketCache=false</span><br><span class="line">   keyTab=&quot;/xxxxx/xxx.keytab&quot;</span><br><span class="line">   principal=&quot;xxx/bb.demo.com@DEMO.COM&quot;;</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-
-<h4 id="相关资料"><a href="#相关资料" class="headerlink" title="相关资料"></a>相关资料</h4><p><a class="link"   target="_blank" rel="noopener" href="https://blog.csdn.net/justchnmm/article/details/123832385" >https://blog.csdn.net/justchnmm/article/details/123832385<i class="fas fa-external-link-alt"></i></a></p>
 
         </div>
 
@@ -225,29 +214,14 @@
         
             <div class="article-nav">
                 
-                    <div class="article-prev">
-                        <a class="prev"
-                           rel="prev"
-                           href="/posts/2219/"
-                        >
-                            <span class="left arrow-icon flex-center">
-                              <i class="fas fa-chevron-left"></i>
-                            </span>
-                            <span class="title flex-center">
-                                <span class="post-nav-title-item">Log4j2 Disruptor 配置</span>
-                                <span class="post-nav-item">Prev posts</span>
-                            </span>
-                        </a>
-                    </div>
-                
                 
                     <div class="article-next">
                         <a class="next"
                            rel="next"
-                           href="/posts/35095/"
+                           href="/posts/38228/"
                         >
                             <span class="title flex-center">
-                                <span class="post-nav-title-item">加密数据模糊查询</span>
+                                <span class="post-nav-title-item">Kafka Java 客户端配置 Kerberos 认证</span>
                                 <span class="post-nav-item">Next posts</span>
                             </span>
                             <span class="right arrow-icon flex-center">
@@ -373,7 +347,7 @@
         <aside class="page-aside">
             <div class="post-toc-wrap">
     <div class="post-toc">
-        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80-%E3%80%81%E6%B7%BB%E5%8A%A0-Kafka-%E9%85%8D%E7%BD%AE"><span class="nav-text">一 、添加 Kafka 配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E9%85%8D%E7%BD%AE-krb5-conf"><span class="nav-text">二、配置 krb5.conf</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#krb5-conf-%E5%86%85%E5%AE%B9%EF%BC%9A"><span class="nav-text">krb5.conf 内容：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E6%B7%BB%E5%8A%A0-keytab-%E9%85%8D%E7%BD%AE"><span class="nav-text">三、添加 keytab 配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E5%8A%A8%E6%80%81%E8%AE%A4%E8%AF%81-OR-%E9%9D%99%E6%80%81%E8%AE%A4%E8%AF%81"><span class="nav-text">四、动态认证 OR 静态认证</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E5%8A%A8%E6%80%81%E8%AE%A4%E8%AF%81"><span class="nav-text">1. 动态认证</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E9%9D%99%E6%80%81%E8%AE%A4%E8%AF%81"><span class="nav-text">2. 静态认证</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#kafka-client-jaas-conf-%E5%86%85%E5%AE%B9%EF%BC%9A"><span class="nav-text">kafka_client_jaas.conf 内容：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E8%B5%84%E6%96%99"><span class="nav-text">相关资料</span></a></li></ol></li></ol></li></ol>
+        <ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E9%98%9F%E5%88%97%E6%BB%A1%E6%97%B6%E4%B8%A2%E5%BC%83"><span class="nav-text">1、队列满时丢弃</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E6%9B%B4%E6%94%B9-Disruptor-%E9%98%9F%E5%88%97%E9%95%BF%E5%BA%A6"><span class="nav-text">2、更改 Disruptor 队列长度</span></a></li></ol>
     </div>
 </div>
         </aside>
