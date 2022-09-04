@@ -207,7 +207,7 @@
 
 
 <h2 id="一、-lt-configuration-gt-元素"><a href="#一、-lt-configuration-gt-元素" class="headerlink" title="一、&lt;configuration&gt;元素"></a>一、&lt;configuration&gt;元素</h2><p>logback.xml配置文件的基本结构可以描述为&lt;configuration&gt;元素，包含零个或多个&lt;appender&gt;元素，后跟零个或多个&lt;logger&gt;元素，后跟最多一个&lt;root&gt;元素(也可以没有)。下图说明了这种基本结构：</p>
-<p><img src="../../imgs/1.png" alt="图片"></p>
+<p><img src="../../imgs/9760-1.png" alt="图片"></p>
 <h2 id="二、-lt-logger-gt-元素"><a href="#二、-lt-logger-gt-元素" class="headerlink" title="二、&lt;logger&gt;元素"></a>二、&lt;logger&gt;元素</h2><p>&lt;logger&gt; 元素只接受一个必需的 name 属性，一个可选的 level 属性和一个可选的 additivity 属性，允许值为true或false。level属性的值允许一个不区分大小写的字符串值TRACE，DEBUG，INFO，WARN，ERROR，ALL或OFF。特殊于大小写不敏感的值INHERITED或其同义词NULL将强制记录器的级别从层次结构中的较高级别继承，&lt;logger&gt; 元素可以包含零个或多个 &lt;appender-ref&gt; 元素; 这样引用的每个 appender 都被添加到指定的logger中，(注：additivity属性下面详说)，<strong>logger元素级别具有继承性。</strong></p>
 <p>例1：示例中，仅为根记录器分配了级别。此级别值DEBUG由其他记录器X，X.Y和X.Y.Z继承</p>
 <table>
@@ -331,10 +331,10 @@
 </tbody></table>
 <h2 id="三、-lt-root-gt-元素"><a href="#三、-lt-root-gt-元素" class="headerlink" title="三、&lt;root&gt;元素"></a>三、&lt;root&gt;元素</h2><p>&lt;root&gt; 元素配置根记录器。它支持单个属性，即level属性。它不允许任何其他属性，因为additivity标志不适用于根记录器。此外，由于根记录器已被命名为“ROOT”，因此它也不允许使用name属性。level属性的值可以是不区分大小写的字符串TRACE，DEBUG，INFO，WARN，ERROR，ALL或OFF之一&lt;root&gt;元素可以包含零个或多个&lt;appender-ref&gt;元素; 这样引用的每个appender都被添加到根记录器中(注：additivity属性下面详说)。</p>
 <h2 id="四、-lt-appender-gt-元素"><a href="#四、-lt-appender-gt-元素" class="headerlink" title="四、&lt;appender&gt;元素"></a>四、&lt;appender&gt;元素</h2><p>appender使用&lt;appender&gt;元素配置，该元素采用两个必需属性name和class。name属性指定appender的名称，而class属性指定要实例化的appender类的完全限定名称。&lt;appender&gt;元素可以包含零个或一个&lt;layout&gt;元素，零个或多个&lt;encoder&gt;元素以及零个或多个&lt;filter&gt;元素，下图说明了常见的结构：</p>
-<p><img src="https://mmbiz.qpic.cn/mmbiz_png/1J6IbIcPCLaTl7lkpcA6jy3BZ2VHVXiayKat7sKe462uupg5twGh2uYwcPpaGVFmKNar1oOUTRCUEwwDWyG7ibew/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="图片"></p>
+<p><img src="../../imgs/9760-2.png" alt="图片"></p>
 <p>重要：在logback中，输出目标称为appender，addAppender方法将appender添加到给定的记录器logger。给定记录器的每个启用的日志记录请求都将转发到该记录器中的所有appender以及层次结构中较高的appender。换句话说，appender是从记录器层次结构中附加地继承的。例如，如果将控制台appender添加到根记录器，则所有启用的日志记录请求将至少在控制台上打印。如果另外将文件追加器添加到记录器（例如L），则对L和L的子项启用的记录请求将打印在文件和控制台上。通过将记录器的additivity标志设置为false，可以覆盖此默认行为，以便不再添加appender累积。</p>
 <p>Appender是一个接口，它有许多子接口和实现类，具体如下图所示：</p>
-<p><img src="https://mmbiz.qpic.cn/mmbiz_jpg/1J6IbIcPCLaTl7lkpcA6jy3BZ2VHVXiayYLleic1JrZxRX6Ll7oDbExj0qY934v5VfC1OceQQ4aKHERjescCFeTQ/640?wx_fmt=jpeg&wxfrom=5&wx_lazy=1&wx_co=1" alt="图片"></p>
+<p><img src="../../imgs/9760-3.jpeg" alt="图片"></p>
 <p>其中最重要的两个Appender为：ConsoleAppender 、RollingFileAppender。</p>
 <h4 id="1-ConsoleAppender"><a href="#1-ConsoleAppender" class="headerlink" title="1.ConsoleAppender"></a>1.ConsoleAppender</h4><p>ConsoleAppender，如名称所示，将日志输出到控制台上。</p>
 <h4 id="2-RollingFileAppender"><a href="#2-RollingFileAppender" class="headerlink" title="2.RollingFileAppender"></a>2.RollingFileAppender</h4><p>RollingFileAppender，是FileAppender的一个子类，扩展了FileAppender，具有翻转日志文件的功能。例如，RollingFileAppender 可以记录到名为log.txt文件的文件，并且一旦满足某个条件，就将其日志记录目标更改为另一个文件。</p>
@@ -348,7 +348,7 @@
 
 
 <p>使用后的输出格式如下图所示</p>
-<p><img src="https://mmbiz.qpic.cn/mmbiz_png/1J6IbIcPCLaTl7lkpcA6jy3BZ2VHVXiay6Mq9DoBH2kfQreMeB9uATknYrSWGzQR4WtEv6wG4icD0Gj0YibMoBd1Q/640?wx_fmt=png&wxfrom=5&wx_lazy=1&wx_co=1" alt="图片"></p>
+<p><img src="../../imgs/9760-4.png" alt="图片"></p>
 <p><strong>其中：</strong></p>
 <ul>
 <li>%d{yyyy-MM-dd HH:mm:ss.SSS}：日期</li>
