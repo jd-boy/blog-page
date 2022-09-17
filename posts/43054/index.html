@@ -209,7 +209,7 @@
 <li>ACK: (确认编号，Acknowledgement Number)</li>
 <li>FIN: (结束标志，FINish)</li>
 </ul>
-<p><img src="../../imgs/Linux-1.jpg" alt="TCP 状态转换1"></p>
+<p><img src="../../imgs/Linux/1.jpg" alt="TCP 状态转换1"></p>
 <h2 id="二、状态说明"><a href="#二、状态说明" class="headerlink" title="二、状态说明"></a>二、状态说明</h2><h3 id="CLOSED"><a href="#CLOSED" class="headerlink" title="CLOSED"></a>CLOSED</h3><p>表示初始状态。</p>
 <h3 id="LISTEN"><a href="#LISTEN" class="headerlink" title="LISTEN"></a>LISTEN</h3><p>表示服务器端的某个 socket 处于监听状态，可以接受连接。</p>
 <h3 id="SYN-SEND"><a href="#SYN-SEND" class="headerlink" title="SYN_SEND"></a>SYN_SEND</h3><p>在服务端监听后，客户端 socket 执行 connect 时，客户端发送 SYN 报文，此时客户端就进入 SYN_SENT 状态，等待服务端的确认。也就是TCP三次握手中的第1步之后，注意是客户端状态。</p>
