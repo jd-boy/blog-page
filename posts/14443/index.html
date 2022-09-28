@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="JD">
+    
+    <title>
+        
+            traceroute 查看路由链路 |
+        
+        Bean You
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <link rel="shortcut icon" href="/images/favicon.png">
+    
+<link rel="stylesheet" href="/css/font-awesome.min.css">
+
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"jzcupid.cn","root":"/","language":"en","path":"search.json"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":false,"expand_all":false,"init_open":false},"style":{"primary_color":"#0066CC","avatar":"/images/avatar.svg","favicon":"/images/favicon.png","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":true,"scale":true},"first_screen":{"enable":true,"background_img":"/images/bg.svg","description":"莫听穿林打叶声，何妨吟啸且徐行。"},"scroll":{"progress_bar":{"enable":false},"percent":{"enable":true}}},"local_search":{"enable":true,"trigger":"auto","preload":true},"code_copy":{"enable":true,"style":"default"},"pjax":{"enable":false},"lazyload":{"enable":false},"version":"3.4.3"};
+    KEEP.language_ago = {"second":"%s seconds ago","minute":"%s minutes ago","hour":"%s hours ago","day":"%s days ago","week":"%s weeks ago","month":"%s months ago","year":"%s years ago"};
+  </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                Bean You
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                首页
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/categories"
+                            >
+                                分类
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >
+                                标签
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                归档
+                            </a>
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="fas fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">首页</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/categories">分类</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags">标签</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">归档</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">traceroute 查看路由链路</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="/images/avatar.svg">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">JD</span>
+                        
+                            <span class="author-label">Lv5</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2022-09-28 09:47:48
+    </span>
+    
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>&nbsp;
+                    </li>
+                
+                    <li>
+                        &gt; <a href="/categories/%E8%BF%90%E7%BB%B4/Linux/">Linux</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+    
+
+    
+    
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fas fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <p>traceroute（跟踪路由）是路由跟踪程序，用于确定 IP 数据报访问目标所经过的路径。traceroute 命令用 IP 存活时间 (TTL) 字段和 ICMP 错误消息来确定从一个主机到网络上其他主机的路由。</p>
+<p>通过 traceroute 命令可以知道数据包从你的计算机到互联网另一端的主机是走的什么路径。当然每次数据包由某一同样的出发点（source）到达某一同样的目的地 (destination) 走的路径可能会不一样，但大部分时候所走的路由是相同的。</p>
+<p>Linux 系统中是 traceroute, 在 Windows 中为 tracert。traceroute 通过发送小数据包到目的主机直到其返回，来测量其耗时。一条路径上的每个设备 traceroute 要测 3 次。输出结果中包括每次测试的时间 (ms) 和设备的名称及其 IP 地址。</p>
+<p>在大多数情况下，在 Linux 主机系统下，直接执行命令行：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">traceroute hostname</span><br></pre></td></tr></table></figure>
+
+<h2 id="使用"><a href="#使用" class="headerlink" title="使用"></a>使用</h2><p>命令格式：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">traceroute options host</span><br></pre></td></tr></table></figure>
+
+<p>命令功能：</p>
+<p>traceroute 预设数据包大小是 40Bytes，可设置。</p>
+<p>具体参数格式：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">traceroute [-dFlnrvx][-f 存活数值][-g 网关...][-i 网络界面][-m 存活数值][-p 通信端口][-s 来源地址][-t 服务类型][-w 超时秒数][主机名称或 IP 地址] 数据包大小</span><br></pre></td></tr></table></figure>
+
+<p>命令参数：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">-d 使用 Socket 层级的排错功能。</span><br><span class="line">-f 设置第一个检测数据包的存活数值 TTL 的大小。</span><br><span class="line">-F 设置勿离断位。</span><br><span class="line">-g 设置来源路由网关，最多可设置 8 个。</span><br><span class="line">-i 使用指定的网络界面送出数据包。</span><br><span class="line">-I 使用 ICMP 回应取代 UDP 资料信息。</span><br><span class="line">-m 设置检测数据包的最大存活数值 TTL 的大小。</span><br><span class="line">-n 直接使用 IP 地址而非主机名称。</span><br><span class="line">-p 设置 UDP 传输协议的通信端口。</span><br><span class="line">-r 忽略普通的 Routing Table，直接将数据包送到远端主机上。</span><br><span class="line">-s 设置本地主机送出数据包的 IP 地址。</span><br><span class="line">-t 设置检测数据包的 TOS 数值。</span><br><span class="line">-v 详细显示指令的执行过程。</span><br><span class="line">-w 设置等待远端主机回报的时间。</span><br><span class="line">-x 开启或关闭数据包的正确性检验。</span><br></pre></td></tr></table></figure>
+
+<h2 id="实例"><a href="#实例" class="headerlink" title="实例"></a>实例</h2><h3 id="最常用法"><a href="#最常用法" class="headerlink" title="最常用法"></a>最常用法</h3><p>直接追踪路由</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">traceroute ip_or_host</span><br></pre></td></tr></table></figure>
+
+<p>结果说明：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">traceroute to 180.149.128.9 (180.149.128.9), 30 hops max, 32 byte packets</span><br><span class="line"> 1  209.17.118.3  0.30 ms  AS59253  Singapore, greenserver.io</span><br><span class="line"> 2  23.106.255.6  0.68 ms  AS59253  Singapore, leaseweb.com</span><br><span class="line"> 3  23.106.255.198  1.38 ms  AS59253  Singapore, leaseweb.com</span><br><span class="line"> 4  204.130.243.4  1.26 ms  *  United States</span><br><span class="line"> 5  154.54.45.193  178.34 ms  AS174  United States, California, Los Angeles, cogentco.com</span><br><span class="line"> 6  38.142.238.34  179.28 ms  AS174  United States, California, Los Angeles, cogentco.com</span><br><span class="line"> 7  202.97.59.141  334.31 ms  AS4134  China, Beijing, ChinaTelecom</span><br><span class="line"> 8  202.97.12.117  328.51 ms  AS4134  China, Beijing, ChinaTelecom</span><br><span class="line"> 9  *</span><br><span class="line">10  *</span><br><span class="line">11  *</span><br><span class="line">12  180.149.128.9  342.12 ms  AS23724  China, Beijing, ChinaTelecom</span><br></pre></td></tr></table></figure>
+
+<p>序列号从 1 开始，每条纪录就是一跳，每一跳表示一个网关，每行有三个时间，单位都是 ms，其实就是 <code>-q</code> 的默认参数。探测数据包向每个网关发送三个数据包后，网关响应后返回的时间；如果您用 <code>traceroute -q 10 google.com</code> ，表示向每个网关发送 10 个数据包。</p>
+<p>traceroute 一台主机有时会看到一些行以星号表示，出现这样的情况，可能是防火墙封掉了 ICMP 的返回信息，得不到什么相关的数据包返回数据。</p>
+<p>有时在某一网关处延时比较长，可能是某台网关比较阻塞，也可能是物理设备本身的原因。当然如果某台 DNS 出现问题时，不能解析主机名、域名时，也会有延时长的现象；您可以加 <code>-n</code> 参数来避免 DNS 解析，以 IP 输出数据。</p>
+<p>如果在局域网中的不同网段之间，可以通过 traceroute 来排查问题所在，是主机的问题还是网关的问题。如果通过远程来访问某台服务器遇到问题时，用到 traceroute 追踪数据包所经过的网关，提交 IDC 服务商，也有助于解决问题；但目前看来在国内解决这样的问题是比较困难的，即使发现问题，IDC 服务商也不可能帮助解决。</p>
+<h3 id="跳数设置"><a href="#跳数设置" class="headerlink" title="跳数设置"></a>跳数设置</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">traceroute -m 10 google.com</span><br></pre></td></tr></table></figure>
+
+<h3 id="不解析主机名"><a href="#不解析主机名" class="headerlink" title="不解析主机名"></a>不解析主机名</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">traceroute -n google.com</span><br></pre></td></tr></table></figure>
+
+<h3 id="设置探测包数量"><a href="#设置探测包数量" class="headerlink" title="设置探测包数量"></a>设置探测包数量</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">traceroute -q 4 google.com</span><br></pre></td></tr></table></figure>
+
+<h3 id="绕过正常的路由表直接发送到网络相连的主机"><a href="#绕过正常的路由表直接发送到网络相连的主机" class="headerlink" title="绕过正常的路由表直接发送到网络相连的主机"></a>绕过正常的路由表直接发送到网络相连的主机</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">traceroute -r douban.com</span><br></pre></td></tr></table></figure>
+
+<h2 id="工作原理"><a href="#工作原理" class="headerlink" title="工作原理"></a>工作原理</h2><p>traceroute 命令利用 ICMP 及 IP header 的 TTL(Time To Live) 字段 (field)。</p>
+<ul>
+<li>traceroute 送出一个 TTL 是 1 的 IP datagram 到目的地（每次送出的为 3 个 40 字节的包，包括源地址，目的地址和包发出的时间），当路径上的第一个路由器 (router) 收到这个 datagram 时，它将 TTL 减 1。此时，TTL 变为 0 了，所以该路由器会将此 datagram 丢掉，并送回一个「ICMP time exceeded」消息（包括发 IP 包的源地址，IP 包的所有内容及路由器的 IP 地址），traceroute 收到这个消息后，便知道这个路由器存在于这个路径上</li>
+<li>接着 traceroute 再送出另一个 TTL 是 2 的 datagram，发现第 2 个路由器</li>
+<li>……</li>
+<li>traceroute 每次将送出的 datagram 的 TTL 加 1 来发现另一个路由器，这个重复的动作一直持续到某个 datagram 抵达目的地。当 datagram 到达目的地后，该主机并不会送回 ICMP time exceeded 消息，因为它已是目的地了。</li>
+<li>traceroute 如何得知目的地到达了呢？traceroute 在送出 UDP datagrams 到目的地时，它所选择送达的 port number 是一个一般应用程序都不会用的端口 (30000 以上），所以当此 UDP datagram 到达目的地后该主机会回送一个 (ICMP port unreachable) 的消息，而当 traceroute 收到这个消息时，便知道目的地已经到达了。所以 traceroute 在 Server 端也是没有所谓的 Daemon 程式。</li>
+</ul>
+<p>traceroute 提取发 ICMP TTL 到期消息设备的 IP 地址并作域名解析。每次 traceroute 都打印出一系列数据，包括所经过的路由设备的域名及 IP 地址，三个包每次来回所花时间。</p>
+
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/posts/12530/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">RocketMQ 源码之safepoint</span>
+                                <span class="post-nav-item">Next posts</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2021</span>
+              -
+            
+            2022&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">JD</a>
+        </div>
+        
+            <script async  src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <div class="website-count info-item">
+                
+                    <span id="busuanzi_container_site_uv">
+                        Visitor Count&nbsp;<span id="busuanzi_value_site_uv"></span>&ensp;
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv">
+                        Totalview&nbsp;<span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="theme-info info-item">
+            Powered by <a target="_blank" href="https://hexo.io">Hexo</a>&nbsp;|&nbsp;Theme&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.3</a>
+        </div>
+        
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="arrow-up fas fa-arrow-up"></i>
+                <span class="percent"></span>
+            </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8"><span class="nav-text">使用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%AE%9E%E4%BE%8B"><span class="nav-text">实例</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9C%80%E5%B8%B8%E7%94%A8%E6%B3%95"><span class="nav-text">最常用法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B7%B3%E6%95%B0%E8%AE%BE%E7%BD%AE"><span class="nav-text">跳数设置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%8D%E8%A7%A3%E6%9E%90%E4%B8%BB%E6%9C%BA%E5%90%8D"><span class="nav-text">不解析主机名</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AE%E6%8E%A2%E6%B5%8B%E5%8C%85%E6%95%B0%E9%87%8F"><span class="nav-text">设置探测包数量</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%95%E8%BF%87%E6%AD%A3%E5%B8%B8%E7%9A%84%E8%B7%AF%E7%94%B1%E8%A1%A8%E7%9B%B4%E6%8E%A5%E5%8F%91%E9%80%81%E5%88%B0%E7%BD%91%E7%BB%9C%E7%9B%B8%E8%BF%9E%E7%9A%84%E4%B8%BB%E6%9C%BA"><span class="nav-text">绕过正常的路由表直接发送到网络相连的主机</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="nav-text">工作原理</span></a></li></ol>
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="Search..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="popup-btn-close">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+</main>
+
+
+
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/main.js"></script>
+
+<script src="/js/header-shrink.js"></script>
+
+<script src="/js/back2top.js"></script>
+
+<script src="/js/dark-light-toggle.js"></script>
+
+
+
+    
+<script src="/js/local-search.js"></script>
+
+
+
+
+    
+<script src="/js/code-copy.js"></script>
+
+
+
+
+
+<div class="post-scripts">
+    
+        
+<script src="/js/left-side-toggle.js"></script>
+
+<script src="/js/libs/anime.min.js"></script>
+
+<script src="/js/toc.js"></script>
+
+    
+</div>
+
+
+
+</body>
+</html>
