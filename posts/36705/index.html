@@ -9,7 +9,7 @@
     
     <title>
         
-            Linux 查看磁盘IO读写情况 |
+            Log4j2 监控 Disruptor RingBuffer 容量 |
         
         Bean You
     </title>
@@ -150,7 +150,7 @@
     <div class="article-content-container">
 
         <div class="article-title">
-            <span class="title-hover-animation">Linux 查看磁盘IO读写情况</span>
+            <span class="title-hover-animation">Log4j2 监控 Disruptor RingBuffer 容量</span>
         </div>
 
         
@@ -168,7 +168,7 @@
                     <div class="meta-info">
                         <div class="article-meta-info">
     <span class="article-date article-meta-item">
-        <i class="fas fa-edit"></i>&nbsp;2022-10-09 22:10:34
+        <i class="fas fa-edit"></i>&nbsp;2022-10-09 22:25:45
     </span>
     
         <span class="article-categories article-meta-item">
@@ -176,11 +176,7 @@
             <ul>
                 
                     <li>
-                        <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>&nbsp;
-                    </li>
-                
-                    <li>
-                        &gt; <a href="/categories/%E8%BF%90%E7%BB%B4/Linux/">Linux</a>&nbsp;
+                        <a href="/categories/Java/">Java</a>&nbsp;
                     </li>
                 
             </ul>
@@ -204,18 +200,8 @@
         
 
         <div class="article-content markdown-body">
-            <h3 id="一、iostat"><a href="#一、iostat" class="headerlink" title="一、iostat"></a>一、iostat</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y sysstat</span><br></pre></td></tr></table></figure>
-
-<h3 id="二、iotop"><a href="#二、iotop" class="headerlink" title="二、iotop"></a>二、iotop</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y iotop</span><br></pre></td></tr></table></figure>
-
-<h4 id="当前-IO-情况"><a href="#当前-IO-情况" class="headerlink" title="当前 IO 情况"></a>当前 IO 情况</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iotop -oP</span><br></pre></td></tr></table></figure>
-
-<h4 id="查看某个进程的-IO-情况"><a href="#查看某个进程的-IO-情况" class="headerlink" title="查看某个进程的 IO 情况"></a>查看某个进程的 IO 情况</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">iotop -p <span class="variable">$PID</span> -d 1</span><br></pre></td></tr></table></figure>
-
-<h3 id="三、pidstat"><a href="#三、pidstat" class="headerlink" title="三、pidstat"></a>三、pidstat</h3><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yum install -y pidstat</span><br></pre></td></tr></table></figure>
-
-<p>pidstat  和iotop效果一致，不过这个可以监控内存</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pidstat -p <span class="variable">$PID</span> -d 1</span><br></pre></td></tr></table></figure>
+            <p><a class="link"   target="_blank" rel="noopener" href="https://heapdump.cn/article/2845460" >参考文章<i class="fas fa-external-link-alt"></i></a></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> io.micrometer.core.instrument.Gauge;</span><br><span class="line"><span class="keyword">import</span> io.micrometer.prometheus.PrometheusMeterRegistry;</span><br><span class="line"><span class="keyword">import</span> java.lang.management.ManagementFactory;</span><br><span class="line"><span class="keyword">import</span> javax.management.ObjectName;</span><br><span class="line"><span class="keyword">import</span> lombok.RequiredArgsConstructor;</span><br><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.lang3.StringUtils;</span><br><span class="line"><span class="keyword">import</span> org.apache.logging.log4j.LogManager;</span><br><span class="line"><span class="keyword">import</span> org.apache.logging.log4j.core.LoggerContext;</span><br><span class="line"><span class="keyword">import</span> org.apache.logging.log4j.core.jmx.RingBufferAdminMBean;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.ApplicationListener;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Configuration;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.event.ContextRefreshedEvent;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Auther</span> jd</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@RequiredArgsConstructor</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Log4j2AutoConfiguration</span> <span class="keyword">implements</span> <span class="title">ApplicationListener</span>&lt;<span class="title">ContextRefreshedEvent</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> PrometheusMeterRegistry prometheusMeterRegistry;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">volatile</span> <span class="keyword">boolean</span> initialized = <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">onApplicationEvent</span><span class="params">(ContextRefreshedEvent event)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (initialized) &#123;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//通过 LogManager 获取 LoggerContext，从而获取配置</span></span><br><span class="line">    LoggerContext loggerContext = (LoggerContext) LogManager.getContext(<span class="keyword">false</span>);</span><br><span class="line">    org.apache.logging.log4j.core.config.Configuration configuration = loggerContext.getConfiguration();</span><br><span class="line">    <span class="comment">//获取 LoggerContext 的名称，因为 Mbean 的名称包含这个</span></span><br><span class="line">    String ctxName = loggerContext.getName();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (String logName : configuration.getLoggers().keySet()) &#123;</span><br><span class="line">      <span class="comment">//针对 RootLogger，它的 cfgName 是空字符串，为了显示好看，我们在 prometheus 中将它命名为 root</span></span><br><span class="line">      String cfgName = StringUtils.isBlank(logName) ? <span class="string">&quot;&quot;</span> : logName;</span><br><span class="line">      String gaugeName = StringUtils.isBlank(logName) ? <span class="string">&quot;root&quot;</span> : logName;</span><br><span class="line">      Gauge.builder(gaugeName + <span class="string">&quot;_logger_ring_buffer_remaining_capacity&quot;</span>, () -&gt; &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">          <span class="keyword">return</span> (Number) ManagementFactory.getPlatformMBeanServer()</span><br><span class="line">              .getAttribute(<span class="keyword">new</span> ObjectName(</span><br><span class="line">                  <span class="comment">//按照 Log4j2 源码中的命名方式组装名称</span></span><br><span class="line">                  String.format(RingBufferAdminMBean.PATTERN_ASYNC_LOGGER_CONFIG, ctxName, cfgName)</span><br><span class="line">                  <span class="comment">//获取剩余大小，注意这个是严格区分大小写的</span></span><br><span class="line">              ), <span class="string">&quot;RemainingCapacity&quot;</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">          log.error(<span class="string">&quot;Get &#123;&#125; ringbuffer remaining size error&quot;</span>, logName, e);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">      &#125;).register(prometheusMeterRegistry);</span><br><span class="line">    &#125;</span><br><span class="line">    initialized = <span class="keyword">true</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
         </div>
@@ -225,29 +211,14 @@
         
             <div class="article-nav">
                 
-                    <div class="article-prev">
-                        <a class="prev"
-                           rel="prev"
-                           href="/posts/36705/"
-                        >
-                            <span class="left arrow-icon flex-center">
-                              <i class="fas fa-chevron-left"></i>
-                            </span>
-                            <span class="title flex-center">
-                                <span class="post-nav-title-item">Log4j2 监控 Disruptor RingBuffer 容量</span>
-                                <span class="post-nav-item">Prev posts</span>
-                            </span>
-                        </a>
-                    </div>
-                
                 
                     <div class="article-next">
                         <a class="next"
                            rel="next"
-                           href="/posts/57336/"
+                           href="/posts/43872/"
                         >
                             <span class="title flex-center">
-                                <span class="post-nav-title-item">Linux TIME_WAIT 相关系统参数</span>
+                                <span class="post-nav-title-item">Linux 查看磁盘IO读写情况</span>
                                 <span class="post-nav-item">Next posts</span>
                             </span>
                             <span class="right arrow-icon flex-center">
@@ -373,7 +344,7 @@
         <aside class="page-aside">
             <div class="post-toc-wrap">
     <div class="post-toc">
-        <ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E3%80%81iostat"><span class="nav-text">一、iostat</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E3%80%81iotop"><span class="nav-text">二、iotop</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%BD%93%E5%89%8D-IO-%E6%83%85%E5%86%B5"><span class="nav-text">当前 IO 情况</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E6%9F%90%E4%B8%AA%E8%BF%9B%E7%A8%8B%E7%9A%84-IO-%E6%83%85%E5%86%B5"><span class="nav-text">查看某个进程的 IO 情况</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%89%E3%80%81pidstat"><span class="nav-text">三、pidstat</span></a></li></ol>
+        
     </div>
 </div>
         </aside>
