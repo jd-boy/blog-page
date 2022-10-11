@@ -200,14 +200,14 @@
         
 
         <div class="article-content markdown-body">
-            <h4 id="1、队列满时丢弃"><a href="#1、队列满时丢弃" class="headerlink" title="1、队列满时丢弃"></a>1、队列满时丢弃</h4><p>默认是 <code>Blocking</code> </p>
+            <p>官方文档：<a class="link"   target="_blank" rel="noopener" href="https://logging.apache.org/log4j/2.x/manual/async.html#SysPropsMixedSync-Async" >https://logging.apache.org/log4j/2.x/manual/async.html#SysPropsMixedSync-Async<i class="fas fa-external-link-alt"></i></a></p>
+<h4 id="1、队列满时丢弃"><a href="#1、队列满时丢弃" class="headerlink" title="1、队列满时丢弃"></a>1、队列满时丢弃</h4><p>默认是 <code>Blocking</code> </p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-Dlog4j2.AsyncQueueFullPolicy=Discard</span><br></pre></td></tr></table></figure>
 
 <h4 id="2、更改-Disruptor-队列长度"><a href="#2、更改-Disruptor-队列长度" class="headerlink" title="2、更改 Disruptor 队列长度"></a>2、更改 Disruptor 队列长度</h4><p>队列默认大小 4096</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-DAsyncLogger.RingBufferSize=262144</span><br><span class="line">-DAsyncLoggerConfig.RingBufferSize=262144 </span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">-Dlog4j2.asyncLoggerRingBufferSize=262144</span><br><span class="line">-Dlog4j2.asyncLoggerConfigRingBufferSize=262144 </span><br></pre></td></tr></table></figure>
 
-<h4 id="3、队列满时丢弃的日志级别"><a href="#3、队列满时丢弃的日志级别" class="headerlink" title="3、队列满时丢弃的日志级别"></a>3、队列满时丢弃的日志级别</h4><p>队列默认大小 4096</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-Dlog4j2.discardThreshold=INFO</span><br></pre></td></tr></table></figure>
+<h4 id="3、队列满时丢弃的日志级别"><a href="#3、队列满时丢弃的日志级别" class="headerlink" title="3、队列满时丢弃的日志级别"></a>3、队列满时丢弃的日志级别</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">-Dlog4j2.discardThreshold=INFO</span><br></pre></td></tr></table></figure>
         </div>
 
         
