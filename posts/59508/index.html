@@ -9,7 +9,7 @@
     
     <title>
         
-            shell 中脚本参数传递的两种方式 |
+            混沌测试工具 |
         
         Bean You
     </title>
@@ -150,7 +150,7 @@
     <div class="article-content-container">
 
         <div class="article-title">
-            <span class="title-hover-animation">shell 中脚本参数传递的两种方式</span>
+            <span class="title-hover-animation">混沌测试工具</span>
         </div>
 
         
@@ -168,7 +168,7 @@
                     <div class="meta-info">
                         <div class="article-meta-info">
     <span class="article-date article-meta-item">
-        <i class="fas fa-edit"></i>&nbsp;2022-10-16 15:34:17
+        <i class="fas fa-edit"></i>&nbsp;2022-10-16 20:31:13
     </span>
     
         <span class="article-categories article-meta-item">
@@ -176,11 +176,7 @@
             <ul>
                 
                     <li>
-                        <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>&nbsp;
-                    </li>
-                
-                    <li>
-                        &gt; <a href="/categories/%E8%BF%90%E7%BB%B4/Linux/">Linux</a>&nbsp;
+                        <a href="/categories/%E6%B5%8B%E8%AF%95/">测试</a>&nbsp;
                     </li>
                 
             </ul>
@@ -204,52 +200,59 @@
         
 
         <div class="article-content markdown-body">
-            <h3 id="方式一：-0-1-2"><a href="#方式一：-0-1-2" class="headerlink" title="方式一：$0,$1,$2.."></a>方式一：$0,$1,$2..</h3><p>采用$0,$1,$2..等方式获取脚本命令行传入的参数，值得注意的是，$0获取到的是脚本路径以及脚本名，后面按顺序获取参数，当参数超过10个时(包括10个)，需要使用${10},${11}….才能获取到参数，但是一般很少会超过10个参数的情况。</p>
-<p>示例：新建一个test.sh的文件</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">!/bin/bash</span></span><br><span class="line">echo &quot;脚本$0&quot;</span><br><span class="line">echo &quot;第一个参数$1&quot;</span><br><span class="line">echo &quot;第二个参数$2&quot;</span><br></pre></td></tr></table></figure>
-
-<p>在shell中执行脚本，结果如下</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ./test.sh 1 2</span><br></pre></td></tr></table></figure>
-
-<p>shell中将会输出：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">脚本./test.sh</span><br><span class="line">第一个参数1</span><br><span class="line">第二个参数2</span><br></pre></td></tr></table></figure>
-
-<p>下面是参数超过10个的情况，在test.sh文件写入</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">!/bin/bash</span></span><br><span class="line">echo &quot;脚本名$0&quot;</span><br><span class="line">echo &quot;第一个参数$1&quot;</span><br><span class="line">echo &quot;第二个参数$2&quot;</span><br><span class="line">echo &quot;第三个参数$3&quot;</span><br><span class="line">echo &quot;第四个参数$4&quot;</span><br><span class="line">……</span><br><span class="line">echo &quot;第十个参数$10&quot;</span><br><span class="line">echo &quot;第十个参数$&#123;10&#125;&quot;</span><br></pre></td></tr></table></figure>
-
-<p>在shell中执行脚本，结果如下</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ./test.sh a b c d e f g h i j</span><br></pre></td></tr></table></figure>
-
-<p>shell中将会输出：</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">脚本名./test.sh</span><br><span class="line">第一个参数a</span><br><span class="line">第二个参数b</span><br><span class="line">第三个参数c</span><br><span class="line">第四个参数d</span><br><span class="line">第五个参数e</span><br><span class="line">第六个参数f</span><br><span class="line">第七个参数g</span><br><span class="line">第八个参数h</span><br><span class="line">第九个参数i</span><br><span class="line">第十个参数a0</span><br><span class="line">第十个参数j</span><br></pre></td></tr></table></figure>
-
-<p>可以看到${10}正确读取到了第十个参数，而$10被分成$1读取到第一个参数a然后拼接字符串0，于是输出a0。</p>
-<h3 id="方式二：getopts"><a href="#方式二：getopts" class="headerlink" title="方式二：getopts"></a>方式二：getopts</h3><p>语法格式：<code>getopts [option[:]] [DESCPRITION] VARIABLE</code></p>
-<ul>
-<li><code>option</code>：表示为某个脚本可以使用的选项</li>
-<li><code>:</code>：如果某个选项（option）后面出现了冒号（”:”），则表示这个选项后面可以接参数（即一段描述信息DESCPRITION）</li>
-<li><code>VARIABLE</code>：表示将某个选项保存在变量VARIABLE中</li>
-</ul>
-<p>同样新建一个test.sh文件</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">while getopts &quot;:a:b:c:&quot; opt</span><br><span class="line">do</span><br><span class="line">    case $opt in</span><br><span class="line">        a)</span><br><span class="line">        echo &quot;参数a的值$OPTARG&quot;</span><br><span class="line">        ;;</span><br><span class="line">        b)</span><br><span class="line">        echo &quot;参数b的值$OPTARG&quot;</span><br><span class="line">        ;;</span><br><span class="line">        c)</span><br><span class="line">        echo &quot;参数c的值$OPTARG&quot;</span><br><span class="line">        ;;</span><br><span class="line">        ?)</span><br><span class="line">        echo &quot;未知参数&quot;</span><br><span class="line">        exit 1;;</span><br><span class="line">    esac</span><br><span class="line">done</span><br></pre></td></tr></table></figure>
-
-<p>用一个 while 循环加 case 分支获取不同参数，<code>:a:b:c</code> 相当于定义参数的变量名，有时候可能会有未知参数，所以增加一个 <code>?</code> 的分支。</p>
-<p>在shell中执行脚本，结果如下</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ./test.sh -a 1 -b 2 -c 3</span><br></pre></td></tr></table></figure>
-
-<p>在shell中的输出</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">参数a的值1</span><br><span class="line">参数b的值2</span><br><span class="line">参数c的值3</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ./test.sh -a 1 -c 3</span><br></pre></td></tr></table></figure>
-
-<p>在shell中的输出</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">参数a的值1</span><br><span class="line">参数c的值3</span><br></pre></td></tr></table></figure>
-
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ./test.sh -a 1 -c 3 -d 4</span><br></pre></td></tr></table></figure>
-
-<p>在shell中的输出</p>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">参数a的值1</span><br><span class="line">参数c的值3</span><br><span class="line">未知参数</span><br></pre></td></tr></table></figure>
-
+            <h2 id="为什么需要混沌测试？"><a href="#为什么需要混沌测试？" class="headerlink" title="为什么需要混沌测试？"></a>为什么需要混沌测试？</h2><p>随着计算机技术的发展，系统架构从集中式演进到分布式。分布式系统相对于单台机器来说提供了更好的可扩展性，容错性以及更低的延迟，但在单台计算机上运行软件和分布式系统上运行软件却有着根本的区别，其中一点便是单台计算机上运行软件，错误是可预测的。当硬件没有故障时，运行在单台计算机的软件总是产生同样的结果；而硬件如果出现问题，那么后果往往是整个系统的故障。因此，对于单体系统来说，要么功能完好且正确，要么完全失效，而不是介于两者之间。</p>
+<p>而分布式系统则复杂的多。分布式系统涉及到多个节点和网络，因而存在部分失效的问题。分布式系统中不可靠的网络会导致数据包可能会丢失或任意延迟，不可靠的时钟导致某节点可能会与其他节点不同步 ，甚至一个节点上的进程可能会在任意时候暂停一段相当长的时间（比如由于垃圾收集器导致）而被宣告死亡，这些都给分布式系统带来了不确定性和不可预测性。事实上，这些问题在分布式系统中是无法避免的，就像著名的 CAP 理论中提出的，P（网络分区）是永远存在的，而不是可选的。</p>
+<p>既然分布式系统中故障是无法避免的，那么处理故障最简单的方法便是让整个服务失效，让应用“正确地死去”，但这并不是所有应用都能接受。故障转移企图解决该问题，当故障发生时将其中一个从库提升为主库，使新主库仍然对外提供服务。但是主从数据不一致、脑裂等问题可能会让应用“错误地活着”。代码托管网站 Github 在一场事故中，就因为一个过时的 MySQL 从库被提升为主库 ，造成 MySQL 和 Redis 中数据产生不一致，最后导致一些私有数据泄漏到错误的用户手中 。为了减轻故障带来的影响，我们需要通过某种手段来确保数据的一致性，而如何验证大规模分布式系统在故障下依然正确和稳定（可靠性）成为了新的难题。</p>
+<h2 id="常用混沌测试工具"><a href="#常用混沌测试工具" class="headerlink" title="常用混沌测试工具"></a>常用混沌测试工具</h2><p>目前比较常用的有如下框架：</p>
+<table>
+<thead>
+<tr>
+<th>框架名称</th>
+<th>支持平台</th>
+<th>支持自动部署被测试服务</th>
+<th>故障类型是否丰富</th>
+<th>可视化界面</th>
+<th>是否支持断言</th>
+<th>官方文档</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Chaos Mesh</td>
+<td>Kubernetes</td>
+<td>不支持</td>
+<td>丰富</td>
+<td>有</td>
+<td>否</td>
+<td><a class="link"   target="_blank" rel="noopener" href="https://chaos-mesh.org/zh/docs/" >https://chaos-mesh.org/zh/docs/<i class="fas fa-external-link-alt"></i></a></td>
+</tr>
+<tr>
+<td>ChaosBlade</td>
+<td>Docker、Kubernetes、OS</td>
+<td>不支持</td>
+<td>丰富</td>
+<td>否</td>
+<td>是</td>
+<td><a class="link"   target="_blank" rel="noopener" href="https://chaosblade.io/docs/" >https://chaosblade.io/docs/<i class="fas fa-external-link-alt"></i></a></td>
+</tr>
+<tr>
+<td>jepsen</td>
+<td>Docker、OS</td>
+<td>支持</td>
+<td>丰富</td>
+<td>否</td>
+<td>是</td>
+<td></td>
+</tr>
+<tr>
+<td>openchaos</td>
+<td>Docker、OS</td>
+<td>支持</td>
+<td>丰富</td>
+<td>否</td>
+<td>是</td>
+<td></td>
+</tr>
+</tbody></table>
 
         </div>
 
@@ -258,29 +261,14 @@
         
             <div class="article-nav">
                 
-                    <div class="article-prev">
-                        <a class="prev"
-                           rel="prev"
-                           href="/posts/59508/"
-                        >
-                            <span class="left arrow-icon flex-center">
-                              <i class="fas fa-chevron-left"></i>
-                            </span>
-                            <span class="title flex-center">
-                                <span class="post-nav-title-item">混沌测试工具</span>
-                                <span class="post-nav-item">Prev posts</span>
-                            </span>
-                        </a>
-                    </div>
-                
                 
                     <div class="article-next">
                         <a class="next"
                            rel="next"
-                           href="/posts/36705/"
+                           href="/posts/2309/"
                         >
                             <span class="title flex-center">
-                                <span class="post-nav-title-item">Log4j2 监控 Disruptor RingBuffer 容量</span>
+                                <span class="post-nav-title-item">shell 中脚本参数传递的两种方式</span>
                                 <span class="post-nav-item">Next posts</span>
                             </span>
                             <span class="right arrow-icon flex-center">
@@ -406,7 +394,7 @@
         <aside class="page-aside">
             <div class="post-toc-wrap">
     <div class="post-toc">
-        <ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E5%BC%8F%E4%B8%80%EF%BC%9A-0-1-2"><span class="nav-text">方式一：$0,$1,$2..</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E5%BC%8F%E4%BA%8C%EF%BC%9Agetopts"><span class="nav-text">方式二：getopts</span></a></li></ol>
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%E6%B7%B7%E6%B2%8C%E6%B5%8B%E8%AF%95%EF%BC%9F"><span class="nav-text">为什么需要混沌测试？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B8%B8%E7%94%A8%E6%B7%B7%E6%B2%8C%E6%B5%8B%E8%AF%95%E5%B7%A5%E5%85%B7"><span class="nav-text">常用混沌测试工具</span></a></li></ol>
     </div>
 </div>
         </aside>
