@@ -9,7 +9,7 @@
     
     <title>
         
-            Log4j2 监控 Disruptor RingBuffer 容量 |
+            shell 中脚本参数传递的两种方式 |
         
         Bean You
     </title>
@@ -150,7 +150,7 @@
     <div class="article-content-container">
 
         <div class="article-title">
-            <span class="title-hover-animation">Log4j2 监控 Disruptor RingBuffer 容量</span>
+            <span class="title-hover-animation">shell 中脚本参数传递的两种方式</span>
         </div>
 
         
@@ -168,7 +168,7 @@
                     <div class="meta-info">
                         <div class="article-meta-info">
     <span class="article-date article-meta-item">
-        <i class="fas fa-edit"></i>&nbsp;2022-10-09 22:25:45
+        <i class="fas fa-edit"></i>&nbsp;2022-10-16 15:34:17
     </span>
     
         <span class="article-categories article-meta-item">
@@ -176,7 +176,11 @@
             <ul>
                 
                     <li>
-                        <a href="/categories/Java/">Java</a>&nbsp;
+                        <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>&nbsp;
+                    </li>
+                
+                    <li>
+                        &gt; <a href="/categories/%E8%BF%90%E7%BB%B4/Linux/">Linux</a>&nbsp;
                     </li>
                 
             </ul>
@@ -200,8 +204,51 @@
         
 
         <div class="article-content markdown-body">
-            <p><a class="link"   target="_blank" rel="noopener" href="https://heapdump.cn/article/2845460" >参考文章<i class="fas fa-external-link-alt"></i></a></p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> io.micrometer.core.instrument.Gauge;</span><br><span class="line"><span class="keyword">import</span> io.micrometer.prometheus.PrometheusMeterRegistry;</span><br><span class="line"><span class="keyword">import</span> java.lang.management.ManagementFactory;</span><br><span class="line"><span class="keyword">import</span> javax.management.ObjectName;</span><br><span class="line"><span class="keyword">import</span> lombok.RequiredArgsConstructor;</span><br><span class="line"><span class="keyword">import</span> lombok.extern.slf4j.Slf4j;</span><br><span class="line"><span class="keyword">import</span> org.apache.commons.lang3.StringUtils;</span><br><span class="line"><span class="keyword">import</span> org.apache.logging.log4j.LogManager;</span><br><span class="line"><span class="keyword">import</span> org.apache.logging.log4j.core.LoggerContext;</span><br><span class="line"><span class="keyword">import</span> org.apache.logging.log4j.core.jmx.RingBufferAdminMBean;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.ApplicationListener;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.Configuration;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.event.ContextRefreshedEvent;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@Auther</span> jd</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Slf4j</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@RequiredArgsConstructor</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">Log4j2AutoConfiguration</span> <span class="keyword">implements</span> <span class="title">ApplicationListener</span>&lt;<span class="title">ContextRefreshedEvent</span>&gt; </span>&#123;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">final</span> PrometheusMeterRegistry prometheusMeterRegistry;</span><br><span class="line"></span><br><span class="line">  <span class="keyword">private</span> <span class="keyword">volatile</span> <span class="keyword">boolean</span> initialized = <span class="keyword">false</span>;</span><br><span class="line"></span><br><span class="line">  <span class="meta">@Override</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">synchronized</span> <span class="keyword">void</span> <span class="title">onApplicationEvent</span><span class="params">(ContextRefreshedEvent event)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (initialized) &#123;</span><br><span class="line">      <span class="keyword">return</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//通过 LogManager 获取 LoggerContext，从而获取配置</span></span><br><span class="line">    LoggerContext loggerContext = (LoggerContext) LogManager.getContext(<span class="keyword">false</span>);</span><br><span class="line">    org.apache.logging.log4j.core.config.Configuration configuration = loggerContext.getConfiguration();</span><br><span class="line">    <span class="comment">//获取 LoggerContext 的名称，因为 Mbean 的名称包含这个</span></span><br><span class="line">    String ctxName = loggerContext.getName();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (String logName : configuration.getLoggers().keySet()) &#123;</span><br><span class="line">      <span class="comment">//针对 RootLogger，它的 cfgName 是空字符串，为了显示好看，我们在 prometheus 中将它命名为 root</span></span><br><span class="line">      String cfgName = StringUtils.isBlank(logName) ? <span class="string">&quot;&quot;</span> : logName;</span><br><span class="line">      String gaugeName = StringUtils.isBlank(logName) ? <span class="string">&quot;root&quot;</span> : logName;</span><br><span class="line">      Gauge.builder(gaugeName + <span class="string">&quot;_logger_ring_buffer_remaining_capacity&quot;</span>, () -&gt; &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">          <span class="keyword">return</span> (Number) ManagementFactory.getPlatformMBeanServer()</span><br><span class="line">              .getAttribute(<span class="keyword">new</span> ObjectName(</span><br><span class="line">                  <span class="comment">//按照 Log4j2 源码中的命名方式组装名称</span></span><br><span class="line">                  String.format(RingBufferAdminMBean.PATTERN_ASYNC_LOGGER_CONFIG, ctxName, cfgName)</span><br><span class="line">                  <span class="comment">//获取剩余大小，注意这个是严格区分大小写的</span></span><br><span class="line">              ), <span class="string">&quot;RemainingCapacity&quot;</span>);</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">          log.error(<span class="string">&quot;Get &#123;&#125; ringbuffer remaining size error&quot;</span>, logName, e);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">      &#125;).register(prometheusMeterRegistry);</span><br><span class="line">    &#125;</span><br><span class="line">    initialized = <span class="keyword">true</span>;</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+            <h3 id="方式一：-0-1-2"><a href="#方式一：-0-1-2" class="headerlink" title="方式一：$0,$1,$2.."></a>方式一：$0,$1,$2..</h3><p>采用$0,$1,$2..等方式获取脚本命令行传入的参数，值得注意的是，$0获取到的是脚本路径以及脚本名，后面按顺序获取参数，当参数超过10个时(包括10个)，需要使用${10},${11}….才能获取到参数，但是一般很少会超过10个参数的情况。</p>
+<p>示例：新建一个test.sh的文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">!/bin/bash</span></span><br><span class="line">echo &quot;脚本$0&quot;</span><br><span class="line">echo &quot;第一个参数$1&quot;</span><br><span class="line">echo &quot;第二个参数$2&quot;</span><br></pre></td></tr></table></figure>
+
+<p>在shell中执行脚本，结果如下</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ./test.sh 1 2</span><br></pre></td></tr></table></figure>
+
+<p>shell中将会输出：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">脚本./test.sh</span><br><span class="line">第一个参数1</span><br><span class="line">第二个参数2</span><br></pre></td></tr></table></figure>
+
+<p>下面是参数超过10个的情况，在test.sh文件写入</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash">!/bin/bash</span></span><br><span class="line">echo &quot;脚本名$0&quot;</span><br><span class="line">echo &quot;第一个参数$1&quot;</span><br><span class="line">echo &quot;第二个参数$2&quot;</span><br><span class="line">echo &quot;第三个参数$3&quot;</span><br><span class="line">echo &quot;第四个参数$4&quot;</span><br><span class="line">……</span><br><span class="line">echo &quot;第十个参数$10&quot;</span><br><span class="line">echo &quot;第十个参数$&#123;10&#125;&quot;</span><br></pre></td></tr></table></figure>
+
+<p>在shell中执行脚本，结果如下</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ./test.sh a b c d e f g h i j</span><br></pre></td></tr></table></figure>
+
+<p>shell中将会输出：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">脚本名./test.sh</span><br><span class="line">第一个参数a</span><br><span class="line">第二个参数b</span><br><span class="line">第三个参数c</span><br><span class="line">第四个参数d</span><br><span class="line">第五个参数e</span><br><span class="line">第六个参数f</span><br><span class="line">第七个参数g</span><br><span class="line">第八个参数h</span><br><span class="line">第九个参数i</span><br><span class="line">第十个参数a0</span><br><span class="line">第十个参数j</span><br></pre></td></tr></table></figure>
+
+<p>可以看到${10}正确读取到了第十个参数，而$10被分成$1读取到第一个参数a然后拼接字符串0，于是输出a0。</p>
+<h3 id="方式二：getopts"><a href="#方式二：getopts" class="headerlink" title="方式二：getopts"></a>方式二：getopts</h3><p>语法格式：<code>getopts [option[:]] [DESCPRITION] VARIABLE</code></p>
+<ul>
+<li><strong>option</strong>：表示为某个脚本可以使用的选项</li>
+<li>**”:”**：如果某个选项（option）后面出现了冒号（”:”），则表示这个选项后面可以接参数（即一段描述信息DESCPRITION）</li>
+<li><strong>VARIABLE</strong>：表示将某个选项保存在变量VARIABLE中</li>
+</ul>
+<p>同样新建一个test.sh文件</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">while getopts &quot;:a:b:c:&quot; opt</span><br><span class="line">do</span><br><span class="line">    case $opt in</span><br><span class="line">        a)</span><br><span class="line">        echo &quot;参数a的值$OPTARG&quot;</span><br><span class="line">        ;;</span><br><span class="line">        b)</span><br><span class="line">        echo &quot;参数b的值$OPTARG&quot;</span><br><span class="line">        ;;</span><br><span class="line">        c)</span><br><span class="line">        echo &quot;参数c的值$OPTARG&quot;</span><br><span class="line">        ;;</span><br><span class="line">        ?)</span><br><span class="line">        echo &quot;未知参数&quot;</span><br><span class="line">        exit 1;;</span><br><span class="line">    esac</span><br><span class="line">done</span><br></pre></td></tr></table></figure>
+
+<p>用一个 while 循环加 case 分支获取不同参数，<code>:a:b:c</code> 相当于定义参数的变量名，有时候可能会有未知参数，所以增加一个 <code>?</code> 的分支。</p>
+<p>在shell中执行脚本，结果如下</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ./test.sh -a 1 -b 2 -c 3</span><br></pre></td></tr></table></figure>
+
+<p>在shell中的输出</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">参数a的值1</span><br><span class="line">参数b的值2</span><br><span class="line">参数c的值3</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ./test.sh -a 1 -c 3</span><br></pre></td></tr></table></figure>
+
+<p>在shell中的输出</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">参数a的值1</span><br><span class="line">参数c的值3</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ./test.sh -a 1 -c 3 -d 4</span><br></pre></td></tr></table></figure>
+
+<p>在shell中的输出</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">参数a的值1</span><br><span class="line">参数c的值3</span><br><span class="line">未知参数</span><br></pre></td></tr></table></figure>
 
 
         </div>
@@ -211,29 +258,14 @@
         
             <div class="article-nav">
                 
-                    <div class="article-prev">
-                        <a class="prev"
-                           rel="prev"
-                           href="/posts/2309/"
-                        >
-                            <span class="left arrow-icon flex-center">
-                              <i class="fas fa-chevron-left"></i>
-                            </span>
-                            <span class="title flex-center">
-                                <span class="post-nav-title-item">shell 中脚本参数传递的两种方式</span>
-                                <span class="post-nav-item">Prev posts</span>
-                            </span>
-                        </a>
-                    </div>
-                
                 
                     <div class="article-next">
                         <a class="next"
                            rel="next"
-                           href="/posts/43872/"
+                           href="/posts/36705/"
                         >
                             <span class="title flex-center">
-                                <span class="post-nav-title-item">Linux 查看磁盘IO读写情况</span>
+                                <span class="post-nav-title-item">Log4j2 监控 Disruptor RingBuffer 容量</span>
                                 <span class="post-nav-item">Next posts</span>
                             </span>
                             <span class="right arrow-icon flex-center">
@@ -359,7 +391,7 @@
         <aside class="page-aside">
             <div class="post-toc-wrap">
     <div class="post-toc">
-        
+        <ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E5%BC%8F%E4%B8%80%EF%BC%9A-0-1-2"><span class="nav-text">方式一：$0,$1,$2..</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E5%BC%8F%E4%BA%8C%EF%BC%9Agetopts"><span class="nav-text">方式二：getopts</span></a></li></ol>
     </div>
 </div>
         </aside>
