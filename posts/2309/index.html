@@ -226,9 +226,9 @@
 <p>可以看到${10}正确读取到了第十个参数，而$10被分成$1读取到第一个参数a然后拼接字符串0，于是输出a0。</p>
 <h3 id="方式二：getopts"><a href="#方式二：getopts" class="headerlink" title="方式二：getopts"></a>方式二：getopts</h3><p>语法格式：<code>getopts [option[:]] [DESCPRITION] VARIABLE</code></p>
 <ul>
-<li><strong>option</strong>：表示为某个脚本可以使用的选项</li>
-<li>**”:”**：如果某个选项（option）后面出现了冒号（”:”），则表示这个选项后面可以接参数（即一段描述信息DESCPRITION）</li>
-<li><strong>VARIABLE</strong>：表示将某个选项保存在变量VARIABLE中</li>
+<li><code>option</code>：表示为某个脚本可以使用的选项</li>
+<li><code>:</code>：如果某个选项（option）后面出现了冒号（”:”），则表示这个选项后面可以接参数（即一段描述信息DESCPRITION）</li>
+<li><code>VARIABLE</code>：表示将某个选项保存在变量VARIABLE中</li>
 </ul>
 <p>同样新建一个test.sh文件</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">while getopts &quot;:a:b:c:&quot; opt</span><br><span class="line">do</span><br><span class="line">    case $opt in</span><br><span class="line">        a)</span><br><span class="line">        echo &quot;参数a的值$OPTARG&quot;</span><br><span class="line">        ;;</span><br><span class="line">        b)</span><br><span class="line">        echo &quot;参数b的值$OPTARG&quot;</span><br><span class="line">        ;;</span><br><span class="line">        c)</span><br><span class="line">        echo &quot;参数c的值$OPTARG&quot;</span><br><span class="line">        ;;</span><br><span class="line">        ?)</span><br><span class="line">        echo &quot;未知参数&quot;</span><br><span class="line">        exit 1;;</span><br><span class="line">    esac</span><br><span class="line">done</span><br></pre></td></tr></table></figure>
