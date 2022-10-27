@@ -264,9 +264,13 @@
 <td>set timeout</td>
 <td>设置超时时间</td>
 </tr>
+<tr>
+<td>[lindex $argv 0]</td>
+<td>获取expect脚本的第1个参数</td>
+</tr>
 </tbody></table>
 <h1 id="3-作用原理简介"><a href="#3-作用原理简介" class="headerlink" title="3 作用原理简介"></a>3 作用原理简介</h1><h2 id="3-1-示例脚本"><a href="#3-1-示例脚本" class="headerlink" title="3.1 示例脚本"></a>3.1 示例脚本</h2><p>这里以ssh远程登录某台服务器的脚本为例进行说明, 假设此脚本名称为<code>remote_login.sh</code>:</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/usr/bin/expect</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">set</span> timeout 30</span><br><span class="line">spawn ssh -l root 172.16.22.131</span><br><span class="line">expect <span class="string">&quot;password*&quot;</span></span><br><span class="line">send <span class="string">&quot;123456\r&quot;</span></span><br><span class="line">interact</span><br></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/usr/bin/expect</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">set</span> a [lindex <span class="variable">$argv</span> 0]</span><br><span class="line"><span class="built_in">set</span> timeout 30</span><br><span class="line">spawn ssh -l root 172.16.22.131</span><br><span class="line">expect <span class="string">&quot;password*&quot;</span></span><br><span class="line">send <span class="string">&quot;123456\r&quot;</span></span><br><span class="line">interact</span><br></pre></td></tr></table></figure>
 
 <h2 id="3-2-脚本功能解读"><a href="#3-2-脚本功能解读" class="headerlink" title="3.2 脚本功能解读"></a>3.2 脚本功能解读</h2><p>(1) <code>#!/usr/bin/expect</code></p>
 <p>上述内容必须位于脚本文件的第一行, 用来告诉操作系统, 此脚本需要使用系统的哪个脚本解析引擎来执行.</p>
