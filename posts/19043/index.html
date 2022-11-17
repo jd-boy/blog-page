@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="JD">
+    
+    <title>
+        
+            Redis Scan 原理解析与踩坑 |
+        
+        Bean You
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <link rel="shortcut icon" href="/images/favicon.png">
+    
+<link rel="stylesheet" href="/css/font-awesome.min.css">
+
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"jzcupid.cn","root":"/","language":"en","path":"search.json"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":false,"expand_all":false,"init_open":false},"style":{"primary_color":"#0066CC","avatar":"/images/avatar.svg","favicon":"/images/favicon.png","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":true,"scale":true},"first_screen":{"enable":true,"background_img":"/images/bg.svg","description":"莫听穿林打叶声，何妨吟啸且徐行。"},"scroll":{"progress_bar":{"enable":false},"percent":{"enable":true}}},"local_search":{"enable":true,"trigger":"auto","preload":true},"code_copy":{"enable":true,"style":"default"},"pjax":{"enable":false},"lazyload":{"enable":false},"version":"3.4.3"};
+    KEEP.language_ago = {"second":"%s seconds ago","minute":"%s minutes ago","hour":"%s hours ago","day":"%s days ago","week":"%s weeks ago","month":"%s months ago","year":"%s years ago"};
+  </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                Bean You
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                首页
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/categories"
+                            >
+                                分类
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >
+                                标签
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                归档
+                            </a>
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="fas fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">首页</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/categories">分类</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags">标签</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">归档</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">Redis Scan 原理解析与踩坑</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="/images/avatar.svg">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">JD</span>
+                        
+                            <span class="author-label">Lv5</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2022-11-17 22:00:00
+    </span>
+    
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>&nbsp;
+                    </li>
+                
+                    <li>
+                        &gt; <a href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+    
+
+    
+    
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fas fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <h2 id="1-概述"><a href="#1-概述" class="headerlink" title="1. 概述"></a>1. 概述</h2><p>由于 Redis 是单线程在处理用户的命令，而 Keys 命令会一次性遍历所有 Key，于是在 命令执行过程中，无法执行其他命令。这就导致如果 Redis 中的 key 比较多，那么 Keys 命令执行时间就会比较长，从而阻塞 Redis。</p>
+<p>所以很多教程都推荐使用 Scan 命令来代替 Keys，因为 Scan 可以限制每次遍历的 key 数量。</p>
+<p>Keys 的缺点：</p>
+<ul>
+<li>1）没有limit，我们只能一次性获取所有符合条件的key，如果结果有上百万条，那么等待你的就是“无穷无尽”的字符串输出。</li>
+<li>2）keys命令是遍历算法，时间复杂度是O(N)。如我们刚才所说，这个命令非常容易导致Redis服务卡顿。因此，我们要尽量避免在生产环境使用该命令。</li>
+</ul>
+<p>相比于keys命令，Scan命令有两个比较明显的优势：</p>
+<ul>
+<li>1）Scan命令的时间复杂度虽然也是O(N)，但它是分次进行的，不会阻塞线程。</li>
+<li>2）Scan命令提供了 count 参数，可以控制每次遍历的集合数。</li>
+</ul>
+<blockquote>
+<p>可以理解为 Scan 是渐进式的 Keys。</p>
+</blockquote>
+<p>Scan 命令语法如下：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SCAN cursor [MATCH pattern] [COUNT count] </span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>cursor - 游标。</li>
+<li>pattern - 匹配的模式。</li>
+<li>count - 指定每次遍历多少个集合。<ul>
+<li>可以简单理解为每次遍历多少个元素</li>
+<li>根据测试，推荐 Count大小为 1W。</li>
+</ul>
+</li>
+</ul>
+<p>Scan 返回值为数组，会返回一个游标+一系列的 Key</p>
+<p>大致用法如下：</p>
+<p>SCAN命令是基于游标的，每次调用后，都会返回一个游标，用于下一次迭代。当游标返回0时，表示迭代结束。</p>
+<blockquote>
+<p>第一次 Scan 时指定游标为 0，表示开启新的一轮迭代，然后 Scan 命令返回一个新的游标，作为第二次 Scan 时的游标值继续迭代，一直到 Scan 返回游标为0，表示本轮迭代结束。</p>
+</blockquote>
+<p>通过这个就可以看出，<strong>Scan 完成一次迭代，需要和 Redis 进行多次交互</strong>。</p>
+<p>Scan 命令注意事项：</p>
+<ul>
+<li><strong>返回的结果可能会有重复，需要客户端去重复，这点非常重要;</strong></li>
+<li><strong>遍历的过程中如果有数据修改，改动后的数据能不能遍历到是不确定的;</strong></li>
+<li><strong>单次返回的结果是空的并不意味着遍历结束，而要看返回的游标值是否为零;</strong></li>
+</ul>
+<h2 id="2-Scan-踩坑"><a href="#2-Scan-踩坑" class="headerlink" title="2. Scan 踩坑"></a>2. Scan 踩坑</h2><p>使用时遇到一个 特殊场景，<strong>跨区域远程连接 Redis 并进行模糊查询</strong>，扫描所有指定前缀的 Key。</p>
+<p>最开始也没多想，直接就是开始 Scan，然后 Count 参数指定的是 1000。</p>
+<blockquote>
+<p>Redis 中大概几百万 Key。</p>
+</blockquote>
+<p>最后发现这个接口需要几十上百秒才返回。</p>
+<p>什么原因呢？</p>
+<p>Scan 命令中的 Count 指定一次扫描多少 Key，这里指定为 1000，几百万Key就需要几千次迭代，即和 Redis 交互几千次，然后因为是远程连接，网络延迟比较大，所以耗时特别长。</p>
+<p>最后将 Count 参数调大后，减少了交互次数，就好多了。</p>
+<blockquote>
+<p>Count 参数越大，Redis 阻塞时间也会越长，需要取舍。</p>
+<p>极限一点，<strong>Count 参数和总 Key 数一致时，Scan 命令就和 Keys 效果一样了</strong>。</p>
+</blockquote>
+<p>Count 大小和 Scan 总耗时的关系如下图：</p>
+<p><img src="../../../imgs/Redis/redis23.png"></p>
+<p>可以发现 Count 越大，总耗时就越短，不过越后面提升就越不明显了。</p>
+<blockquote>
+<p>所以推荐的 Count 大小为 1W 左右。</p>
+</blockquote>
+<p>如果不考虑 Redis 的阻塞，其实 Keys 比 Scan 会快很多，毕竟一次性处理，省去了多余的交互。</p>
+<h2 id="3-Scan原理"><a href="#3-Scan原理" class="headerlink" title="3. Scan原理"></a>3. Scan原理</h2><p>Redis使用了Hash表作为底层实现，原因不外乎高效且实现简单。类似于HashMap那样数组+链表的结构。其中第一维的数组大小为2n(n&gt;=0)。每次扩容数组长度扩大一倍。</p>
+<p>Scan命令就是对这个一维数组进行遍历。每次返回的游标值也都是这个数组的索引。Count 参数表示遍历多少个数组的元素，将这些元素下挂接的符合条件的结果都返回。因为每个元素下挂接的链表大小不同，所以每次返回的结果数量也就不同。</p>
+<h3 id="演示"><a href="#演示" class="headerlink" title="演示"></a>演示</h3><p>关于 Scan 命令的遍历顺序，我们可以用一个小栗子来具体看一下：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">127.0.0.1:6379&gt; keys *</span><br><span class="line">1) <span class="string">&quot;db_number&quot;</span></span><br><span class="line">2) <span class="string">&quot;key1&quot;</span></span><br><span class="line">3) <span class="string">&quot;myKey&quot;</span></span><br><span class="line">127.0.0.1:6379&gt; scan 0 MATCH * COUNT 1</span><br><span class="line">1) <span class="string">&quot;2&quot;</span></span><br><span class="line">2) 1) <span class="string">&quot;db_number&quot;</span></span><br><span class="line">127.0.0.1:6379&gt; scan 2 MATCH * COUNT 1</span><br><span class="line">1) <span class="string">&quot;1&quot;</span></span><br><span class="line">2) 1) <span class="string">&quot;myKey&quot;</span></span><br><span class="line">127.0.0.1:6379&gt; scan 1 MATCH * COUNT 1</span><br><span class="line">1) <span class="string">&quot;3&quot;</span></span><br><span class="line">2) 1) <span class="string">&quot;key1&quot;</span></span><br><span class="line">127.0.0.1:6379&gt; scan 3 MATCH * COUNT 1</span><br><span class="line">1) <span class="string">&quot;0&quot;</span></span><br><span class="line">2) (empty list or <span class="built_in">set</span>)</span><br></pre></td></tr></table></figure>
+
+<p>如上所示，SCAN命令的遍历顺序是：0-&gt;2-&gt;1-&gt;3</p>
+<p>这个顺序看起来有些奇怪，我们把它转换成二进制：00-&gt;10-&gt;01-&gt;11</p>
+<p>可以看到每次这个序列是高位加1的。</p>
+<blockquote>
+<p>普通二进制的加法，是从右往左相加、进位。而这个序列是从左往右相加、进位的。</p>
+</blockquote>
+<p>相关源码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">v = rev(v); v++; v = rev(v); </span><br></pre></td></tr></table></figure>
+
+<p>将游标倒置，加一后，再倒置，也就是我们所说的“高位加1”的操作。</p>
+<h3 id="相关源码"><a href="#相关源码" class="headerlink" title="相关源码"></a>相关源码</h3><p>先贴一下代码：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">unsigned</span> <span class="keyword">long</span> <span class="title">dictScan</span><span class="params">(dict *d,</span></span></span><br><span class="line"><span class="params"><span class="function">                       <span class="keyword">unsigned</span> <span class="keyword">long</span> v,</span></span></span><br><span class="line"><span class="params"><span class="function">                       dictScanFunction *fn,</span></span></span><br><span class="line"><span class="params"><span class="function">                       <span class="keyword">void</span> *privdata)</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    dictht *t0, *t1;</span><br><span class="line">    <span class="keyword">const</span> dictEntry *de;</span><br><span class="line">    <span class="keyword">unsigned</span> <span class="keyword">long</span> m0, m1;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (dictSize(d) == <span class="number">0</span>) <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span> (!dictIsRehashing(d)) &#123;<span class="comment">//没有在做rehash，所以只有第一个表有数据的</span></span><br><span class="line">        t0 = &amp;(d-&gt;ht[<span class="number">0</span>]);</span><br><span class="line">        m0 = t0-&gt;sizemask;</span><br><span class="line">        <span class="comment">//槽位大小-1,因为大小总是2^N,所以sizemask的二进制总是后面都为1,</span></span><br><span class="line">        <span class="comment">//比如16个slot的字典，sizemask为00001111</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">/* Emit entries at cursor */</span></span><br><span class="line">        de = t0-&gt;table[v &amp; m0];<span class="comment">//找到当前这个槽位，然后处理数据</span></span><br><span class="line">        <span class="keyword">while</span> (de) &#123;</span><br><span class="line">            fn(privdata, de);<span class="comment">//将这个slot的链表数据全部入队，准备返回给客户端。</span></span><br><span class="line">            de = de-&gt;next;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        t0 = &amp;d-&gt;ht[<span class="number">0</span>];</span><br><span class="line">        t1 = &amp;d-&gt;ht[<span class="number">1</span>];</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* Make sure t0 is the smaller and t1 is the bigger table */</span></span><br><span class="line">        <span class="keyword">if</span> (t0-&gt;size &gt; t1-&gt;size) &#123;<span class="comment">//将地位设置为</span></span><br><span class="line">            t0 = &amp;d-&gt;ht[<span class="number">1</span>];</span><br><span class="line">            t1 = &amp;d-&gt;ht[<span class="number">0</span>];</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        m0 = t0-&gt;sizemask;</span><br><span class="line">        m1 = t1-&gt;sizemask;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* Emit entries at cursor */</span></span><br><span class="line">        de = t0-&gt;table[v &amp; m0];<span class="comment">//处理小一点的表。</span></span><br><span class="line">        <span class="keyword">while</span> (de) &#123;</span><br><span class="line">            fn(privdata, de);</span><br><span class="line">            de = de-&gt;next;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">/* Iterate over indices in larger table that are the expansion</span></span><br><span class="line"><span class="comment">	         * of the index pointed to by the cursor in the smaller table */</span></span><br><span class="line">        <span class="keyword">do</span> &#123;<span class="comment">//扫描大点的表里面的槽位，注意这里是个循环，会将小表没有覆盖的slot全部扫描一次的</span></span><br><span class="line">            <span class="comment">/* Emit entries at cursor */</span></span><br><span class="line">            de = t1-&gt;table[v &amp; m1];</span><br><span class="line">            <span class="keyword">while</span> (de) &#123;</span><br><span class="line">                fn(privdata, de);</span><br><span class="line">                de = de-&gt;next;</span><br><span class="line">            &#125;</span><br><span class="line"></span><br><span class="line">            <span class="comment">/* Increment bits not covered by the smaller mask */</span></span><br><span class="line">            <span class="comment">//下面的意思是，还需要扩展小点的表，将其后缀固定，然后看高位可以怎么扩充。</span></span><br><span class="line">            <span class="comment">//其实就是想扫描一下小表里面的元素可能会扩充到哪些地方，需要将那些地方处理一遍。</span></span><br><span class="line">            <span class="comment">//后面的(v &amp; m0)是保留v在小表里面的后缀。</span></span><br><span class="line">            <span class="comment">//((v | m0) + 1) &amp; ~m0) 是想给v的扩展部分的二进制位不断的加1，来造成高位不断增加的效果。</span></span><br><span class="line">            v = (((v | m0) + <span class="number">1</span>) &amp; ~m0) | (v &amp; m0);</span><br><span class="line"></span><br><span class="line">            <span class="comment">/* Continue while bits covered by mask difference is non-zero */</span></span><br><span class="line">        &#125; <span class="keyword">while</span> (v &amp; (m0 ^ m1));<span class="comment">//终止条件是 v的高位区别位没有1了，其实就是说到头了。</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Set unmasked bits so incrementing the reversed cursor</span></span><br><span class="line"><span class="comment">	     * operates on the masked bits of the smaller table */</span></span><br><span class="line">    v |= ~m0;</span><br><span class="line">    <span class="comment">//按位取反，其实相当于v |= m0-1 , ~m0也就是11110000,</span></span><br><span class="line">    <span class="comment">//这里相当于将v的不相干的高位全部置为1，待会再进行翻转二进制位，然后加1，然后再转回来</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Increment the reverse cursor */</span></span><br><span class="line">    v = rev(v);</span><br><span class="line">    v++;</span><br><span class="line">    v = rev(v);</span><br><span class="line">    <span class="comment">//下面将v的每一位倒过来再加1，再倒回去，这是什么意思呢，</span></span><br><span class="line">    <span class="comment">//其实就是要将有效二进制位里面的高位第一个0位设置置为1，因为现在是0嘛</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> v;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="reverse-binary-iteration"><a href="#reverse-binary-iteration" class="headerlink" title="reverse binary iteration"></a>reverse binary iteration</h3><p>Redis Scan 命令最终使用的是 reverse binary iteration 算法，大概可以翻译为 逆二进制迭代，具体算法细节可以看一下这个<a class="link"   target="_blank" rel="noopener" href="https://github.com/redis/redis/pull/579" >Github 相关讨论<i class="fas fa-external-link-alt"></i></a></p>
+<p>这个算法简单来说就是：</p>
+<p><strong>依次从高位（有效位）开始，不断尝试将当前高位设置为1，然后变动更高位为不同组合，以此来扫描整个字典数组。</strong></p>
+<p>其最大的优势在于，从高位扫描的时候，如果槽位是2^N个,扫描的临近的2个元素都是与2^(N-1)相关的就是说同模的，比如槽位8时，0%4 == 4%4， 1%4 == 5%4 ， 因此想到其实hash的时候，跟模是很相关的。</p>
+<p>比如当整个字典大小只有4的时候，一个元素计算出的整数为5， 那么计算他的hash值需要模4，也就是hash(n) == 5%4 == 1 , 元素存放在第1个槽位中。当字典扩容的时候，字典大小变为8， 此时计算hash的时候为5%8 == 5 ， 该元素从1号slot迁移到了5号，1和5是对应的，我们称之为同模或者对应。</p>
+<p><strong>同模的槽位的元素最容易出现合并或者拆分了。因此在迭代的时候只要及时的扫描这些相关的槽位，这样就不会造成大面积的重复扫描。</strong></p>
+<h3 id="3-种情况"><a href="#3-种情况" class="headerlink" title="3 种情况"></a>3 种情况</h3><p>迭代哈希表时，有以下三种情况：</p>
+<ul>
+<li>从迭代开始到结束，哈希表不 Rehash；</li>
+<li>从迭代开始到结束，哈希表Rehash，但每次迭代，哈希表要么不开始 Rehash，要么已经结束 Rehash；</li>
+<li>从一次迭代开始到结束，哈希表在一次或多次迭代中 Rehash。<ul>
+<li>即再 Rehash 过程中，执行 Scan 命令，这时数据可能只迁移了一部分。</li>
+</ul>
+</li>
+</ul>
+<p>因此，游标的实现需要兼顾以上三种情况。上述三种情况下游标实现的要求如下：</p>
+<p><strong>第一种情况比较简单</strong>。假设redis的hash表大小为4，第一个游标为0，读取第一个bucket的数据，然后游标返回2，下次读取bucket 2 ，依次遍历。</p>
+<p><strong>第二种情况更复杂</strong>。假设redis的hash表大小为4，如果rehash后大小变成8。如果如上返回游标(即返回2)，则显示下图：</p>
+<p><img src="../../../imgs/Redis/redis24.png"></p>
+<p>假设bucket 0读取后返回到cursor 2，当客户端再次Scan cursor 2时，hash表已经被rehash，大小翻倍到8，redis计算一个key bucket如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hash(key)&amp;(size<span class="number">-1</span>) </span><br></pre></td></tr></table></figure>
+
+<p>即如果大小为4，hash(key)&amp;11，如果大小为8，hash(key)&amp;111。所以当size从4扩大到8时，2 号bucket中的原始数据会被分散到2 (010) 和 6 (110) 这两个 bucket中。</p>
+<blockquote>
+<p>从二进制来看，size为4时，在hash(key)之后，取低两位，即hash(key)&amp;11，如果size为8，bucket位置为hash(key) &amp; 111，即取低三个位。</p>
+</blockquote>
+<p>所以依旧不会出现漏掉数据的情况。</p>
+<p><strong>第三种情况</strong>，如果返回游标2时正在进行rehash，则Hash表1的bucket 2中的一些数据可能已经rehash到了的Hash表2 的bucket[2]或bucket[6]，那么必须完全遍历 哈希表2的 bucket 2 和 6，否则可能会丢失数据。</p>
+<blockquote>
+<p>Redis 全局有两个Hash表，扩容时会渐进式的将表1的数据迁移到表2，查询时程序会先在 ht[0] 里面进行查找， 如果没找到的话， 就会继续到 ht[1] 里面进行查找。</p>
+<p>详细信息可以查看：<a class="link"   target="_blank" rel="noopener" href="https://www.lixueduan.com/post/redis/04-global-datastructure/" >Redis教程(四)—全局数据结构<i class="fas fa-external-link-alt"></i></a></p>
+</blockquote>
+<h3 id="游标计算"><a href="#游标计算" class="headerlink" title="游标计算"></a>游标计算</h3><p>具体游标计算代码如下：</p>
+<blockquote>
+<p>Scan 命令中的游标，其实就是 Redis 内部的 bucket。</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">v |= ~m0; <span class="comment">// 将游标v的unmarsked 比特都置为1</span></span><br><span class="line">v = rev(v);<span class="comment">// 反转v</span></span><br><span class="line">v++; <span class="comment">//这个是关键，加1，对一个数加1，其实就是将这个数的低位的连续1变为0，然后将最低的一个0变为1，其实就是将最低的一个0变为1</span></span><br><span class="line">v = rev(v);<span class="comment">//再次反转，即得到下一个游标值</span></span><br></pre></td></tr></table></figure>
+
+<p>代码逻辑非常简单，计算过程如下：</p>
+<p><img src="../../../imgs/Redis/redis25.png"></p>
+<ul>
+<li>大小为 4 时，游标状态转换为 0-2-1-3。</li>
+<li>当大小为 8 时，游标状态转换为 0-4-2-6-1-5-3-7。</li>
+</ul>
+<p>可以看出，当size由小变大时，所有原来的游标都能在大hashTable中找到对应的位置，并且顺序一致，不会重复读取，也不会被遗漏。</p>
+<p><strong>总结一下：redis在rehash 扩容的时候，不会重复或者漏掉数据。但缩容，可能会造成重复但不会漏掉数据。</strong></p>
+<h3 id="缩容处理"><a href="#缩容处理" class="headerlink" title="缩容处理"></a>缩容处理</h3><p><strong>之所以会出现重复数据，其实就是为了保证缩容后数据不丢。</strong></p>
+<p>假设当前 hash 大小为 8：</p>
+<ul>
+<li>1）第一次先遍历了 0 号槽，返回游标为 4；</li>
+<li>2）准备遍历 4 号槽，然后此时发生了缩容，4 号槽的元素也进到 0 号槽了。</li>
+<li>3）但是0 号槽之前已经被遍历过了，此时会丢数据吗？</li>
+</ul>
+<p>答案就在源码中：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">do</span> &#123;<span class="comment">//扫描大点的表里面的槽位，注意这里是个循环，会将小表没有覆盖的slot全部扫描一次的</span></span><br><span class="line">    <span class="comment">/* Emit entries at cursor */</span></span><br><span class="line">    de = t1-&gt;table[v &amp; m1];</span><br><span class="line">    <span class="keyword">while</span> (de) &#123;</span><br><span class="line">        fn(privdata, de);</span><br><span class="line">        de = de-&gt;next;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Increment bits not covered by the smaller mask */</span></span><br><span class="line">    <span class="comment">//下面的意思是，还需要扩展小点的表，将其后缀固定，然后看高位可以怎么扩充。</span></span><br><span class="line">    <span class="comment">//其实就是想扫描一下小表里面的元素可能会扩充到哪些地方，需要将那些地方处理一遍。</span></span><br><span class="line">    <span class="comment">//后面的(v &amp; m0)是保留v在小表里面的后缀。</span></span><br><span class="line">    <span class="comment">//((v | m0) + 1) &amp; ~m0) 是想给v的扩展部分的二进制位不断的加1，来造成高位不断增加的效果。</span></span><br><span class="line">    v = (((v | m0) + <span class="number">1</span>) &amp; ~m0) | (v &amp; m0);</span><br><span class="line"></span><br><span class="line">    <span class="comment">/* Continue while bits covered by mask difference is non-zero */</span></span><br><span class="line">&#125; <span class="keyword">while</span> (v &amp; (m0 ^ m1));<span class="comment">//终止条件是 v的高位区别位没有1了，其实就是说到头了。</span></span><br></pre></td></tr></table></figure>
+
+<p>具体计算方法：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">v = (((v | m0) + <span class="number">1</span>) &amp; ~m0) | (v &amp; m0); </span><br></pre></td></tr></table></figure>
+
+<p>右边的下半部分是v，左边的上半部分是v。 (v&amp;m0) 取出v的低位，例如size=4时v&amp;00000011</p>
+<p>左半边(v|m0) + 1 将V 的低位设置为1，然后+1 将进位到v 的高位，再次&amp;m0，V 的高位将被取出。</p>
+<p>假设游标返回2并且正在rehashing，大小从4变为8，那么M0 = 00000011 v = 00000010</p>
+<p>根据公式计算的下一个光标是 ((00000010 | 00000011) +1) &amp; (11111111100) | (00000010 &amp; 00000011) = (00000100) &amp; (11111111100) | (00000000010) = (000000000110) 正好是 6。</p>
+<h2 id="4-小结"><a href="#4-小结" class="headerlink" title="4. 小结"></a>4. 小结</h2><ul>
+<li>Scan Count 参数限制的是遍历的 bucket 数，而不是限制的返回的元素个数<ul>
+<li>由于不同 bucket 中的元素个数不同，其中满足条件的个数也不同，所以每次 Scan 返回元素也不一定相同</li>
+</ul>
+</li>
+<li>Count 越大，Scan 总耗时越短，但是单次耗时越大，即阻塞Redis 时间边长<ul>
+<li>推荐 Count 大小为 1W左右</li>
+<li>当 Count = Redis Key 总数时，Scan 和 Keys 效果一致</li>
+</ul>
+</li>
+<li>Scan 采用 逆二进制迭代法来计算游标，主要为了兼容Rehash的情况</li>
+<li>Scan 为了兼容缩容后不漏掉数据，会出现重复遍历。<ul>
+<li>即客户端需要做去重处理</li>
+</ul>
+</li>
+</ul>
+<p>核心就是 逆二进制迭代法，比较复杂，而且算法作者也没有具体证明，为什么这样就能实现，只是测试发现没有问题，各种情况都能兼容。</p>
+<p>具体算法细节可以看一下这个<a class="link"   target="_blank" rel="noopener" href="https://github.com/redis/redis/pull/579" >Github 相关讨论<i class="fas fa-external-link-alt"></i></a></p>
+<blockquote>
+<p><strong>antirez</strong>: Hello @pietern! I’m starting to re-evaluate the idea of an iterator for Redis, and the first item in this task is definitely to understand better your pull request and implementation. I don’t understand exactly the implementation with the reversed bits counter… I wonder if there is a way to make that more intuitive… so investing some more time into this, and if I fail I’ll just merge your code trying to augment it with more comments… Hard to explain but awesome.<br><strong>pietern</strong>： Although I don’t have a formal proof for these guarantees, I’m reasonably confident they hold. I worked through every hash table state (stable, grow, shrink) and it appears to work everywhere by means of the reverse binary iteration (for lack of a better word).</p>
+</blockquote>
+<p>所以只能说这个算法很巧妙。就像卡马克快速逆平方根算法：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">float</span> <span class="title">Q_rsqrt</span><span class="params">( <span class="keyword">float</span> number )</span> </span></span><br><span class="line"><span class="function"></span>&#123; </span><br><span class="line">    <span class="keyword">long</span> i; </span><br><span class="line">    <span class="keyword">float</span> x2, y; </span><br><span class="line">    <span class="keyword">const</span> <span class="keyword">float</span> threehalfs = <span class="number">1.5F</span> ;</span><br><span class="line">    x2 = number * <span class="number">0.5F</span> ; </span><br><span class="line">    y = number ; </span><br><span class="line">    i = * ( <span class="keyword">long</span> * ) &amp;y; <span class="comment">// evil floating point bit level hacking </span></span><br><span class="line">    i = <span class="number">0x5f3759df</span> - ( i &gt;&gt; <span class="number">1</span> ); <span class="comment">// what the fuck? </span></span><br><span class="line">    y = * ( <span class="keyword">float</span> * ) &amp;i; </span><br><span class="line">    y = y * ( threehalfs - ( x2 * y * y ) ); <span class="comment">// 1st iteration </span></span><br><span class="line"><span class="comment">//  y = y * ( threehalfs - ( x2 * y * y ) ); // 2nd iteration, this can be removed</span></span><br><span class="line">    <span class="keyword">return</span> y ;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中的这个<code>0x5f3759df</code>数就很巧妙。</p>
+
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/posts/3431/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">Redis 内存碎片化率</span>
+                                <span class="post-nav-item">Next posts</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2021</span>
+              -
+            
+            2022&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">JD</a>
+        </div>
+        
+            <script async  src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <div class="website-count info-item">
+                
+                    <span id="busuanzi_container_site_uv">
+                        Visitor Count&nbsp;<span id="busuanzi_value_site_uv"></span>&ensp;
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv">
+                        Totalview&nbsp;<span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="theme-info info-item">
+            Powered by <a target="_blank" href="https://hexo.io">Hexo</a>&nbsp;|&nbsp;Theme&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.3</a>
+        </div>
+        
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="arrow-up fas fa-arrow-up"></i>
+                <span class="percent"></span>
+            </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E6%A6%82%E8%BF%B0"><span class="nav-text">1. 概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-Scan-%E8%B8%A9%E5%9D%91"><span class="nav-text">2. Scan 踩坑</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-Scan%E5%8E%9F%E7%90%86"><span class="nav-text">3. Scan原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%BC%94%E7%A4%BA"><span class="nav-text">演示</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%B8%E5%85%B3%E6%BA%90%E7%A0%81"><span class="nav-text">相关源码</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#reverse-binary-iteration"><span class="nav-text">reverse binary iteration</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E7%A7%8D%E6%83%85%E5%86%B5"><span class="nav-text">3 种情况</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B8%B8%E6%A0%87%E8%AE%A1%E7%AE%97"><span class="nav-text">游标计算</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%A9%E5%AE%B9%E5%A4%84%E7%90%86"><span class="nav-text">缩容处理</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E5%B0%8F%E7%BB%93"><span class="nav-text">4. 小结</span></a></li></ol>
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="Search..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="popup-btn-close">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+</main>
+
+
+
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/main.js"></script>
+
+<script src="/js/header-shrink.js"></script>
+
+<script src="/js/back2top.js"></script>
+
+<script src="/js/dark-light-toggle.js"></script>
+
+
+
+    
+<script src="/js/local-search.js"></script>
+
+
+
+
+    
+<script src="/js/code-copy.js"></script>
+
+
+
+
+
+<div class="post-scripts">
+    
+        
+<script src="/js/left-side-toggle.js"></script>
+
+<script src="/js/libs/anime.min.js"></script>
+
+<script src="/js/toc.js"></script>
+
+    
+</div>
+
+
+
+</body>
+</html>
