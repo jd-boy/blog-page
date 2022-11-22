@@ -199,7 +199,10 @@
 
                 <div class="home-article-content markdown-body">
                     
-                        测试延迟1curl -m 9 -s -w %&#123;time_namelookup&#125;---%&#123;time_connect&#125;---%&#123;time_starttransfer&#125;---%&#123;time...
+                        分析 HTTP 请求耗时HTTP 请求过程：
+
+每次http请求经过这些过程： 客户端发起请求–&gt;DNS解析–&gt;TCP连接–&gt;SSL等协议握手–&gt;服务器处理–&gt;内容传输–&gt;完成
+查看curl 命令的手册，curl命...
                     
                 </div>
 

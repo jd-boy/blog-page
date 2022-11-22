@@ -215,15 +215,57 @@
         
 
         <div class="article-content markdown-body">
-            <h4 id="测试延迟"><a href="#测试延迟" class="headerlink" title="测试延迟"></a>测试延迟</h4><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -m 9 -s -w %&#123;time_namelookup&#125;---%&#123;time_connect&#125;---%&#123;time_starttransfer&#125;---%&#123;time_total&#125;---%&#123;speed_download&#125;&quot;\n&quot; -H &#x27;Accept: application/vnd.dmp.v2+json&#x27; -H &#x27;Authorization: 28b4b2fb90f9c2aab4843966c0ecc42a&#x27; -d &quot;&quot; &quot;http://hldmp.abeacon.com/user/tasklist&quot;</span><br></pre></td></tr></table></figure>
+            <h2 id="分析-HTTP-请求耗时"><a href="#分析-HTTP-请求耗时" class="headerlink" title="分析 HTTP 请求耗时"></a>分析 HTTP 请求耗时</h2><p>HTTP 请求过程：</p>
+<p><img src="../../imgs/Linux/linux1.png" alt="HTTP 请求过程"></p>
+<p>每次http请求经过这些过程： 客户端发起请求–&gt;DNS解析–&gt;TCP连接–&gt;SSL等协议握手–&gt;服务器处理–&gt;内容传输–&gt;完成</p>
+<p>查看curl 命令的手册，curl命令支持以下阶段的时间统计：</p>
+<ol>
+<li>time_namelookup : 从请求开始到DNS解析完成的耗时</li>
+<li>time_connect : 从请求开始到TCP三次握手完成耗时</li>
+<li>time_appconnect : 从请求开始到TLS握手完成的耗时</li>
+<li>time_pretransfer : 从请求开始到向服务器发送第一个GET请求开始之前的耗时</li>
+<li>time_redirect : 重定向时间，包括到内容传输前的重定向的DNS解析、TCP连接、内容传输等时间</li>
+<li>time_starttransfer : 从请求开始到内容传输前的时间</li>
+<li>time_total : 从请求开始到完成的总耗时</li>
+<li>speed_download：下载速度，单位-字节每秒</li>
+</ol>
+<p>我们常关注的HTTP性能指标有：</p>
+<ol>
+<li>DNS请求耗时 ： 域名的NS及本地使用DNS的解析速度</li>
+<li>TCP建立耗时 ： 服务器网络层面的速度</li>
+<li>SSL握手耗时 ： 服务器处理HTTPS等协议的速度</li>
+<li>服务器处理请求时间 ： 服务器处理HTTP请求的速度</li>
+<li>TTFB ： 服务器从接收请求到开始到收到第一个字节的耗时</li>
+<li>服务器响应耗时 ：服务器响应第一个字节到全部传输完成耗时</li>
+<li>请求完成总耗时</li>
+</ol>
+<p>注意： 如果想分析HTTP性能的瓶颈，不建议使用带有重定向的请求进行分析，重定向会导致建立多次TCP连接或多次HTTP请求，多次请求的数据混在一起，数据不够直观，因此 time_redirect 对实际分析意义不大。</p>
+<p>其中的运算关系：</p>
+<ol>
+<li>DNS请求耗时 = time_namelookup</li>
+<li>TCP三次握手耗时 = time_connect - time_namelookup</li>
+<li>SSL握手耗时 = time_appconnect - time_connect</li>
+<li>服务器处理请求耗时 = time_starttransfer - time_pretransfer</li>
+<li>TTFB耗时 = time_starttransfer - time_appconnect</li>
+<li>服务器传输耗时 = time_total - time_starttransfer</li>
+<li>总耗时 = time_total</li>
+</ol>
+<p>用curl命令统计以上时间：</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -w <span class="string">&#x27;\ntime_namelookup=%&#123;time_namelookup&#125;\ntime_connect=%&#123;time_connect&#125;\ntime_appconnect=%&#123;time_appconnect&#125;\ntime_redirect=%&#123;time_redirect&#125;\ntime_pretransfer=%&#123;time_pretransfer&#125;\ntime_starttransfer=%&#123;time_starttransfer&#125;\ntime_total=%&#123;time_total&#125;\n\n&#x27;</span> -o /dev/null -s -L <span class="string">&#x27;https://www.nixops.me/&#x27;</span></span><br></pre></td></tr></table></figure>
 
-<ul>
-<li><strong>time_connect</strong>：建立到服务器的 TCP 连接所用的时间</li>
-<li><strong>time_starttransfer</strong>：在发出请求之后,Web 服务器返回数据的第一个字节所用的时间</li>
-<li><strong>time_total</strong>：完成请求所用的时间</li>
-<li><strong>time_namelookup</strong>：DNS解析时间,从请求开始到DNS解析完毕所用时间(记得关掉 Linux 的 nscd 的服务测试)</li>
-<li><strong>speed_download</strong>：下载速度，单位-字节每秒。</li>
-</ul>
+<p>以上内容不够直观，curl -w参数支持模板，新建一个文件timing.txt,内容如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">time_namelookup=%&#123;time_namelookup&#125;\n</span><br><span class="line">time_connect=%&#123;time_connect&#125;\n</span><br><span class="line">time_appconnect=%&#123;time_appconnect&#125;\n</span><br><span class="line">time_redirect=%&#123;time_redirect&#125;\n</span><br><span class="line">time_pretransfer=%&#123;time_pretransfer&#125;\n</span><br><span class="line">time_starttransfer=%&#123;time_starttransfer&#125;\n</span><br><span class="line">time_total=%&#123;time_total&#125;\n</span><br></pre></td></tr></table></figure>
+
+<p>使用模板在执行一次：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">curl -w <span class="string">&quot;@timing.txt&quot;</span> -o /dev/null -s -L <span class="string">&#x27;https://www.nixops.me/&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>将上述功能生成脚本stat.sh</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#!/bin/bash</span></span><br><span class="line"></span><br><span class="line">Default_URL=https://www.nixops.me</span><br><span class="line">URL=<span class="variable">$&#123;1:-<span class="variable">$Default_URL</span>&#125;</span></span><br><span class="line"></span><br><span class="line">Result=`curl -o /dev/null -s <span class="variable">$URL</span> \</span><br><span class="line">        -w \</span><br><span class="line">        <span class="string">&#x27;time_namelookup=%&#123;time_namelookup&#125;</span></span><br><span class="line"><span class="string">time_connect=%&#123;time_connect&#125;</span></span><br><span class="line"><span class="string">time_appconnect=%&#123;time_appconnect&#125;</span></span><br><span class="line"><span class="string">time_redirect=%&#123;time_redirect&#125;</span></span><br><span class="line"><span class="string">time_pretransfer=%&#123;time_pretransfer&#125;</span></span><br><span class="line"><span class="string">time_starttransfer=%&#123;time_starttransfer&#125;</span></span><br><span class="line"><span class="string">time_total=%&#123;time_total&#125;</span></span><br><span class="line"><span class="string">&#x27;</span>`</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="built_in">declare</span> <span class="variable">$Result</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="title">curl_timing</span></span>()&#123;</span><br><span class="line">    <span class="built_in">printf</span> <span class="string">&quot;\e[92mcURL Timing: \e[0m\n&quot;</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="variable">$Result</span></span><br><span class="line">    <span class="keyword">do</span>  </span><br><span class="line">            IFS=<span class="string">&#x27;=&#x27;</span></span><br><span class="line">            <span class="built_in">printf</span> <span class="string">&quot;\e[96m%18s \e[0m: %10s \n&quot;</span> <span class="variable">$i</span></span><br><span class="line">    <span class="keyword">done</span></span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="title">stat_timing</span></span>()&#123;</span><br><span class="line"></span><br><span class="line">    Result_TCP=`<span class="built_in">printf</span> <span class="string">&quot;%.6f&quot;</span> $(<span class="built_in">echo</span> <span class="variable">$time_connect</span> - <span class="variable">$time_namelookup</span> |bc -l)`</span><br><span class="line">    Result_TLS=`<span class="built_in">printf</span> <span class="string">&quot;%.6f&quot;</span> $(<span class="built_in">echo</span> <span class="variable">$time_appconnect</span> - <span class="variable">$time_connect</span> |bc -l)`</span><br><span class="line">    Result_Server=`<span class="built_in">printf</span> <span class="string">&quot;%.6f&quot;</span> $(<span class="built_in">echo</span> <span class="variable">$time_starttransfer</span> - <span class="variable">$time_pretransfer</span> |bc -l)`</span><br><span class="line">    Result_TTFB=`<span class="built_in">printf</span> <span class="string">&quot;%.6f&quot;</span> $(<span class="built_in">echo</span> <span class="variable">$time_starttransfer</span> - <span class="variable">$time_appconnect</span> |bc -l)`</span><br><span class="line">    Result_Transfer=`<span class="built_in">printf</span> <span class="string">&quot;%.6f&quot;</span> $(<span class="built_in">echo</span> <span class="variable">$time_total</span> - <span class="variable">$time_starttransfer</span> |bc -l)`</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span> <span class="string">&quot;\n\e[92mResource Timing: \e[0m\n&quot;</span></span><br><span class="line">    <span class="built_in">printf</span> <span class="string">&quot;\e[96m%18s \e[0m: %.6f \n&quot;</span> <span class="string">&quot;DNS Lookup&quot;</span> <span class="variable">$time_namelookup</span></span><br><span class="line">    <span class="built_in">printf</span> <span class="string">&quot;\e[96m%18s \e[0m: %.6f \n&quot;</span> <span class="string">&quot;TCP Connection&quot;</span> <span class="variable">$Result_TCP</span></span><br><span class="line">    </span><br><span class="line">    <span class="keyword">if</span>  [ `<span class="built_in">echo</span> <span class="string">&quot;<span class="variable">$time_appconnect</span> == 0&quot;</span>|bc` -eq 0 ]</span><br><span class="line">    <span class="keyword">then</span></span><br><span class="line">        <span class="built_in">printf</span> <span class="string">&quot;\e[96m%18s \e[0m: %.6f \n&quot;</span> <span class="string">&quot;TLS Handshake&quot;</span> <span class="variable">$Result_TLS</span></span><br><span class="line">    <span class="keyword">fi</span></span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span> <span class="string">&quot;\e[96m%18s \e[0m: %.6f \n&quot;</span> <span class="string">&quot;Server Processing&quot;</span> <span class="variable">$Result_Server</span></span><br><span class="line">    <span class="built_in">printf</span> <span class="string">&quot;\e[96m%18s \e[0m: %.6f \n&quot;</span> <span class="string">&quot;TTFB&quot;</span> <span class="variable">$Result_TTFB</span></span><br><span class="line">    <span class="built_in">printf</span> <span class="string">&quot;\e[96m%18s \e[0m: %.6f \n&quot;</span> <span class="string">&quot;Content Transfer&quot;</span> <span class="variable">$Result_Transfer</span></span><br><span class="line">    <span class="built_in">printf</span> <span class="string">&quot;\e[96m%18s \e[0m: %.6f \n&quot;</span> <span class="string">&quot;Finish&quot;</span> <span class="variable">$time_total</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">curl_timing</span><br><span class="line">stat_timing </span><br></pre></td></tr></table></figure>
+
+<p>执行一下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ./stat.sh https://www.baidu.com</span></span><br><span class="line"></span><br><span class="line">cURL Timing: </span><br><span class="line">   time_namelookup :   0.004087 </span><br><span class="line">      time_connect :   0.006480 </span><br><span class="line">   time_appconnect :   0.022001 </span><br><span class="line">     time_redirect :   0.000000 </span><br><span class="line">  time_pretransfer :   0.022026 </span><br><span class="line">time_starttransfer :   0.025635 </span><br><span class="line">        time_total :   0.025658 </span><br><span class="line"></span><br><span class="line">Resource Timing: </span><br><span class="line">        DNS Lookup : 0.004087 </span><br><span class="line">    TCP Connection : 0.002393 </span><br><span class="line">     TLS Handshake : 0.015521 </span><br><span class="line"> Server Processing : 0.003609 </span><br><span class="line">              TTFB : 0.003634 </span><br><span class="line">  Content Transfer : 0.000023 </span><br><span class="line">            Finish : 0.025658 </span><br></pre></td></tr></table></figure>
+
+<p>从上述结果，就可以直观的分析出http各阶段的耗时，方便我们进行性能瓶颈。</p>
 
         </div>
 
@@ -380,7 +422,7 @@
         <aside class="page-aside">
             <div class="post-toc-wrap">
     <div class="post-toc">
-        <ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95%E5%BB%B6%E8%BF%9F"><span class="nav-text">测试延迟</span></a></li></ol>
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E6%9E%90-HTTP-%E8%AF%B7%E6%B1%82%E8%80%97%E6%97%B6"><span class="nav-text">分析 HTTP 请求耗时</span></a></li></ol>
     </div>
 </div>
         </aside>
