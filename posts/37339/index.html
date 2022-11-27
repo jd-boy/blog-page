@@ -9,7 +9,7 @@
     
     <title>
         
-            k8s命令 |
+            k8s 命令 |
         
         Bean You
     </title>
@@ -150,7 +150,7 @@
     <div class="article-content-container">
 
         <div class="article-title">
-            <span class="title-hover-animation">k8s命令</span>
+            <span class="title-hover-animation">k8s 命令</span>
         </div>
 
         
@@ -200,11 +200,13 @@
         
 
         <div class="article-content markdown-body">
-            <h4 id="1、重启POD"><a href="#1、重启POD" class="headerlink" title="1、重启POD"></a>1、重启POD</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl get pod &#123;podname&#125; -n &#123;namespace&#125; -o yaml | kubectl replace --force -f -</span><br></pre></td></tr></table></figure>
+            <h4 id="1、重启-pod"><a href="#1、重启-pod" class="headerlink" title="1、重启 pod"></a>1、重启 pod</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl get pod &#123;podname&#125; -n &#123;namespace&#125; -o yaml | kubectl replace --force -f -</span><br></pre></td></tr></table></figure>
 
 <h4 id="2、查看代理模式"><a href="#2、查看代理模式" class="headerlink" title="2、查看代理模式"></a>2、查看代理模式</h4><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl get pods -n kube-system -o wide | grep proxy</span><br><span class="line">kube-proxy-flnqq                                  1/1     Running     0          10d     10.172.5.3      10.172.5.3    &lt;none&gt;           &lt;none&gt;</span><br><span class="line">kube-proxy-wlzxh                                  1/1     Running     0          10d     10.172.5.10     10.172.5.10   &lt;none&gt;           &lt;none&gt;</span><br></pre></td></tr></table></figure>
 
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">$ kubectl logs kube-proxy-wlzxh -n kube-system</span><br><span class="line">Fri Dec 31 14:05:26 CST 2021: <span class="built_in">set</span> iptables to nft mode</span><br><span class="line">I1231 14:05:26.800004       1 flags.go:33] FLAG: --add-dir-header=<span class="string">&quot;false&quot;</span></span><br><span class="line">I1231 14:05:26.800036       1 flags.go:33] FLAG: --alsologtostderr=<span class="string">&quot;false&quot;</span></span><br><span class="line">I1231 14:05:26.800039       1 flags.go:33] FLAG: --bind-address=<span class="string">&quot;0.0.0.0&quot;</span></span><br><span class="line">I1231 14:05:26.800044       1 flags.go:33] FLAG: --cleanup=<span class="string">&quot;false&quot;</span></span><br><span class="line">I1231 14:05:26.800051       1 flags.go:33] FLAG: --cleanup-ipvs=<span class="string">&quot;true&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="3、强制删除-pod"><a href="#3、强制删除-pod" class="headerlink" title="3、强制删除 pod"></a>3、强制删除 pod</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl delete pod pod-name -n <span class="built_in">test</span> --force --grace-period=0</span><br></pre></td></tr></table></figure>
 
 
         </div>
@@ -362,7 +364,7 @@
         <aside class="page-aside">
             <div class="post-toc-wrap">
     <div class="post-toc">
-        <ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E9%87%8D%E5%90%AFPOD"><span class="nav-text">1、重启POD</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E6%9F%A5%E7%9C%8B%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F"><span class="nav-text">2、查看代理模式</span></a></li></ol>
+        <ol class="nav"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E9%87%8D%E5%90%AF-pod"><span class="nav-text">1、重启 pod</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E6%9F%A5%E7%9C%8B%E4%BB%A3%E7%90%86%E6%A8%A1%E5%BC%8F"><span class="nav-text">2、查看代理模式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3%E3%80%81%E5%BC%BA%E5%88%B6%E5%88%A0%E9%99%A4-pod"><span class="nav-text">3、强制删除 pod</span></a></li></ol>
     </div>
 </div>
         </aside>
