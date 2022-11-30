@@ -152,29 +152,29 @@
                 
 
                 <h3 class="home-article-title">
-                    <a href="/posts/47281/">
-                        从三明治到六边形
+                    <a href="/posts/50925/">
+                        PaaS、IaaS 和 SaaS 的区别
                     </a>
                 </h3>
 
                 <div class="home-article-content markdown-body">
                     
-                        软件项目的套路如果你平时的工作是做各种项目（而不是产品），而且你工作的时间足够长，那么自然见识过很多不同类型的项目。在切换过多次上下文之后，作为程序员的你，自然而然的会感到一定程度的重复：稍加抽象，你会发现所有的业务系统都几乎做着同样的事情：
+                        一、概述“即服务（aaS）”通常是指由别人提供的服务，它可以让您专注于更重要的事务，例如写代码和客户关系。即服务选项还包括：基础架构即服务（IaaS）、平台即服务（PaaS）和 软件即服务（SaaS）。
 
-从某...
+二、IaaS基础架构即服务（IaaS）也称为...
                     
                 </div>
 
                 <div class="home-article-meta-info-container">
     <div class="home-article-meta-info">
-        <span><i class="fas fa-history"></i>&nbsp;<span class="home-article-date" data-date="Sat Jul 09 2022 11:56:10 GMT+0000">2022-07-09</span></span>
+        <span><i class="fas fa-history"></i>&nbsp;<span class="home-article-date" data-date="Mon Dec 27 2021 10:15:27 GMT+0000">2021-12-27</span></span>
         
             <span class="home-article-category"><i class="fas fa-folder"></i>&nbsp;
                 <ul>
                     
                         <li>
                             
-                            <a href="/categories/%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/">领域驱动设计</a>&nbsp;
+                            <a href="/categories/%E7%9F%A5%E8%AF%86%E5%BA%93/">知识库</a>&nbsp;
                         </li>
                     
                     
@@ -184,7 +184,7 @@
         
     </div>
 
-    <a href="/posts/47281/">Read more&nbsp;<i class="fas fa-angle-right"></i></a>
+    <a href="/posts/50925/">Read more&nbsp;<i class="fas fa-angle-right"></i></a>
 </div>
 
             </li>
@@ -194,27 +194,74 @@
                 
 
                 <h3 class="home-article-title">
-                    <a href="/posts/23488/">
-                        Nginx proxy_pass 转发规则
+                    <a href="/posts/2191/">
+                        Redis 延迟排查
                     </a>
                 </h3>
 
                 <div class="home-article-content markdown-body">
                     
-                        一、proxy_pass 只包含 HOST例如：
-
-http://host - √
-https://host - √
-http://host:port - √
-https://host:port - √
-http://host/ - x
-http:/...
+                        官方延迟问题排查文档：https://redis.io/topics/latency
+一、Redis延迟1.网络延迟redis-cli 提供了通过ping测量延时的命令，延迟指客户端发出命令到客户端接收到对命令的响应之间的时间。
+–latencypi...
                     
                 </div>
 
                 <div class="home-article-meta-info-container">
     <div class="home-article-meta-info">
-        <span><i class="fas fa-history"></i>&nbsp;<span class="home-article-date" data-date="Wed Jul 06 2022 22:51:50 GMT+0000">2022-07-06</span></span>
+        <span><i class="fas fa-history"></i>&nbsp;<span class="home-article-date" data-date="Sat Dec 25 2021 19:53:15 GMT+0000">2021-12-25</span></span>
+        
+            <span class="home-article-category"><i class="fas fa-folder"></i>&nbsp;
+                <ul>
+                    
+                        <li>
+                            
+                            <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>&nbsp;
+                        </li>
+                    
+                    
+                        <li>
+                            &gt; 
+                            <a href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>&nbsp;
+                        </li>
+                    
+                    
+                </ul>
+            </span>
+        
+        
+    </div>
+
+    <a href="/posts/2191/">Read more&nbsp;<i class="fas fa-angle-right"></i></a>
+</div>
+
+            </li>
+        
+            <li class="home-article-item">
+
+                
+
+                <h3 class="home-article-title">
+                    <a href="/posts/13357/">
+                        Nginx location 匹配规则
+                    </a>
+                </h3>
+
+                <div class="home-article-content markdown-body">
+                    
+                        一、url匹配规则123location [=|~|~*|^~|@] /uri/ &#123;  ...&#125; 
+
+
+=：表示精确匹配后面的url
+~：表示正则匹配，但是区分大小写
+~*：正则匹配，不区分大小写
+^~：表示普通字符匹配，如果该选...
+                    
+                </div>
+
+                <div class="home-article-meta-info-container">
+    <div class="home-article-meta-info">
+        <span><i class="fas fa-history"></i>&nbsp;<span class="home-article-date" data-date="Fri Dec 17 2021 15:27:40 GMT+0000">2021-12-17</span></span>
         
             <span class="home-article-category"><i class="fas fa-folder"></i>&nbsp;
                 <ul>
@@ -237,7 +284,7 @@ http:/...
         
     </div>
 
-    <a href="/posts/23488/">Read more&nbsp;<i class="fas fa-angle-right"></i></a>
+    <a href="/posts/13357/">Read more&nbsp;<i class="fas fa-angle-right"></i></a>
 </div>
 
             </li>
@@ -247,27 +294,33 @@ http:/...
                 
 
                 <h3 class="home-article-title">
-                    <a href="/posts/34323/">
-                        在微服务中使用领域事件
+                    <a href="/posts/10118/">
+                        I/O模型与单服务器高性能架构
                     </a>
                 </h3>
 
                 <div class="home-article-content markdown-body">
                     
-                        稍微回想一下计算机硬件的工作原理我们便不难发现，整个计算机的工作过程其实就是一个对事件的处理过程。当你点击鼠标、敲击键盘或者插上U盘时，计算机便以中断的形式处理各种外部事件。在软件开发领域，事件驱动架构（Event Driven Architectu...
+                        一、前言高性能是每个程序员的追求，无论我们是做一个系统还是写一行代码，都希望能够达到高性能的效果，而高性能又是最复杂的一环，磁盘、操作系统、CPU、内存、缓存、网络、编程语言、架构等，每个都有可能影响系统达到高性能，一行不恰当的 debug 日志，就...
                     
                 </div>
 
                 <div class="home-article-meta-info-container">
     <div class="home-article-meta-info">
-        <span><i class="fas fa-history"></i>&nbsp;<span class="home-article-date" data-date="Tue Jul 05 2022 23:14:56 GMT+0000">2022-07-05</span></span>
+        <span><i class="fas fa-history"></i>&nbsp;<span class="home-article-date" data-date="Fri Dec 10 2021 21:01:41 GMT+0000">2021-12-10</span></span>
         
             <span class="home-article-category"><i class="fas fa-folder"></i>&nbsp;
                 <ul>
                     
                         <li>
                             
-                            <a href="/categories/%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/">领域驱动设计</a>&nbsp;
+                            <a href="/categories/Java/">Java</a>&nbsp;
+                        </li>
+                    
+                    
+                        <li>
+                            &gt; 
+                            <a href="/categories/Java/IO/">IO</a>&nbsp;
                         </li>
                     
                     
@@ -277,7 +330,7 @@ http:/...
         
     </div>
 
-    <a href="/posts/34323/">Read more&nbsp;<i class="fas fa-angle-right"></i></a>
+    <a href="/posts/10118/">Read more&nbsp;<i class="fas fa-angle-right"></i></a>
 </div>
 
             </li>
@@ -287,27 +340,29 @@ http:/...
                 
 
                 <h3 class="home-article-title">
-                    <a href="/posts/17671/">
-                        从“四色建模法”到“限界纸笔建模法”
+                    <a href="/posts/42351/">
+                        最大QPS推算
                     </a>
                 </h3>
 
                 <div class="home-article-content markdown-body">
                     
-                        对于领域专家、程序员和测试工程师来说，领域建模所构建的概念模型是撑起软件开发系统的骨架。领域建模的方法有很多种，ThoughtWorks的同事们经常使用经过徐昊改编的“四色建模法”[1]来进行建模。而本文所描述的“限界纸笔建模法”，在“四色建模法”的...
+                        一、RTRT = ThreadCPUTime + ThreadWaitTime
+RT（Response Time）即响应时间。
+可以理解为系统从输入到输出的时间间隔，系统是指一个网站或其他类型的软件应用，或者指某个设备，比如手机，手机界面也有响应时间...
                     
                 </div>
 
                 <div class="home-article-meta-info-container">
     <div class="home-article-meta-info">
-        <span><i class="fas fa-history"></i>&nbsp;<span class="home-article-date" data-date="Mon Jul 04 2022 22:59:55 GMT+0000">2022-07-04</span></span>
+        <span><i class="fas fa-history"></i>&nbsp;<span class="home-article-date" data-date="Thu Dec 09 2021 10:52:53 GMT+0000">2021-12-09</span></span>
         
             <span class="home-article-category"><i class="fas fa-folder"></i>&nbsp;
                 <ul>
                     
                         <li>
                             
-                            <a href="/categories/%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/">领域驱动设计</a>&nbsp;
+                            <a href="/categories/%E7%9F%A5%E8%AF%86%E5%BA%93/">知识库</a>&nbsp;
                         </li>
                     
                     
@@ -317,7 +372,7 @@ http:/...
         
     </div>
 
-    <a href="/posts/17671/">Read more&nbsp;<i class="fas fa-angle-right"></i></a>
+    <a href="/posts/42351/">Read more&nbsp;<i class="fas fa-angle-right"></i></a>
 </div>
 
             </li>
@@ -327,32 +382,29 @@ http:/...
                 
 
                 <h3 class="home-article-title">
-                    <a href="/posts/43572/">
-                        如何划分限界上下文
+                    <a href="/posts/53164/">
+                        代理详解
                     </a>
                 </h3>
 
                 <div class="home-article-content markdown-body">
                     
-                        一、聚合分组法和它的问题在事件风暴工作坊中，常用的划分限界上下文的方法是：
-
-对前一步（事件风暴）产生的聚合进行分组，通过业务的内聚性和关联度划分边界，结合限界上下文的定义进行判断，并给出上下文名称。
-[服务化设计阶段路径方案]
-
-我将其称之为“聚合...
+                        OSI七层网络模型
+TCP/IP 四层模型
+一、代理是什么代理（英语：Proxy）也称网络代理，是一种特殊的网络服务，允许一个网络终端（一般为客户端）通过这个服务与另一个网络终端（一般为服务器）进行非直接的连接。一些网关、路由器等网络设备具备网络代理...
                     
                 </div>
 
                 <div class="home-article-meta-info-container">
     <div class="home-article-meta-info">
-        <span><i class="fas fa-history"></i>&nbsp;<span class="home-article-date" data-date="Mon Jul 04 2022 22:49:40 GMT+0000">2022-07-04</span></span>
+        <span><i class="fas fa-history"></i>&nbsp;<span class="home-article-date" data-date="Wed Dec 08 2021 21:06:08 GMT+0000">2021-12-08</span></span>
         
             <span class="home-article-category"><i class="fas fa-folder"></i>&nbsp;
                 <ul>
                     
                         <li>
                             
-                            <a href="/categories/%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1/">领域驱动设计</a>&nbsp;
+                            <a href="/categories/%E7%9F%A5%E8%AF%86%E5%BA%93/">知识库</a>&nbsp;
                         </li>
                     
                     
@@ -362,7 +414,7 @@ http:/...
         
     </div>
 
-    <a href="/posts/43572/">Read more&nbsp;<i class="fas fa-angle-right"></i></a>
+    <a href="/posts/53164/">Read more&nbsp;<i class="fas fa-angle-right"></i></a>
 </div>
 
             </li>
@@ -372,22 +424,65 @@ http:/...
                 
 
                 <h3 class="home-article-title">
-                    <a href="/posts/30870/">
-                        Elasticsearch 详解
+                    <a href="/posts/22705/">
+                        Mac 安装 Minikube
                     </a>
                 </h3>
 
                 <div class="home-article-content markdown-body">
                     
-                        一、生活中的数据搜索引擎是对数据的检索，所以我们先从生活中的数据说起。
-我们生活中的数据总体分为两种：结构化数据 和 非结构化数据 。
-结构化数据 ：也称作行数据，是由二维表结构来逻辑表达和实现的数据，严格地遵循数据格式与长度规范，主要通过关系型数据...
+                        官方文档
+一、安装 kubectl1brew install kubectl
+
+二、安装 Minikube1.安装 minikube1brew install minikube
+
+2.查看 minikube 版本123jz@Bean-You ~ % ...
                     
                 </div>
 
                 <div class="home-article-meta-info-container">
     <div class="home-article-meta-info">
-        <span><i class="fas fa-history"></i>&nbsp;<span class="home-article-date" data-date="Sat Jul 02 2022 16:55:45 GMT+0000">2022-07-02</span></span>
+        <span><i class="fas fa-history"></i>&nbsp;<span class="home-article-date" data-date="Tue Dec 07 2021 21:50:37 GMT+0000">2021-12-07</span></span>
+        
+            <span class="home-article-category"><i class="fas fa-folder"></i>&nbsp;
+                <ul>
+                    
+                        <li>
+                            
+                            <a href="/categories/Kubernetes/">Kubernetes</a>&nbsp;
+                        </li>
+                    
+                    
+                </ul>
+            </span>
+        
+        
+    </div>
+
+    <a href="/posts/22705/">Read more&nbsp;<i class="fas fa-angle-right"></i></a>
+</div>
+
+            </li>
+        
+            <li class="home-article-item">
+
+                
+
+                <h3 class="home-article-title">
+                    <a href="/posts/46477/">
+                        Redis 高级客户端Lettuce详解
+                    </a>
+                </h3>
+
+                <div class="home-article-content markdown-body">
+                    
+                        前提Lettuce是一个Redis的Java驱动包，初识她的时候是使用RedisTemplate的时候遇到点问题Debug到底层的一些源码，发现spring-data-redis的驱动包在某个版本之后替换为Lettuce。Lettuce翻译为生菜，没...
+                    
+                </div>
+
+                <div class="home-article-meta-info-container">
+    <div class="home-article-meta-info">
+        <span><i class="fas fa-history"></i>&nbsp;<span class="home-article-date" data-date="Wed Dec 01 2021 22:12:35 GMT+0000">2021-12-01</span></span>
         
             <span class="home-article-category"><i class="fas fa-folder"></i>&nbsp;
                 <ul>
@@ -395,6 +490,496 @@ http:/...
                         <li>
                             
                             <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>&nbsp;
+                        </li>
+                    
+                    
+                        <li>
+                            &gt; 
+                            <a href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>&nbsp;
+                        </li>
+                    
+                    
+                </ul>
+            </span>
+        
+        
+    </div>
+
+    <a href="/posts/46477/">Read more&nbsp;<i class="fas fa-angle-right"></i></a>
+</div>
+
+            </li>
+        
+            <li class="home-article-item">
+
+                
+
+                <h3 class="home-article-title">
+                    <a href="/posts/11915/">
+                        漫谈 Kafka
+                    </a>
+                </h3>
+
+                <div class="home-article-content markdown-body">
+                    
+                        一、Rebalance机制Rebalance 描述的是 consumer group 中的 consumer 与 topic  下的 partition 重新匹配的过程。
+1.何时发生Rebalance
+consumer group 中消费者个数发生...
+                    
+                </div>
+
+                <div class="home-article-meta-info-container">
+    <div class="home-article-meta-info">
+        <span><i class="fas fa-history"></i>&nbsp;<span class="home-article-date" data-date="Thu Nov 25 2021 21:27:24 GMT+0000">2021-11-25</span></span>
+        
+            <span class="home-article-category"><i class="fas fa-folder"></i>&nbsp;
+                <ul>
+                    
+                        <li>
+                            
+                            <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>&nbsp;
+                        </li>
+                    
+                    
+                        <li>
+                            &gt; 
+                            <a href="/categories/%E8%BF%90%E7%BB%B4/Kafka/">Kafka</a>&nbsp;
+                        </li>
+                    
+                    
+                </ul>
+            </span>
+        
+        
+    </div>
+
+    <a href="/posts/11915/">Read more&nbsp;<i class="fas fa-angle-right"></i></a>
+</div>
+
+            </li>
+        
+            <li class="home-article-item">
+
+                
+
+                <h3 class="home-article-title">
+                    <a href="/posts/9873/">
+                        MySQL MVCC
+                    </a>
+                </h3>
+
+                <div class="home-article-content markdown-body">
+                    
+                        Mysql 有 读未提交（RU）、读已提交（RC）、可重复读（RR）、序列化，四种隔离级别，MVCC可以作用在 读已提交 和 可重复读 两种隔离级别上，同时在 可重复读 级别上解决了幻读。
+1.隐藏字段在每一行数据中，会有三个隐藏字段 db_row_...
+                    
+                </div>
+
+                <div class="home-article-meta-info-container">
+    <div class="home-article-meta-info">
+        <span><i class="fas fa-history"></i>&nbsp;<span class="home-article-date" data-date="Thu Nov 25 2021 15:59:25 GMT+0000">2021-11-25</span></span>
+        
+            <span class="home-article-category"><i class="fas fa-folder"></i>&nbsp;
+                <ul>
+                    
+                        <li>
+                            
+                            <a href="/categories/MySQL/">MySQL</a>&nbsp;
+                        </li>
+                    
+                    
+                </ul>
+            </span>
+        
+        
+    </div>
+
+    <a href="/posts/9873/">Read more&nbsp;<i class="fas fa-angle-right"></i></a>
+</div>
+
+            </li>
+        
+            <li class="home-article-item">
+
+                
+
+                <h3 class="home-article-title">
+                    <a href="/posts/15204/">
+                        分布式系统、拜占庭将军问题与区块链
+                    </a>
+                </h3>
+
+                <div class="home-article-content markdown-body">
+                    
+                        从技术的角度看，区块链是一种与分布式系统有关的技术。它与分布式系统的各个概念之间有什么联系？今天本文就借这个机会，跟大家一起讨论一下分布式系统的核心问题和概念。最后，我们将尽量沿着逻辑上前后一贯的思路，讨论一下区块链技术。
+分布式系统和一致性问题一个...
+                    
+                </div>
+
+                <div class="home-article-meta-info-container">
+    <div class="home-article-meta-info">
+        <span><i class="fas fa-history"></i>&nbsp;<span class="home-article-date" data-date="Mon Nov 22 2021 22:38:00 GMT+0000">2021-11-22</span></span>
+        
+            <span class="home-article-category"><i class="fas fa-folder"></i>&nbsp;
+                <ul>
+                    
+                        <li>
+                            
+                            <a href="/categories/%E5%88%86%E5%B8%83%E5%BC%8F/">分布式</a>&nbsp;
+                        </li>
+                    
+                    
+                </ul>
+            </span>
+        
+        
+    </div>
+
+    <a href="/posts/15204/">Read more&nbsp;<i class="fas fa-angle-right"></i></a>
+</div>
+
+            </li>
+        
+            <li class="home-article-item">
+
+                
+
+                <h3 class="home-article-title">
+                    <a href="/posts/54250/">
+                        浅析强弱一致性
+                    </a>
+                </h3>
+
+                <div class="home-article-content markdown-body">
+                    
+                        当前这篇文章至少比计划拖后了两个月。在上一篇文章《条分缕析分布式：到底什么是一致性？》中，我们仔细辨析了「一致性」相关的几个容易混淆的概念。而在本文中，我们会沿着逐步深入的思路，跟大家继续讨论顺序一致性、线性一致性、最终一致性等几个概念。
+为了避免产...
+                    
+                </div>
+
+                <div class="home-article-meta-info-container">
+    <div class="home-article-meta-info">
+        <span><i class="fas fa-history"></i>&nbsp;<span class="home-article-date" data-date="Mon Nov 22 2021 22:27:02 GMT+0000">2021-11-22</span></span>
+        
+            <span class="home-article-category"><i class="fas fa-folder"></i>&nbsp;
+                <ul>
+                    
+                        <li>
+                            
+                            <a href="/categories/%E5%88%86%E5%B8%83%E5%BC%8F/">分布式</a>&nbsp;
+                        </li>
+                    
+                    
+                </ul>
+            </span>
+        
+        
+    </div>
+
+    <a href="/posts/54250/">Read more&nbsp;<i class="fas fa-angle-right"></i></a>
+</div>
+
+            </li>
+        
+            <li class="home-article-item">
+
+                
+
+                <h3 class="home-article-title">
+                    <a href="/posts/27504/">
+                        到底什么是一致性？
+                    </a>
+                </h3>
+
+                <div class="home-article-content markdown-body">
+                    
+                        凡是做服务器开发的技术同学，估计都对分布式系统以及相关的理论感兴趣。而对于分布式理论，大家讨论的最多的恐怕就是「分布式一致性」问题了。然而，不管是学术界还是业界的发展历史上，对于「一致性」这个概念的理解，始终充满了混乱。
+如果你问一个技术同学，到底什...
+                    
+                </div>
+
+                <div class="home-article-meta-info-container">
+    <div class="home-article-meta-info">
+        <span><i class="fas fa-history"></i>&nbsp;<span class="home-article-date" data-date="Mon Nov 22 2021 22:26:36 GMT+0000">2021-11-22</span></span>
+        
+            <span class="home-article-category"><i class="fas fa-folder"></i>&nbsp;
+                <ul>
+                    
+                        <li>
+                            
+                            <a href="/categories/%E5%88%86%E5%B8%83%E5%BC%8F/">分布式</a>&nbsp;
+                        </li>
+                    
+                    
+                </ul>
+            </span>
+        
+        
+    </div>
+
+    <a href="/posts/27504/">Read more&nbsp;<i class="fas fa-angle-right"></i></a>
+</div>
+
+            </li>
+        
+            <li class="home-article-item">
+
+                
+
+                <h3 class="home-article-title">
+                    <a href="/posts/48330/">
+                        独立消息服务分布式事务
+                    </a>
+                </h3>
+
+                <div class="home-article-content markdown-body">
+                    
+                        一、什么是独立消息服务&emsp;&emsp;独立消息服务就是把本地消息表独立成一个数据库，并独立成一个服务。这样做就是为了高内聚低耦合。而且解决了重复利用性的问题。
+二、为什么要这么做&emsp;&emsp;本地消息表分布式事务于2008年eBay...
+                    
+                </div>
+
+                <div class="home-article-meta-info-container">
+    <div class="home-article-meta-info">
+        <span><i class="fas fa-history"></i>&nbsp;<span class="home-article-date" data-date="Sat Nov 20 2021 13:06:22 GMT+0000">2021-11-20</span></span>
+        
+            <span class="home-article-category"><i class="fas fa-folder"></i>&nbsp;
+                <ul>
+                    
+                        <li>
+                            
+                            <a href="/categories/%E5%88%86%E5%B8%83%E5%BC%8F/">分布式</a>&nbsp;
+                        </li>
+                    
+                    
+                </ul>
+            </span>
+        
+        
+    </div>
+
+    <a href="/posts/48330/">Read more&nbsp;<i class="fas fa-angle-right"></i></a>
+</div>
+
+            </li>
+        
+            <li class="home-article-item">
+
+                
+
+                <h3 class="home-article-title">
+                    <a href="/posts/7658/">
+                        Mac Navicat 15 无限试用
+                    </a>
+                </h3>
+
+                <div class="home-article-content markdown-body">
+                    
+                        1. 删除注册表12345cd ~/Library/Preferences# 查看注册表plutil -p com.prect.NavicatPremium15.plist# 删除属性plutil -remove 91F6C435D172C8163E...
+                    
+                </div>
+
+                <div class="home-article-meta-info-container">
+    <div class="home-article-meta-info">
+        <span><i class="fas fa-history"></i>&nbsp;<span class="home-article-date" data-date="Fri Nov 19 2021 11:10:20 GMT+0000">2021-11-19</span></span>
+        
+            <span class="home-article-category"><i class="fas fa-folder"></i>&nbsp;
+                <ul>
+                    
+                        <li>
+                            
+                            <a href="/categories/MySQL/">MySQL</a>&nbsp;
+                        </li>
+                    
+                    
+                </ul>
+            </span>
+        
+        
+    </div>
+
+    <a href="/posts/7658/">Read more&nbsp;<i class="fas fa-angle-right"></i></a>
+</div>
+
+            </li>
+        
+            <li class="home-article-item">
+
+                
+
+                <h3 class="home-article-title">
+                    <a href="/posts/15405/">
+                        Redis 持久化
+                    </a>
+                </h3>
+
+                <div class="home-article-content markdown-body">
+                    
+                        Redis支持两种方式的持久化：RDB快照和AOF。
+RDB持久化RDB快照用官方的话来说：RDB持久化方案是按照指定时间间隔对你的数据集生成的时间点快照（point-to-time snapshot）。它以紧缩的二进制文件保存Redis数据库某一时...
+                    
+                </div>
+
+                <div class="home-article-meta-info-container">
+    <div class="home-article-meta-info">
+        <span><i class="fas fa-history"></i>&nbsp;<span class="home-article-date" data-date="Mon Nov 15 2021 16:14:46 GMT+0000">2021-11-15</span></span>
+        
+            <span class="home-article-category"><i class="fas fa-folder"></i>&nbsp;
+                <ul>
+                    
+                        <li>
+                            
+                            <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>&nbsp;
+                        </li>
+                    
+                    
+                        <li>
+                            &gt; 
+                            <a href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>&nbsp;
+                        </li>
+                    
+                    
+                </ul>
+            </span>
+        
+        
+    </div>
+
+    <a href="/posts/15405/">Read more&nbsp;<i class="fas fa-angle-right"></i></a>
+</div>
+
+            </li>
+        
+            <li class="home-article-item">
+
+                
+
+                <h3 class="home-article-title">
+                    <a href="/posts/44045/">
+                        Redis 跳表
+                    </a>
+                </h3>
+
+                <div class="home-article-content markdown-body">
+                    
+                        理解跳表，从单链表开始说起下图是一个简单的有序单链表，单链表的特性就是每个元素存放下一个元素的引用。即：通过第一个元素可以找到第二个元素，通过第二个元素可以找到第三个元素，依次类推，直到找到最后一个元素。
+
+现在我们有个场景，想快速找到上图链表中的 ...
+                    
+                </div>
+
+                <div class="home-article-meta-info-container">
+    <div class="home-article-meta-info">
+        <span><i class="fas fa-history"></i>&nbsp;<span class="home-article-date" data-date="Mon Nov 15 2021 14:20:38 GMT+0000">2021-11-15</span></span>
+        
+            <span class="home-article-category"><i class="fas fa-folder"></i>&nbsp;
+                <ul>
+                    
+                        <li>
+                            
+                            <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>&nbsp;
+                        </li>
+                    
+                    
+                        <li>
+                            &gt; 
+                            <a href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>&nbsp;
+                        </li>
+                    
+                    
+                </ul>
+            </span>
+        
+        
+    </div>
+
+    <a href="/posts/44045/">Read more&nbsp;<i class="fas fa-angle-right"></i></a>
+</div>
+
+            </li>
+        
+            <li class="home-article-item">
+
+                
+
+                <h3 class="home-article-title">
+                    <a href="/posts/30991/">
+                        Redis 压缩列表ziplist
+                    </a>
+                </h3>
+
+                <div class="home-article-content markdown-body">
+                    
+                        1. Ziplist 结构
+zlbytes无符号 4 字节整数，保存 ziplist 内存大小。
+通过 zlbytes 可以直接对 ziplist 的内存大小进行调整，无需遍历整个列表。
+zltail压缩列表最后一个 entry 距离起始地址的偏移量...
+                    
+                </div>
+
+                <div class="home-article-meta-info-container">
+    <div class="home-article-meta-info">
+        <span><i class="fas fa-history"></i>&nbsp;<span class="home-article-date" data-date="Sun Nov 14 2021 22:35:31 GMT+0000">2021-11-14</span></span>
+        
+            <span class="home-article-category"><i class="fas fa-folder"></i>&nbsp;
+                <ul>
+                    
+                        <li>
+                            
+                            <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>&nbsp;
+                        </li>
+                    
+                    
+                        <li>
+                            &gt; 
+                            <a href="/categories/%E8%BF%90%E7%BB%B4/Redis/">Redis</a>&nbsp;
+                        </li>
+                    
+                    
+                </ul>
+            </span>
+        
+        
+    </div>
+
+    <a href="/posts/30991/">Read more&nbsp;<i class="fas fa-angle-right"></i></a>
+</div>
+
+            </li>
+        
+            <li class="home-article-item">
+
+                
+
+                <h3 class="home-article-title">
+                    <a href="/posts/1904/">
+                        Java 内存模型
+                    </a>
+                </h3>
+
+                <div class="home-article-content markdown-body">
+                    
+                        《Java虚拟机规范》中曾试图定义一种 “Java内存模型”（Java Memory Model，JMM）来 屏蔽各种硬件和操作系统的内存访问差异，以实现让Java程序在各种平台下都能达到一致的内存访问效果。
+定义Java内存模型并非一件容易的事情，...
+                    
+                </div>
+
+                <div class="home-article-meta-info-container">
+    <div class="home-article-meta-info">
+        <span><i class="fas fa-history"></i>&nbsp;<span class="home-article-date" data-date="Sat Nov 13 2021 15:13:50 GMT+0000">2021-11-13</span></span>
+        
+            <span class="home-article-category"><i class="fas fa-folder"></i>&nbsp;
+                <ul>
+                    
+                        <li>
+                            
+                            <a href="/categories/Java/">Java</a>&nbsp;
+                        </li>
+                    
+                    
+                        <li>
+                            &gt; 
+                            <a href="/categories/Java/JVM/">JVM</a>&nbsp;
                         </li>
                     
                     
@@ -408,7 +993,7 @@ http:/...
                     
                         <li>
                             
-                            <a href="/tags/Elasticsearch/">Elasticsearch</a>&nbsp;
+                            <a href="/tags/%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3JVM%E8%99%9A%E6%8B%9F%E6%9C%BA%EF%BC%88%E7%AC%AC%E4%B8%89%E7%89%88%EF%BC%89/">深入理解JVM虚拟机（第三版）</a>&nbsp;
                         </li>
                     
                 </ul>
@@ -416,7 +1001,7 @@ http:/...
         
     </div>
 
-    <a href="/posts/30870/">Read more&nbsp;<i class="fas fa-angle-right"></i></a>
+    <a href="/posts/1904/">Read more&nbsp;<i class="fas fa-angle-right"></i></a>
 </div>
 
             </li>
@@ -426,27 +1011,27 @@ http:/...
                 
 
                 <h3 class="home-article-title">
-                    <a href="/posts/55464/">
-                        RoaringBitmap
+                    <a href="/posts/53751/">
+                        ReentrantLock 实现双线程顺序打印1-100
                     </a>
                 </h3>
 
                 <div class="home-article-content markdown-body">
                     
-                        一、依赖12345&lt;dependency&gt;    &lt;groupId&gt;org.roaringbitmap&lt;/groupId&gt;    &lt;artifactId&gt;RoaringBitmap&lt;/artifa...
+                        <p>使用 ReentrantLock 实现双线程顺序打印1-100</p>
                     
                 </div>
 
                 <div class="home-article-meta-info-container">
     <div class="home-article-meta-info">
-        <span><i class="fas fa-history"></i>&nbsp;<span class="home-article-date" data-date="Sat Jul 02 2022 14:32:00 GMT+0000">2022-07-02</span></span>
+        <span><i class="fas fa-history"></i>&nbsp;<span class="home-article-date" data-date="Fri Nov 12 2021 10:05:18 GMT+0000">2021-11-12</span></span>
         
             <span class="home-article-category"><i class="fas fa-folder"></i>&nbsp;
                 <ul>
                     
                         <li>
                             
-                            <a href="/categories/%E5%AE%9E%E7%94%A8%E7%B1%BB%E5%BA%93/">实用类库</a>&nbsp;
+                            <a href="/categories/Java/">Java</a>&nbsp;
                         </li>
                     
                     
@@ -456,148 +1041,7 @@ http:/...
         
     </div>
 
-    <a href="/posts/55464/">Read more&nbsp;<i class="fas fa-angle-right"></i></a>
-</div>
-
-            </li>
-        
-            <li class="home-article-item">
-
-                
-
-                <h3 class="home-article-title">
-                    <a href="/posts/19720/">
-                        K8S 部署代理访问内网服务
-                    </a>
-                </h3>
-
-                <div class="home-article-content markdown-body">
-                    
-                        Github
-Dockerhub
-一、Dockerfile123456789101112131415161718192021222324FROM alpine:3.9MAINTAINER David Salgado &lt;david.salgado...
-                    
-                </div>
-
-                <div class="home-article-meta-info-container">
-    <div class="home-article-meta-info">
-        <span><i class="fas fa-history"></i>&nbsp;<span class="home-article-date" data-date="Sun Jun 12 2022 20:32:35 GMT+0000">2022-06-12</span></span>
-        
-            <span class="home-article-category"><i class="fas fa-folder"></i>&nbsp;
-                <ul>
-                    
-                        <li>
-                            
-                            <a href="/categories/Kubernetes/">Kubernetes</a>&nbsp;
-                        </li>
-                    
-                    
-                </ul>
-            </span>
-        
-        
-    </div>
-
-    <a href="/posts/19720/">Read more&nbsp;<i class="fas fa-angle-right"></i></a>
-</div>
-
-            </li>
-        
-            <li class="home-article-item">
-
-                
-
-                <h3 class="home-article-title">
-                    <a href="/posts/39629/">
-                        GitOps flux cd
-                    </a>
-                </h3>
-
-                <div class="home-article-content markdown-body">
-                    
-                        官方仓库
-官方安装文档
-官方文档
-一、安装flux使用 Homebrew 在 Mac 上安装
-1brew install fluxcd/tap/flux
-
-检查是否具备运行 Flux 所需的一切：
-1flux check --pre
-
-输出类似于：
-...
-                    
-                </div>
-
-                <div class="home-article-meta-info-container">
-    <div class="home-article-meta-info">
-        <span><i class="fas fa-history"></i>&nbsp;<span class="home-article-date" data-date="Sat Jun 11 2022 22:49:36 GMT+0000">2022-06-11</span></span>
-        
-            <span class="home-article-category"><i class="fas fa-folder"></i>&nbsp;
-                <ul>
-                    
-                        <li>
-                            
-                            <a href="/categories/Kubernetes/">Kubernetes</a>&nbsp;
-                        </li>
-                    
-                    
-                </ul>
-            </span>
-        
-        
-    </div>
-
-    <a href="/posts/39629/">Read more&nbsp;<i class="fas fa-angle-right"></i></a>
-</div>
-
-            </li>
-        
-            <li class="home-article-item">
-
-                
-
-                <h3 class="home-article-title">
-                    <a href="/posts/37051/">
-                        tcpdump 命令详解
-                    </a>
-                </h3>
-
-                <div class="home-article-content markdown-body">
-                    
-                        在讲解之前，有两点需要声明：
-
-第三节到第六节里的 tcpdump 命令示例，只为了说明参数的使用，并不一定就能抓到包，如果要精准抓到你所需要的包，需要配合第五节的逻辑逻辑运算符进行组合搭配。
-不同 Linux 发行版下、不同版本的 tcpdump ...
-                    
-                </div>
-
-                <div class="home-article-meta-info-container">
-    <div class="home-article-meta-info">
-        <span><i class="fas fa-history"></i>&nbsp;<span class="home-article-date" data-date="Wed Jun 08 2022 21:59:15 GMT+0000">2022-06-08</span></span>
-        
-            <span class="home-article-category"><i class="fas fa-folder"></i>&nbsp;
-                <ul>
-                    
-                        <li>
-                            
-                            <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>&nbsp;
-                        </li>
-                    
-                    
-                        <li>
-                            &gt; 
-                            <a href="/categories/%E8%BF%90%E7%BB%B4/Linux/">Linux</a>&nbsp;
-                        </li>
-                    
-                    
-                </ul>
-            </span>
-        
-        
-    </div>
-
-    <a href="/posts/37051/">Read more&nbsp;<i class="fas fa-angle-right"></i></a>
+    <a href="/posts/53751/">Read more&nbsp;<i class="fas fa-angle-right"></i></a>
 </div>
 
             </li>
