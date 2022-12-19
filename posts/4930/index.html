@@ -9,7 +9,7 @@
     
     <title>
         
-            MySQL MVCC |
+            127.0.0.1和0.0.0.0地址的区别 |
         
         Bean You
     </title>
@@ -150,7 +150,7 @@
     <div class="article-content-container">
 
         <div class="article-title">
-            <span class="title-hover-animation">MySQL MVCC</span>
+            <span class="title-hover-animation">127.0.0.1和0.0.0.0地址的区别</span>
         </div>
 
         
@@ -168,7 +168,7 @@
                     <div class="meta-info">
                         <div class="article-meta-info">
     <span class="article-date article-meta-item">
-        <i class="fas fa-edit"></i>&nbsp;2021-11-25 15:59:25
+        <i class="fas fa-edit"></i>&nbsp;2022-08-20 20:52:40
     </span>
     
         <span class="article-categories article-meta-item">
@@ -176,7 +176,11 @@
             <ul>
                 
                     <li>
-                        <a href="/categories/MySQL/">MySQL</a>&nbsp;
+                        <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>&nbsp;
+                    </li>
+                
+                    <li>
+                        &gt; <a href="/categories/%E8%BF%90%E7%BB%B4/Linux/">Linux</a>&nbsp;
                     </li>
                 
             </ul>
@@ -200,35 +204,34 @@
         
 
         <div class="article-content markdown-body">
-            <p>Mysql 有 <strong>读未提交（RU）</strong>、<strong>读已提交（RC）</strong>、<strong>可重复读（RR）</strong>、<strong>序列化</strong>，四种隔离级别，MVCC可以作用在 <strong>读已提交</strong> 和 <strong>可重复读</strong> 两种隔离级别上，同时在 <strong>可重复读</strong> 级别上解决了幻读。</p>
-<h2 id="1-隐藏字段"><a href="#1-隐藏字段" class="headerlink" title="1.隐藏字段"></a>1.隐藏字段</h2><p>在每一行数据中，会有三个隐藏字段 <code>db_row_id</code>、<code>data_trx_id</code>、<code>data_roll_ptr</code>。</p>
-<ul>
-<li><p><code>db_row_id</code>：在没有设置主键，没有唯一索引的情况下作为隐藏行号，实现索引的；</p>
-</li>
-<li><p><code>data_trx_id</code>：最近一次对该行更新的事务的id；</p>
-</li>
-<li><p><code>data_roll_ptr</code>：回滚指针，指向其上一个版本的 <strong>undo log</strong>。</p>
-</li>
-</ul>
-<p>当对一条数据更新后，会将其原本的数据生成一条 <strong>undo log</strong>，然后将 <code>DATA_ROLL_PTR</code> 指向该 <strong>undo log</strong> ，形成一条版本链，方便回滚和<strong>MVCC</strong> 查找可访问的数据版本。</p>
-<h2 id="2-ReadView"><a href="#2-ReadView" class="headerlink" title="2.ReadView"></a>2.ReadView</h2><p>在 <strong>ReadView</strong> 中有以下四个主要属性：</p>
-<ul>
-<li><code>mIds</code>：生成 <strong>ReadView</strong> 时，所有正在活跃（未提交的）的事务id；</li>
-<li><code>min_trx_id</code>：<code>mIds</code> 中最小的事务id；</li>
-<li><code>max_trx_id</code>：生成 <strong>ReadView</strong> 时，最大的事务id，注意 <strong>不是正在活跃的最大事务id（或者说mIds中的最大id</strong>）。因为先提交的事务不一定先结束，可能当前最大事务id为100，而 <code>mIds</code> 中最大的事务id是98，也就是说id为98的事务还未提交，而id为99和100的事务已经提交了；</li>
-<li><code>creator_trx_id</code>：创建该 <strong>ReadView</strong> 的事务id。</li>
-</ul>
-<p><strong>举个栗子：</strong></p>
-<p>如果 <code>mIds = &#123;5, 6, 7, 11, 13&#125;</code>，那么 <code>min_trx_id = 5</code>，<code>max_trx_id &gt; 13</code> 或<code> max_trx_id = 13</code>。</p>
-<p>在 <strong>RC</strong> 级别，MVCC 会在每次读时生成一个新的 <strong>ReadView</strong>；</p>
-<p>在 <strong>RR</strong> 级别，MVCC 只会在第一次读时生成 <strong>ReadView</strong>，当前事务之后都使用这同一个 <strong>ReadView</strong>。</p>
-<h2 id="3-访问规则"><a href="#3-访问规则" class="headerlink" title="3.访问规则"></a>3.访问规则</h2><ol>
-<li>如果 <code>data_trx_id</code> 小于 <code>min_trx_id</code> ，说明生成当前版本的事务在生成 <strong>ReadView</strong> 之前就已经提交了，那么当前事务可以访问该版本数据。</li>
-<li>如果 <code>data_trx_id</code> 大于 <code>max_trx_id</code> 说明当前版本的数据是在生成 <strong>ReadView</strong> 之后才生成的，所以当前事务不可访问该版本数据。</li>
-<li>如果 <code>data_trx_id</code> 在 <code>mIds</code> 中，即大于等于 <code>min_trx_id</code> 且小于等于 <code>mIds</code> 中的最大事务id（注意不是 <code>max_trx_id</code>），说明创建该 <strong>ReadView</strong> 时，生成该版本数据的事务还未提交，所以不能访问。</li>
-<li>如果 <code>data_trx_id</code> 大于  <code>mIds</code> 中的最大事务id且小于等于 <code>max_trx_id</code> ，说明创建该 <strong>ReadView</strong> 时，生成该版本数据的事务已经提交，所以可以访问。</li>
+            <h2 id="一、共同点"><a href="#一、共同点" class="headerlink" title="一、共同点"></a>一、共同点</h2><ol>
+<li>都属于特殊地址。</li>
+<li>都属于A类地址。</li>
+<li>都是IPV4地址。</li>
 </ol>
-<p>当发现当前版本数据无法访问时，可以通过 <code>data_roll_ptr</code> 对 <strong>undo log</strong> 进行遍历，根据以上规则找到可以访问的数据版本。</p>
+<p>接下来我们分别看下这两个地址：</p>
+<h2 id="二、0-0-0-0"><a href="#二、0-0-0-0" class="headerlink" title="二、0.0.0.0"></a>二、0.0.0.0</h2><p>首先，<code>0.0.0.0</code>是不能被<code>ping</code>通的。0.0.0.0称为“unspecified”，即未指定（即无效的，无意义的）地址。从功能上看，一般用于某些程序/网络协议中不便使用具体ip的特殊情况（说白了就是一个用于某些比较坑的情况的“占位符”），比如DHCP客户端还未获取到ip的时候规定使用0.0.0.0作“源地址”，或者在服务器中，<code>0.0.0.0</code>并不是一个真实的的<strong>IP地址</strong>，它表示本机中所有的<strong>IPV4地址</strong>。服务器不指定在哪个网卡上监听时，也使用0.0.0.0,这个时候监听本机中所有<strong>IP</strong>的端口。</p>
+<h4 id="用途"><a href="#用途" class="headerlink" title="用途"></a>用途</h4><ul>
+<li>用作服务端，表示本机上的任意IPV4地址。</li>
+</ul>
+<h2 id="三、127-0-0-1"><a href="#三、127-0-0-1" class="headerlink" title="三、127.0.0.1"></a>三、127.0.0.1</h2><p>首先我们要先知道一个概念，凡是以<code>127</code>开头的<strong>IP地址</strong>，都是<strong>回环地址（Loop back address）</strong>，其所在的回环接口一般被理解为虚拟网卡，并不是真正的路由器接口。</p>
+<p>所谓的回环地址，通俗的讲，就是我们在主机上发送给<code>127</code>开头的<strong>IP地址</strong>的数据包会被发送的主机自己接收，根本传不出去，外部设备也无法通过回环地址访问到本机。</p>
+<p>最后127.0.0.1属于{127,}集合中的一个，而所有网络号为127的地址都被称之为回环地址，所以回环地址！=127.0.0.1,它们是包含关系，即回环地址包含127.0.0.1。</p>
+<h4 id="用途-1"><a href="#用途-1" class="headerlink" title="用途"></a>用途</h4><ul>
+<li>回环测试,通过使用ping 127.0.0.1 测试某台机器上的网络设备，操作系统或者TCP/IP实现是否工作正常。</li>
+<li>DDos攻击防御：网站收到DDos攻击之后，将域名A记录到127.0.0.1，即让攻击者自己攻击自己。</li>
+<li>大部分Web容器测试的时候绑定的本机地址。</li>
+</ul>
+<h2 id="四、localhost"><a href="#四、localhost" class="headerlink" title="四、localhost"></a>四、localhost</h2><p>相比127.0.0.1，localhost具有更多的意义。localhost是个域名，而不是一个ip地址。之所以我们经常把localhost与127.0.0.1认为是同一个是因为我们使用的大多数电脑上都讲localhost指向了127.0.0.1这个地址。</p>
+<p>但是localhost的意义并不局限于127.0.0.1。</p>
+<p>localhost是一个域名，用于指代this computer或者this host,可以用它来获取运行在本机上的网络服务。</p>
+<p>在大多数系统中，localhost被指向了IPV4的127.0.0.1和IPV6的::1。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span>    localhost</span><br><span class="line"></span><br><span class="line">::<span class="number">1</span>          localhost</span><br></pre></td></tr></table></figure>
+
+<p>所以，在使用的时候要注意确认IPV4还是IPV6</p>
+<h2 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h2><p>127.0.0.1 是一个环回地址。并不表示“本机”。0.0.0.0才是真正表示“本网络中的本机”。</p>
+<p>在实际应用中，一般我们在服务端绑定端口的时候可以选择绑定到0.0.0.0，这样我的服务访问方就可以通过我的多个ip地址访问我的服务。</p>
+<p>比如我有一台服务器，一个外放地址A,一个内网地址B，如果我绑定的端口指定了0.0.0.0，那么通过内网地址或外网地址都可以访问我的应用。但是如果我之绑定了内网地址，那么通过外网地址就不能访问。 所以如果绑定0.0.0.0,也有一定安全隐患，对于只需要内网访问的服务，可以只绑定内网地址。</p>
 
         </div>
 
@@ -240,13 +243,13 @@
                     <div class="article-prev">
                         <a class="prev"
                            rel="prev"
-                           href="/posts/11915/"
+                           href="/posts/31066/"
                         >
                             <span class="left arrow-icon flex-center">
                               <i class="fas fa-chevron-left"></i>
                             </span>
                             <span class="title flex-center">
-                                <span class="post-nav-title-item">漫谈 Kafka</span>
+                                <span class="post-nav-title-item">NUMA 架构相关命令</span>
                                 <span class="post-nav-item">Prev posts</span>
                             </span>
                         </a>
@@ -256,10 +259,10 @@
                     <div class="article-next">
                         <a class="next"
                            rel="next"
-                           href="/posts/15204/"
+                           href="/posts/29679/"
                         >
                             <span class="title flex-center">
-                                <span class="post-nav-title-item">分布式系统、拜占庭将军问题与区块链</span>
+                                <span class="post-nav-title-item">NUMA 架构</span>
                                 <span class="post-nav-item">Next posts</span>
                             </span>
                             <span class="right arrow-icon flex-center">
@@ -385,7 +388,7 @@
         <aside class="page-aside">
             <div class="post-toc-wrap">
     <div class="post-toc">
-        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E9%9A%90%E8%97%8F%E5%AD%97%E6%AE%B5"><span class="nav-text">1.隐藏字段</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-ReadView"><span class="nav-text">2.ReadView</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E8%AE%BF%E9%97%AE%E8%A7%84%E5%88%99"><span class="nav-text">3.访问规则</span></a></li></ol>
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%85%B1%E5%90%8C%E7%82%B9"><span class="nav-text">一、共同点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%810-0-0-0"><span class="nav-text">二、0.0.0.0</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%94%A8%E9%80%94"><span class="nav-text">用途</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81127-0-0-1"><span class="nav-text">三、127.0.0.1</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%94%A8%E9%80%94-1"><span class="nav-text">用途</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81localhost"><span class="nav-text">四、localhost</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-text">五、总结</span></a></li></ol>
     </div>
 </div>
         </aside>
