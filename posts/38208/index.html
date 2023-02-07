@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="JD">
+    
+    <title>
+        
+            Nginx 配置限流 |
+        
+        Bean You
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <link rel="shortcut icon" href="/images/favicon.png">
+    
+<link rel="stylesheet" href="/css/font-awesome.min.css">
+
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"jzcupid.cn","root":"/","language":"en","path":"search.json"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":false,"expand_all":false,"init_open":false},"style":{"primary_color":"#0066CC","avatar":"/images/avatar.svg","favicon":"/images/favicon.png","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":true,"scale":true},"first_screen":{"enable":true,"background_img":"/images/bg.svg","description":"莫听穿林打叶声，何妨吟啸且徐行。"},"scroll":{"progress_bar":{"enable":false},"percent":{"enable":true}}},"local_search":{"enable":true,"trigger":"auto","preload":true},"code_copy":{"enable":true,"style":"default"},"pjax":{"enable":false},"lazyload":{"enable":false},"version":"3.4.3"};
+    KEEP.language_ago = {"second":"%s seconds ago","minute":"%s minutes ago","hour":"%s hours ago","day":"%s days ago","week":"%s weeks ago","month":"%s months ago","year":"%s years ago"};
+  </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                Bean You
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                首页
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/categories"
+                            >
+                                分类
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >
+                                标签
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                归档
+                            </a>
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="fas fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">首页</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/categories">分类</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags">标签</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">归档</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">Nginx 配置限流</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="/images/avatar.svg">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">JD</span>
+                        
+                            <span class="author-label">Lv6</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2023-02-07 13:27:20
+    </span>
+    
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>&nbsp;
+                    </li>
+                
+                    <li>
+                        &gt; <a href="/categories/%E8%BF%90%E7%BB%B4/Nginx/">Nginx</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+    
+
+    
+    
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fas fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <p><a class="link"   target="_blank" rel="noopener" href="https://nginx.org/en/docs/http/ngx_http_limit_req_module.html#limit_req" >限流官方文档<i class="fas fa-external-link-alt"></i></a></p>
+<h2 id="一、控制速率"><a href="#一、控制速率" class="headerlink" title="一、控制速率"></a>一、控制速率</h2><h4 id="正常限流"><a href="#正常限流" class="headerlink" title="正常限流"></a>正常限流</h4><p><a class="link"   target="_blank" rel="noopener" href="http://nginx.org/en/docs/http/ngx_http_limit_req_module.html" >ngx_http_limit_req_module<i class="fas fa-external-link-alt"></i></a> 模块提供限制请求处理速率能力，使用了漏桶算法(leaky bucket)。下面例子使用 nginx limit_req_zone 和 limit_req 两个指令，限制单个IP的请求处理速率。</p>
+<p>在 <strong>nginx.conf</strong> http 中添加限流配置：</p>
+<blockquote>
+<p>格式：limit_req_zone key zone rate</p>
+</blockquote>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">http &#123;</span><br><span class="line">    limit_req_zone $binary_remote_addr zone=myRateLimit:10m rate=10r/s;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>配置 <strong>server</strong>，使用 <strong>limit_req</strong> 指令应用限流。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    location / &#123;</span><br><span class="line">        limit_req zone=myRateLimit;</span><br><span class="line">        proxy_pass http://my_upstream;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><strong>key</strong> ：定义限流对象，<strong>binary_remote_addr</strong> 是一种key，表示基于 <strong>remote_addr(客户端IP)</strong> 来做限流，<strong>binary_</strong> 的目的是压缩内存占用量。</li>
+<li><strong>zone</strong>：定义共享内存区来存储访问信息， <strong>myRateLimit:10m</strong> 表示一个大小为10M，名字为myRateLimit的内存区域。1M能存储16000 IP地址的访问信息，10M可以存储16W IP地址访问信息。</li>
+<li><strong>rate</strong> 用于设置最大访问速率，<strong>rate=10r/s</strong> 表示每秒最多处理10个请求。Nginx 实际上以毫秒为粒度来跟踪请求信息，因此 10r/s 实际上是限制：<strong>每100毫秒处理一个请求</strong>。这意味着，自上一个请求处理完后，若后续100毫秒内又有请求到达，将拒绝处理该请求。</li>
+</ul>
+<h4 id="处理突发流量"><a href="#处理突发流量" class="headerlink" title="处理突发流量"></a>处理突发流量</h4><p>上面例子限制 10r/s，如果有时正常流量突然增大，超出的请求将被拒绝，无法处理突发流量，可以结合 <strong>burst</strong> 参数使用来解决该问题。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    location / &#123;</span><br><span class="line">        limit_req zone=myRateLimit burst=20;</span><br><span class="line">        proxy_pass http://my_upstream;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>burst</strong> 译为突发、爆发，表示在超过设定的处理速率后能额外处理的请求数。当 <strong>rate=10r/s</strong> 时，将1s拆成10份，即每100ms可处理1个请求。</p>
+<p>此处，<strong>burst=20</strong> ，若同时有21个请求到达，Nginx 会处理第一个请求，剩余20个请求将放入队列，然后每隔100ms从队列中获取一个请求进行处理。若请求数大于21，将拒绝处理多余的请求，直接返回503.</p>
+<p>不过，单独使用 <strong>burst</strong> 参数并不实用。假设 <strong>burst=50</strong> ，rate依然为10r/s，排队中的50个请求虽然每100ms会处理一个，但第50个请求却需要等待 50 * 100ms即 5s，这么长的处理时间自然难以接受。</p>
+<p>因此，<strong>burst</strong> 往往结合 <strong>nodelay</strong> 一起使用。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">    location / &#123;</span><br><span class="line">        limit_req zone=myRateLimit burst=20 nodelay;</span><br><span class="line">        proxy_pass http://my_upstream;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>nodelay</strong> 针对的是 burst 参数，<strong>burst=20 nodelay</strong> 表示这20个请求立马处理，不能延迟，相当于特事特办。不过，即使这20个突发请求立马处理结束，后续来了请求也不会立马处理。<strong>burst=20</strong> 相当于缓存队列中占了20个坑，即使请求被处理了，这20个位置这只能按 100ms一个来释放。</p>
+<p>这就达到了速率稳定，但突然流量也能正常处理的效果。</p>
+<h2 id="二、限制连接数"><a href="#二、限制连接数" class="headerlink" title="二、限制连接数"></a>二、限制连接数</h2><p><a class="link"   target="_blank" rel="noopener" href="http://nginx.org/en/docs/http/ngx_http_limit_conn_module.html" >ngx_http_limit_conn_module<i class="fas fa-external-link-alt"></i></a> 提供了限制连接数的能力，利用 <strong>limit_conn_zone</strong> 和 <strong>limit_conn</strong> 两个指令即可。下面是 Nginx 官方例子：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">limit_conn_zone $binary_remote_addr zone=perip:10m;</span><br><span class="line">limit_conn_zone $server_name zone=perserver:10m;</span><br><span class="line">server &#123;</span><br><span class="line">    ...</span><br><span class="line">    limit_conn perip 10;</span><br><span class="line">    limit_conn perserver 100;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>limit_conn perip 10</strong> 作用的key 是 <strong>$binary_remote_addr</strong>，表示限制单个IP同时最多能持有10个连接。</p>
+<p><strong>limit_conn perserver 100</strong> 作用的key是 <strong>$server_name</strong>，表示虚拟主机(server) 同时能处理并发连接的总数。</p>
+<p>需要注意的是：只有当 <strong>request header</strong> 被后端server处理后，这个连接才进行计数。</p>
+<h3 id="设置白名单"><a href="#设置白名单" class="headerlink" title="设置白名单"></a>设置白名单</h3><p>限流主要针对外部访问，内网访问相对安全，可以不做限流，通过设置白名单即可。利用 Nginx <a class="link"   target="_blank" rel="noopener" href="http://nginx.org/en/docs/http/ngx_http_geo_module.html" >ngx_http_geo_module<i class="fas fa-external-link-alt"></i></a> 和 <a class="link"   target="_blank" rel="noopener" href="http://nginx.org/en/docs/http/ngx_http_map_module.html" >ngx_http_map_module<i class="fas fa-external-link-alt"></i></a> 两个工具模块即可搞定。</p>
+<p>在 <strong>nginx.conf</strong> 的 <strong>http</strong> 部分中配置白名单：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">geo $limit &#123;</span><br><span class="line">    default 1;</span><br><span class="line">    10.0.0.0/8 0;</span><br><span class="line">    192.168.0.0/24 0;</span><br><span class="line">    172.20.0.35 0;</span><br><span class="line">&#125;</span><br><span class="line">map $limit $limit_key &#123;</span><br><span class="line">    0 &quot;&quot;;</span><br><span class="line">    1 $binary_remote_addr;</span><br><span class="line">&#125;</span><br><span class="line">limit_req_zone $limit_key zone=myRateLimit:10m rate=10r/s;</span><br></pre></td></tr></table></figure>
+
+<p><strong>geo</strong> 对于白名单(子网或IP都可以) 将返回0，其他IP将返回1。</p>
+<p><strong>map</strong> 将 <strong>$limit</strong> 转换为 <strong>$limit_key</strong>，如果是 <strong>$limit</strong> 是0(白名单)，则返回空字符串；如果是1，则返回客户端实际IP。</p>
+<p><strong>limit_req_zone</strong> 限流的key不再使用 <strong>$binary_remote_addr</strong>，而是 <strong>$limit_key</strong> 来动态获取值。如果是白名单，limit_req_zone 的限流key则为空字符串，<strong>将不会限流</strong>；若不是白名单，将会对客户端真实IP进行限流。</p>
+<h2 id="三、拓展阅读"><a href="#三、拓展阅读" class="headerlink" title="三、拓展阅读"></a>三、拓展阅读</h2><p>除限流外，<a class="link"   target="_blank" rel="noopener" href="http://nginx.org/en/docs/http/ngx_http_core_module.html#limit_rate_after" >ngx_http_core_module<i class="fas fa-external-link-alt"></i></a> 还提供了限制数据传输速度的能力(即常说的下载速度)。</p>
+<p>例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">location /flv/ &#123;</span><br><span class="line">    flv;</span><br><span class="line">    limit_rate_after 20m;</span><br><span class="line">    limit_rate       100k;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个限制是针对每个请求的，表示客户端下载前20M时不限速，后续限制100kb/s。</p>
+
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/posts/1487/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">A记录和CNAME记录的区别</span>
+                                <span class="post-nav-item">Next posts</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2021</span>
+              -
+            
+            2023&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">JD</a>
+        </div>
+        
+            <script async  src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <div class="website-count info-item">
+                
+                    <span id="busuanzi_container_site_uv">
+                        Visitor Count&nbsp;<span id="busuanzi_value_site_uv"></span>&ensp;
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv">
+                        Totalview&nbsp;<span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="theme-info info-item">
+            Powered by <a target="_blank" href="https://hexo.io">Hexo</a>&nbsp;|&nbsp;Theme&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.3</a>
+        </div>
+        
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="arrow-up fas fa-arrow-up"></i>
+                <span class="percent"></span>
+            </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E6%8E%A7%E5%88%B6%E9%80%9F%E7%8E%87"><span class="nav-text">一、控制速率</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%AD%A3%E5%B8%B8%E9%99%90%E6%B5%81"><span class="nav-text">正常限流</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A4%84%E7%90%86%E7%AA%81%E5%8F%91%E6%B5%81%E9%87%8F"><span class="nav-text">处理突发流量</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E9%99%90%E5%88%B6%E8%BF%9E%E6%8E%A5%E6%95%B0"><span class="nav-text">二、限制连接数</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AE%E7%99%BD%E5%90%8D%E5%8D%95"><span class="nav-text">设置白名单</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E6%8B%93%E5%B1%95%E9%98%85%E8%AF%BB"><span class="nav-text">三、拓展阅读</span></a></li></ol>
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="Search..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="popup-btn-close">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+</main>
+
+
+
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/main.js"></script>
+
+<script src="/js/header-shrink.js"></script>
+
+<script src="/js/back2top.js"></script>
+
+<script src="/js/dark-light-toggle.js"></script>
+
+
+
+    
+<script src="/js/local-search.js"></script>
+
+
+
+
+    
+<script src="/js/code-copy.js"></script>
+
+
+
+
+
+<div class="post-scripts">
+    
+        
+<script src="/js/left-side-toggle.js"></script>
+
+<script src="/js/libs/anime.min.js"></script>
+
+<script src="/js/toc.js"></script>
+
+    
+</div>
+
+
+
+</body>
+</html>
