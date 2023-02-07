@@ -9,7 +9,7 @@
     
     <title>
         
-            Category: Linux |
+            A记录和CNAME记录的区别 |
         
         Bean You
     </title>
@@ -67,7 +67,7 @@
                         </li>
                     
                         <li class="menu-item">
-                            <a class="active"
+                            <a class=""
                                href="/categories"
                             >
                                 分类
@@ -117,7 +117,7 @@
                 </li>
             
                 <li class="drawer-menu-item flex-center">
-                    <a class="active"
+                    <a class=""
                        href="/categories">分类</a>
                 </li>
             
@@ -147,185 +147,103 @@
 
                 
                     <div class="fade-in-down-animation">
-    <div class="category-container">
-        <div class="category-name">
-            <i class="fas fa-folder"></i>&nbsp;Linux
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">A记录和CNAME记录的区别</span>
         </div>
-        <div class="category-post-list">
-            
-<div class="archive-list-container">
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="/images/avatar.svg">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">JD</span>
+                        
+                            <span class="author-label">Lv6</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2023-02-07 11:56:35
+    </span>
     
-        <section class="archive-item">
-            <div class="archive-item-header">
-                <span class="archive-year">2023</span>
-                <span class="archive-year-post-count">[2]</span>
-            </div>
-            <ul class="article-list">
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
                 
-                    <li class="article-item">
-                        <a class="article-title"
-                           href="/posts/1487/"
-                        >A记录和CNAME记录的区别</a>
-                        <span class="article-date">02-07</span>
+                    <li>
+                        <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>&nbsp;
                     </li>
                 
-                    <li class="article-item">
-                        <a class="article-title"
+                    <li>
+                        &gt; <a href="/categories/%E8%BF%90%E7%BB%B4/Linux/">Linux</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+    
+
+    
+    
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fas fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <h2 id="1、什么是域名解析？"><a href="#1、什么是域名解析？" class="headerlink" title="1、什么是域名解析？"></a>1、什么是域名解析？</h2><p>域名解析就是国际域名或者国内域名以及中文域名等域名申请后做的到IP地址的转换过程。IP地址是网路上标识您站点的数字地址，为了简单好记，采用域名来代替ip地址标识站点地址。域名的解析工作由DNS服务器完成。</p>
+<p><img src="../../imgs/Linux/16.png" alt="img"></p>
+<h2 id="2、什么是A记录？"><a href="#2、什么是A记录？" class="headerlink" title="2、什么是A记录？"></a>2、什么是A记录？</h2><p>A (Address) 记录是用来指定主机名（或域名）对应的IP地址记录。用户可以将该域名下的网站服务器指向到自己的web server上。同时也可以设置您域名的二级域名。</p>
+<p><img src="../../imgs/Linux/17.png" alt="img"></p>
+<h2 id="3、什么是CNAME记录？"><a href="#3、什么是CNAME记录？" class="headerlink" title="3、什么是CNAME记录？"></a>3、什么是CNAME记录？</h2><p><strong>即：别名记录。</strong>这种记录允许您将多个名字映射到另外一个域名。通常用于同时提供WWW和MAIL服务的计算机。例如，有一台计算机名为“host.mydomain.com”（A记录）。它同时提供WWW和MAIL服务，为了便于用户访问服务。可以为该计算机设置两个别名（CNAME）：WWW和MAIL。这两个别名的全称就<a class="link"   target="_blank" rel="noopener" href="http://www.mydomain.com/%E5%92%8C%E2%80%9Cmail.mydomain.com%E2%80%9D%E3%80%82%E5%AE%9E%E9%99%85%E4%B8%8A%E4%BB%96%E4%BB%AC%E9%83%BD%E6%8C%87%E5%90%91%E2%80%9C[host.mydomain.com](http://host.mydomain.com/)%E2%80%9D%E3%80%82" >http://www.mydomain.com/和“mail.mydomain.com”。实际上他们都指向“[host.mydomain.com](http://host.mydomain.com/)”。<i class="fas fa-external-link-alt"></i></a></p>
+<p><img src="../../imgs/Linux/18.png" alt="img"></p>
+<h2 id="4、使用A记录和CNAME进行域名解析的区别"><a href="#4、使用A记录和CNAME进行域名解析的区别" class="headerlink" title="4、使用A记录和CNAME进行域名解析的区别"></a>4、使用A记录和CNAME进行域名解析的区别</h2><p>A记录就是把一个域名解析到一个<strong>IP地址</strong>（Address，特制数字IP地址），而CNAME记录就是把域名解析到另外一个<strong>域名</strong>。其功能是差不多，CNAME将几个主机名指向一个别名，其实跟指向IP地址是一样的，因为这个别名也要做一个A记录的。但是使用CNAME记录可以很方便地变更IP地址。如果一台服务器有100个网站，他们都做了别名，该台服务器变更IP时，只需要变更别名的A记录就可以了。</p>
+<p><img src="../../imgs/Linux/19.png" alt="img"></p>
+<h2 id="5、使用A记录和CNAME哪个好？"><a href="#5、使用A记录和CNAME哪个好？" class="headerlink" title="5、使用A记录和CNAME哪个好？"></a>5、使用A记录和CNAME哪个好？</h2><p>域名解析CNAME记录A记录哪一种比较好？如果论对网站的影响，就没有多大区别。但是：CNAME有一个好处就是稳定，就好像一个IP与一个域名的区别。服务商从方便维护的角度，一般也建议用户使用CNAME记录绑定域名的。如果主机使用了双线IP，显然使用CNAME也要方便一些。</p>
+<p>A记录也有一些好处，例如可以在输入域名时不用输入WWW.来访问网站哦！从SEO优化角度来看，一些搜索引擎如alex或一些搜索查询工具网站等等则默认是自动去掉WWW.来辨别网站，CNAME记录是必须有如：WWW(别名)前缀的域名，有时候会遇到这样的麻烦，前缀去掉了默认网站无法访问。</p>
+<p>有人认为，在SEO优化网站的时候，由于搜索引擎找不到去掉WWW.的域名时，对网站权重也会有些影响。因为有些网民客户也是不喜欢多写三个W来访问网站的，网站无法访问有少量网民客户会放弃继续尝试加WWW.访问域名了，因此网站访问浏览量也会减少一些。</p>
+<p>也有人认为同一个域名加WWW.和不加WWW.访问网站也会使网站权重分散，这也是个问题。但是可以使用301跳转把不加WWW.跳转到加WWW.的域名，问题就解决了。</p>
+
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
                            href="/posts/3416/"
-                        >CDN 原理</a>
-                        <span class="article-date">02-06</span>
-                    </li>
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">CDN 原理</span>
+                                <span class="post-nav-item">Next posts</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
                 
-            </ul>
-        </section>
-    
-        <section class="archive-item">
-            <div class="archive-item-header">
-                <span class="archive-year">2022</span>
-                <span class="archive-year-post-count">[18]</span>
             </div>
-            <ul class="article-list">
-                
-                    <li class="article-item">
-                        <a class="article-title"
-                           href="/posts/4930/"
-                        >127.0.0.1和0.0.0.0地址的区别</a>
-                        <span class="article-date">12-20</span>
-                    </li>
-                
-                    <li class="article-item">
-                        <a class="article-title"
-                           href="/posts/27329/"
-                        >Linux 定时执行任务</a>
-                        <span class="article-date">12-05</span>
-                    </li>
-                
-                    <li class="article-item">
-                        <a class="article-title"
-                           href="/posts/56412/"
-                        >Linux 创建 root 权限用户</a>
-                        <span class="article-date">11-25</span>
-                    </li>
-                
-                    <li class="article-item">
-                        <a class="article-title"
-                           href="/posts/34610/"
-                        >expect 登陆脚本</a>
-                        <span class="article-date">10-27</span>
-                    </li>
-                
-                    <li class="article-item">
-                        <a class="article-title"
-                           href="/posts/2309/"
-                        >shell 中脚本参数传递的两种方式</a>
-                        <span class="article-date">10-16</span>
-                    </li>
-                
-                    <li class="article-item">
-                        <a class="article-title"
-                           href="/posts/43872/"
-                        >Linux 查看磁盘IO读写情况</a>
-                        <span class="article-date">10-09</span>
-                    </li>
-                
-                    <li class="article-item">
-                        <a class="article-title"
-                           href="/posts/57336/"
-                        >Linux TIME_WAIT 相关系统参数</a>
-                        <span class="article-date">10-08</span>
-                    </li>
-                
-                    <li class="article-item">
-                        <a class="article-title"
-                           href="/posts/14443/"
-                        >traceroute 查看路由链路</a>
-                        <span class="article-date">09-28</span>
-                    </li>
-                
-                    <li class="article-item">
-                        <a class="article-title"
-                           href="/posts/34285/"
-                        >xargs 命令</a>
-                        <span class="article-date">09-18</span>
-                    </li>
-                
-                    <li class="article-item">
-                        <a class="article-title"
-                           href="/posts/16115/"
-                        >cat 多行写入文件防止变量被替换</a>
-                        <span class="article-date">09-17</span>
-                    </li>
-                
-                    <li class="article-item">
-                        <a class="article-title"
-                           href="/posts/43054/"
-                        >TCP 状态转换</a>
-                        <span class="article-date">09-15</span>
-                    </li>
-                
-                    <li class="article-item">
-                        <a class="article-title"
-                           href="/posts/16895/"
-                        >Linux 查看 Socket 情况</a>
-                        <span class="article-date">09-08</span>
-                    </li>
-                
-                    <li class="article-item">
-                        <a class="article-title"
-                           href="/posts/31066/"
-                        >NUMA 架构相关命令</a>
-                        <span class="article-date">08-20</span>
-                    </li>
-                
-                    <li class="article-item">
-                        <a class="article-title"
-                           href="/posts/29679/"
-                        >NUMA 架构</a>
-                        <span class="article-date">08-20</span>
-                    </li>
-                
-                    <li class="article-item">
-                        <a class="article-title"
-                           href="/posts/4155/"
-                        >Linux 查看磁盘占用情况</a>
-                        <span class="article-date">08-20</span>
-                    </li>
-                
-                    <li class="article-item">
-                        <a class="article-title"
-                           href="/posts/59330/"
-                        >Linux 查看端口占用</a>
-                        <span class="article-date">08-12</span>
-                    </li>
-                
-                    <li class="article-item">
-                        <a class="article-title"
-                           href="/posts/37051/"
-                        >tcpdump 命令详解</a>
-                        <span class="article-date">06-08</span>
-                    </li>
-                
-                    <li class="article-item">
-                        <a class="article-title"
-                           href="/posts/39748/"
-                        >curl 命令</a>
-                        <span class="article-date">01-12</span>
-                    </li>
-                
-            </ul>
-        </section>
-    
-</div>
+        
 
-        </div>
-    </div>
-    <div class="category-paginator">
-        <div class="paginator">
-    
-
-    
-</div>
-
+        
     </div>
 </div>
 
@@ -373,6 +291,23 @@
     </div>
 
     
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
 
     <div class="right-bottom-side-tools">
         <div class="side-tools-container">
@@ -418,6 +353,14 @@
 
     </div>
 
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AF%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90%EF%BC%9F"><span class="nav-text">1、什么是域名解析？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AFA%E8%AE%B0%E5%BD%95%EF%BC%9F"><span class="nav-text">2、什么是A记录？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AFCNAME%E8%AE%B0%E5%BD%95%EF%BC%9F"><span class="nav-text">3、什么是CNAME记录？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4%E3%80%81%E4%BD%BF%E7%94%A8A%E8%AE%B0%E5%BD%95%E5%92%8CCNAME%E8%BF%9B%E8%A1%8C%E5%9F%9F%E5%90%8D%E8%A7%A3%E6%9E%90%E7%9A%84%E5%8C%BA%E5%88%AB"><span class="nav-text">4、使用A记录和CNAME进行域名解析的区别</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5%E3%80%81%E4%BD%BF%E7%94%A8A%E8%AE%B0%E5%BD%95%E5%92%8CCNAME%E5%93%AA%E4%B8%AA%E5%A5%BD%EF%BC%9F"><span class="nav-text">5、使用A记录和CNAME哪个好？</span></a></li></ol>
+    </div>
+</div>
+        </aside>
     
 
     <div class="image-viewer-container">
@@ -487,6 +430,14 @@
 
 
 <div class="post-scripts">
+    
+        
+<script src="/js/left-side-toggle.js"></script>
+
+<script src="/js/libs/anime.min.js"></script>
+
+<script src="/js/toc.js"></script>
+
     
 </div>
 
