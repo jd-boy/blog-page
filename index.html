@@ -939,14 +939,15 @@ kubelet
                 
 
                 <h3 class="home-article-title">
-                    <a href="/posts/26481/">
-                        Prometheus--K8S 配置 pod 服务发现
+                    <a href="/posts/23567/">
+                        Prometheus 实现 K8S POD 服务发现
                     </a>
                 </h3>
 
                 <div class="home-article-content markdown-body">
                     
-                        一、授权对 K8S 的访问1234567891011121314151617181920212223242526272829303132333435363738394041cat &lt;&lt;EOF | kubectl apply -f -api...
+                        一、添加配置在 prometheus.yml 中添加如下配置：
+123456789101112131415161718192021222324- job_name: &#x27;kubernetes-pods&#x27;  kubernetes_sd...
                     
                 </div>
 
@@ -975,7 +976,7 @@ kubelet
         
     </div>
 
-    <a href="/posts/26481/">Read more&nbsp;<i class="fas fa-angle-right"></i></a>
+    <a href="/posts/23567/">Read more&nbsp;<i class="fas fa-angle-right"></i></a>
 </div>
 
             </li>
