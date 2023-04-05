@@ -641,7 +641,7 @@
 <li>2018年，最新的 TLS1.3（RFC8446）发布，比起前面版本相对温和的升级，TLS1.3 做出了一些激烈的改动，修改了从 1.0 起一直没有大变化的两轮四次（2-RTT）握手，首次连接仅需一轮（1-RTT）握手即可完成，在连接复用支持时，甚至将 TLS1.2 原本的 1-RTT 下降到 0-RTT，显著提升了访问速度。</li>
 </ul>
 <p>接下来，笔者以 TLS1.2 为例，介绍传输安全层是如何保障所有信息都是第三方无法窃听（加密传输）、无法篡改（一旦篡改通信<br>算法会立刻发现）、无法冒充（证书验证身份）的。TLS1.2 在传输之前的握手过程一共需要进行上下两轮、共计四次通信，时序图如图</p>
-<p><img src="http://qiniu.jzcupid.cn/blog/TLS%E8%BF%9E%E6%8E%A5%E6%8F%A1%E6%89%8B%E6%97%B6%E5%BA%8F.png" alt="TLS连接握手时序"></p>
+<p><img src="../../../imgs/phoenix/TLS%E8%BF%9E%E6%8E%A5%E6%8F%A1%E6%89%8B%E6%97%B6%E5%BA%8F.png" alt="TLS连接握手时序"></p>
 <h4 id="1）客户端请求：Client-Hello"><a href="#1）客户端请求：Client-Hello" class="headerlink" title="1）客户端请求：Client Hello"></a>1）客户端请求：Client Hello</h4><p>客户端向服务器请求进行加密通信，在这个请求里面，它会以 <strong>明文</strong> 的形式，向服务器端提供以下信息。</p>
 <ul>
 <li>支持的协议版本，如 TLS1.2。但是要注意，1.0 至 3.0 分别代表 SSL1.0 至 3.0，TLS1.0 则是 3.1，一直到 TLS1.3 的 3.4。</li>
