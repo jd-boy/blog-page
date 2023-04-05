@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="JD">
+    
+    <title>
+        
+            TCP 和 HTTP 中的 KeepAlive 机制总结 |
+        
+        Bean You
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <link rel="shortcut icon" href="/images/favicon.png">
+    
+<link rel="stylesheet" href="/css/font-awesome.min.css">
+
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"jzcupid.cn","root":"/","language":"en","path":"search.json"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":false,"expand_all":false,"init_open":false},"style":{"primary_color":"#0066CC","avatar":"/images/avatar.svg","favicon":"/images/favicon.png","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":true,"scale":true},"first_screen":{"enable":true,"background_img":"/images/bg.svg","description":"莫听穿林打叶声，何妨吟啸且徐行。"},"scroll":{"progress_bar":{"enable":false},"percent":{"enable":true}}},"local_search":{"enable":true,"trigger":"auto","preload":true},"code_copy":{"enable":true,"style":"default"},"pjax":{"enable":false},"lazyload":{"enable":false},"version":"3.4.3"};
+    KEEP.language_ago = {"second":"%s seconds ago","minute":"%s minutes ago","hour":"%s hours ago","day":"%s days ago","week":"%s weeks ago","month":"%s months ago","year":"%s years ago"};
+  </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                Bean You
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                首页
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/categories"
+                            >
+                                分类
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >
+                                标签
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                归档
+                            </a>
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="fas fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">首页</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/categories">分类</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags">标签</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">归档</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">TCP 和 HTTP 中的 KeepAlive 机制总结</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="/images/avatar.svg">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">JD</span>
+                        
+                            <span class="author-label">Lv6</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2023-04-05 15:12:58
+    </span>
+    
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>&nbsp;
+                    </li>
+                
+                    <li>
+                        &gt; <a href="/categories/%E8%BF%90%E7%BB%B4/Linux/">Linux</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+    
+
+    
+    
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fas fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <h2 id="一、什么是-KeepAlive"><a href="#一、什么是-KeepAlive" class="headerlink" title="一、什么是 KeepAlive"></a>一、什么是 KeepAlive</h2><ul>
+<li>KeepAlive 可以简单理解为一种状态保持或重用机制，比如当一条连接建立后，我们不想它立刻被关闭，如果实现了 KeepAlive 机制，就可以通过它来实现连接的保持</li>
+<li>HTTP 的 KeepAlive 在 HTTP 1.0 版本默认是关闭的，但在 HTTP1.1 是默认开启的；操作系统里 TCP 的 KeepAlive 默认也是关闭，但一般应用都会修改设置来开启。因此网上 TCP 流量中基于 KeepAlive 的是主流</li>
+<li>HTTP 的 KeepAlive 和 TCP 的 KeepAlive 有一定的依赖关系，名称又一样，因此经常被混淆，但其实是不同的东西，下面具体分析一下</li>
+</ul>
+<h2 id="二、TCP-为什么要做-KeepAlive"><a href="#二、TCP-为什么要做-KeepAlive" class="headerlink" title="二、TCP 为什么要做 KeepAlive"></a>二、TCP 为什么要做 KeepAlive</h2><ul>
+<li>我们都知道 TCP 的三次握手和四次挥手。当两端通过三次握手建立 TCP 连接后，就可以传输数据了，数据传输完毕，连接并不会自动关闭，而是一直保持。只有两端分别通过发送各自的 <code>FIN</code> 报文时，才会关闭自己侧的连接。</li>
+<li>这个关闭机制看起来简单明了，但实际网络环境千变万化，衍生出了各种问题。假设因为实现缺陷、突然崩溃、恶意攻击或网络丢包等原因，一方一直没有发送 <code>FIN</code> 报文，则连接会一直保持并消耗着资源，为了防止这种情况，一般接收方都会主动中断一段时间没有数据传输的 TCP 连接，比如 LVS 会默认中断 90 秒内没有数据传输的 TCP 连接，F5 会中断 5 分钟内没有数据传输的 TCP 连接</li>
+<li>但有的时候我们的确不希望中断空闲的 TCP 连接，因为建立一次 TCP 连接需要经过一到两次的网络交互，且由于 TCP 的 <code>slow start</code> 机制，新的 TCP 连接开始数据传输速度是比较慢的，我们希望通过连接池模式，保持一部分空闲连接，当需要传输数据时，可以从连接池中直接拿一个空闲的 TCP 连接来全速使用，这样对性能有很大提升</li>
+<li>为了支持这种情况，TCP 实现了 KeepAlive 机制。KeepAlive 机制并不是 TCP 规范的一部分，但无论 Linux 和 Windows 都实现实现了该机制。TCP 实现里 KeepAlive 默认都是关闭的，且是每个连接单独设置的，而不是全局设置</li>
+</ul>
+<blockquote>
+<p>Implementors MAY include “keep-alives” in their TCP implementations, although this practice is not universally accepted.  If keep-alives are included, the application MUST  be able to turn them on or off for each TCP connection, and they <strong>MUST default to off</strong>.</p>
+</blockquote>
+<ul>
+<li>另外有一个特殊情况就是，当某应用进程关闭后，如果还有该进程相关的 TCP 连接，一般来说操作系统会自动关闭这些连接</li>
+</ul>
+<h2 id="三、如何开启-TCP-的-KeepAlive"><a href="#三、如何开启-TCP-的-KeepAlive" class="headerlink" title="三、如何开启 TCP 的 KeepAlive"></a>三、如何开启 TCP 的 KeepAlive</h2><ul>
+<li>TCP 的 KeepAlive 默认不是开启的，如果想使用，需要在自己的应用中为每个 TCP 连接设置<code>SO_KEEPALIVE</code> 才会生效</li>
+<li>在 Java 中，应用程序一般通过设置 <code>java.net.SocketOptions</code> 来开启 TCP 连接的 KeepAlive</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> *  When the keepalive option is set for a TCP socket and no data</span></span><br><span class="line"><span class="comment"> *  has been exchanged across the socket in either direction for</span></span><br><span class="line"><span class="comment"> *  2 hours (<span class="doctag">NOTE:</span> the actual value is implementation dependent),</span></span><br><span class="line"><span class="comment"> *  TCP automatically sends a keepalive probe to the peer. This probe is a</span></span><br><span class="line"><span class="comment"> *  TCP segment to which the peer must respond.</span></span><br><span class="line"><span class="comment"> *  One of three responses is expected:</span></span><br><span class="line"><span class="comment"> *  1. The peer responds with the expected ACK. The application is not</span></span><br><span class="line"><span class="comment"> *     notified (since everything is OK). TCP will send another probe</span></span><br><span class="line"><span class="comment"> *     following another 2 hours of inactivity.</span></span><br><span class="line"><span class="comment"> *  2. The peer responds with an RST, which tells the local TCP that</span></span><br><span class="line"><span class="comment"> *     the peer host has crashed and rebooted. The socket is closed.</span></span><br><span class="line"><span class="comment"> *  3. There is no response from the peer. The socket is closed.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> *  The purpose of this option is to detect if the peer host crashes.</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> *  Valid only for TCP socket: SocketImpl</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@see</span> Socket#setKeepAlive</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@see</span> Socket#getKeepAlive</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@Native</span> <span class="keyword">public</span> <span class="keyword">final</span> <span class="keyword">static</span> <span class="keyword">int</span> SO_KEEPALIVE = <span class="number">0x0008</span>;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Java Docs 里对 <code>SO_KEEPALIVE</code> 的工作机制做了比较详细的说明，具体来说就是，如果某连接开启了 TCP KeepAlive，当连接空闲了两个小时（依赖操作系统的 <code>net.ipv4.tcp_keepalive_time</code> 设置），TCP 会自动发送一个 KeepAlive 探测报文给对端。对端必须回复这个探测报文，假设对端正常，就可以回复 ACK 报文，收到 ACK 后该连接就会继续维持，直到再次出现两个小时空闲然后探测；假设对端不正常，比如重启了，应该回复一个 RST 报文来关闭该连接。假设对端没有任何响应，TCP 会每隔 75 秒（依赖操作系统的 <code>net.ipv4.tcp_keepalive_intvl</code> 设置）再次重试，重试 9 次（依赖 OS 的 <code>net.ipv4.tcp*keepalive*probes</code> 设置）后如果依然没有回复则关闭连接</li>
+<li>Linux 中 KeepAlive 相关的配置可以通过如下方式查看</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">chendw@chendw-PC:~$ sysctl -a | grep keepalive</span><br><span class="line">net.ipv4.tcp_keepalive_time = 7200</span><br><span class="line">net.ipv4.tcp_keepalive_intvl = 75</span><br><span class="line">net.ipv4.tcp_keepalive_probes = 9</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="四、HTTP-为什么要做-KeepAlive"><a href="#四、HTTP-为什么要做-KeepAlive" class="headerlink" title="四、HTTP 为什么要做 KeepAlive"></a>四、HTTP 为什么要做 KeepAlive</h2><ul>
+<li>HTTP 虽然是基于有连接状态的 TCP，但本身却是一个无连接状态的协议，客户端建立连接，发出请求，获取响应，关闭连接，然后整个流程就结束了；当有新的 HTTP 请求，则使用新建立的 TCP 连接。老的连接一般会被客户端浏览器或服务器关闭，此时由于是两端主动发的 <code>FIN</code> 报文，因此即使 TCP 已经设置了 KeepAlive，TCP 连接也会被正常关闭</li>
+<li>这种模式下每个 HTTP 请求都会经过三次握手创建新的 TCP，再加上 TCP 慢启动的影响，以及单个网页里包含越来越多的资源请求，因此效果并不理想。为了提升性能，HTTP 规范也提出了 KeepAlive 机制，HTTP 请求携带头部 <code>Connection: Keep-Alive</code> 信息，告知服务器不要关闭该 TCP 连接，当服务器收到该请求，完成响应后，不会主动主动关闭该 TCP 连接。而浏览器当然也不会主动关闭，而是在后续请求里复用该 TCP 连接来发送下一个 HTTP 请求</li>
+<li>HTTP1.0 默认不开启 KeepAlive，因此要使用的话需要浏览器支持，在发送 HTTP 请求时主动携带 </li>
+</ul>
+<p><code>Connection: Keep-Alive``头部，应用服务器同样也要支持；而HTTP1.1规范明确规定了要默认开启KeepAlive，所以支持HTTP1.1的浏览器不需要显式指定，发送请求时会自动携带该头部，只有在想关闭时可以通过设置 ``Connection: Close</code> 头部告知对端</p>
+<ul>
+<li>另外，HTTP 的 KeepAlive 机制还提供了头部 <code>Keep-Alive: max=5, timeout=120</code> 来控制连接关闭时间，比如如上头部就表示该 TCP 连接还会保持 120 秒，max 表示可以发送的请求数，不过在非管道连接下会被忽略，我们基本都是非管道连接，因此可以忽略</li>
+<li>HTTP/2 为每个域名使用单个 TCP 连接，本身就是连接复用，因此请求不再需要携带头部来开启 KeepAlive</li>
+</ul>
+<h2 id="五、HTTP-的-KeepAlive-和-TCP-的-KeepAlive-的关系"><a href="#五、HTTP-的-KeepAlive-和-TCP-的-KeepAlive-的关系" class="headerlink" title="五、HTTP 的 KeepAlive 和 TCP 的 KeepAlive 的关系"></a>五、HTTP 的 KeepAlive 和 TCP 的 KeepAlive 的关系</h2><ul>
+<li>从上面可以看出，虽然都叫 KeepAlive 且有依赖关系，但 HTTP 的 KeepAlive 和 TCP 的 KeepAlive 是两个完全不同的概念</li>
+<li>TCP 的 KeepAlive 是由操作系统内核来控制，通过 <code>keep-alive</code> 报文来防止 TCP 连接被对端、防火墙或其他中间设备意外中断，和上层应用没有任何关系，只负责维护单个 TCP 连接的状态，其上层应用可以复用该 TCP 长连接，也可以关闭该 TCP 长连接</li>
+<li>HTTP 的 KeepAlive 机制则是和自己的业务密切相关的，浏览器通过头部告知服务器要复用这个 TCP 连接，请不要随意关闭。只有到了 <code>keepalive</code> 头部规定的 <code>timeout</code> 才会关闭该 TCP 连接，不过这具体依赖应用服务器，应用服务器也可以根据自己的设置在响应后主动关闭这个 TCP 连接，只要在响应的时候携带 <code>Connection: Close</code> 告知对方</li>
+<li>所以很多时候我们可以把 HTTP 连接理解为 TCP 连接，但 HTTP KeepAlive 则不能当成 TCP 的 KeepAlive 看待</li>
+<li>假设我们不开启 TCP 长连接而只开启 HTTP 长连接，是不是 HTTP 的 KeepAlive 就不起作用了？并不是的，此时 HTTP 的 KeepAlive 还会正常起作用，TCP 连接还会被复用，但被复用的 TCP 连接出现故障的概率就高很多。由于没有开启 TCP 的 KeepAlive，防火墙或负载转发服务等中间设备可能因为该 TCP 空闲太长而悄悄关闭该连接，当 HTTP 从自己的连接池拿出该 TCP 连接时，可能并不知道该连接被关闭，继续使用就会出现错误</li>
+<li>为了减少错误，一般来说开启 HTTP 的 KeepAlive 的应用都会开启 TCP 的 KeepAlive</li>
+<li>默认的 <code>net.ipv4.tcp_keepalive_time</code> 为 2 个小时，是不是太长了？感觉太长了，2 小时监测一次感觉黄花菜都凉了。我们公司 F5 后面的 Nginx 服务器配置了 30 分钟，但应该也是太长了吧，F5 维持空闲连接 5 分钟，那超时监测不应该低于这个值吗 <strong>？？？</strong>，比如<a class="link"   href="https://xie.infoq.cn/link?target=https://cloud.google.com/compute/docs/troubleshooting/general-tips%23communicatewithinternet" >Google Cloud<i class="fas fa-external-link-alt"></i></a>说其防火墙允许 10 分钟空闲连接，因此建议 <code>net.ipv4.tcp_keepalive_time</code> 设置为 6 分钟</li>
+</ul>
+<h2 id="六、如何使用-HTTP-的-KeepAlive"><a href="#六、如何使用-HTTP-的-KeepAlive" class="headerlink" title="六、如何使用 HTTP 的 KeepAlive"></a>六、如何使用 HTTP 的 KeepAlive</h2><ul>
+<li>很明显，开启 HTTP KeepAlive 不需要用户做任何操作，只要浏览器和应用服务器支持即可，不过需要注意的是，HTTP KeepAlive 的相关头部都是 <code>hop-by-hop</code> 类型的</li>
+<li>和 TCP 连接不同，一个完整的 HTTP 事务，可能会横跨多个 TCP 连接，比如浏览器请求某个网页，请求可能先通过浏览器与负载均衡之间的 TCP 连接传输，再经过负载均衡到 Nginx 的 TCP 连接，最后在经过 Nginx 与业务 Tomcat 服务器的 TCP 连接，Tomcat 处理完请求并返回响应后，响应沿着同样的 TCP 连接路线返回</li>
+<li>因此 HTTP 的头部被分为了两部分：<code>End-to-end</code> 头部和 <code>Hop-by-hop</code> 头部，<code>End-to-end</code> 头部会被中间的代理原样转发，比如浏览器请求报文中的 <code>host</code> 头部，会被负载均衡、反向代理原样转发到 Tomcat 里，除非特意修改。而 <code>Hop-by-hop</code> 头部则只在当前 TCP 连接里有效，大部分头部都是 <code>End-to-end</code> ，但 KeepAlive 相关头部很明显和 TCP 连接有密切关系，因此是 <code>Hop-by-hop</code> 的</li>
+</ul>
+<blockquote>
+<p> * End-to-end headers which are transmitted to the ultimate recipient of a request or response. End-to-end headers in responses MUST be stored as part of a cache entry and MUST be transmitted in any response formed from a cache entry.</p>
+<p> * Hop-by-hop headers which are meaningful only for a single transport-level connection and are not stored by caches or forwarded by proxies.</p>
+</blockquote>
+<ul>
+<li>也就是说，即使浏览器请求时携带了 <code>Connection: Keep-Alive</code> ，也只表示浏览器到负载均衡之间是长连接，但负载均衡到 nginx、nginx 到 tomcat 是否是长连接则需要具体分析。比如 Nginx 虽然支持 HTTP 的 Keep-Alive，但由 Nginx 发起的 HTTP 请求默认不是长连接</li>
+<li>由于这种 <code>Hop-by-hop</code>  的特性，HTTP 长连接中的 <code>timeout</code> 设置就十分可疑了，不过一般来说应用服务器都是根据自己的设置来管理 TCP 连接的，因此 HTTP 长连接中 <code>Connection</code> 头部每个请求都携带， <code>keepalive</code> 头部用的就比较少</li>
+</ul>
+<h2 id="七、Nginx-的-KeepAlive-配置"><a href="#七、Nginx-的-KeepAlive-配置" class="headerlink" title="七、Nginx 的 KeepAlive 配置"></a>七、Nginx 的 KeepAlive 配置</h2><ul>
+<li>Nginx 与客户端的长连接</li>
+<li>Nginx 是支持 HTTP KeepAlive 的，因此只要 client 发送的 http 请求携带了 KeepAlive 头部，客户端和 Nginx 的长连接就能正常保持</li>
+<li>可以使用 keepalive<em>requests 和 keepalive</em>timeout 调整对 client 的长连接的单个连接承受的最大请求数，以及长连接最大空闲时长</li>
+<li>从上面可知，服务端可以根据客户端的 <code>keepalive</code> 头部来管理 TCP 连接，也可以根据自己的设置来管理，Nginx 一般根据自己的设置来管理</li>
+</ul>
+<blockquote>
+<p>  Syntax:    keepalive_requests number;</p>
+<p>  Default:    keepalive_requests 100;</p>
+<p>  Context:    http, server, location</p>
+<p>  This directive appeared in version 0.8.0.</p>
+<p>  Sets the maximum number of requests that can be served through one keep-alive connection. After the maximum number of requests are made, the connection is closed.</p>
+<p> Closing connections periodically is necessary to free per-connection memory allocations. Therefore, using too high maximum number of requests could result in excessive memory usage and not recommended.</p>
+<p>  Syntax:    keepalive<em>timeout timeout [header</em>timeout];</p>
+<p>  Default:    keepalive_timeout 75s;</p>
+<p>  Context:    http, server, location</p>
+<p> The first parameter sets a timeout during which a keep-alive client connection will stay open on the server side. The zero value disables keep-alive client connections. The optional second parameter sets a value in the “Keep-Alive: timeout=time” response header field. Two parameters may differ.</p>
+</blockquote>
+<ul>
+<li>客户端修改默认值具体配置如下</li>
+</ul>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="section">http</span> &#123;</span><br><span class="line">    <span class="attribute">keepalive_requests</span> <span class="number">100</span>;</span><br><span class="line">    <span class="attribute">keepalive_timeout</span> <span class="number">75s</span>;</span><br><span class="line">    <span class="attribute">upstream</span> backend &#123;</span><br><span class="line">        <span class="attribute">server</span> <span class="number">192.167.61.1:8080</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>Nginx 与 Upstream Server 的长连接</li>
+<li>Nginx 作为发起方的时候，默认还是不开启 HTTP 的 KeepAlive 的，因此需要主动设置</li>
+<li>在 <code>upstream</code> 区块使用 <code>keepalive</code> 开启，数字表示每个 work 开启的最大长连接数</li>
+<li>Nginx 和上游交互时，默认 <code>proxy_http_version</code> 为 1.0，因此需要配置 <code>proxy_http_version</code> ，并清空 <code>connection</code>，这样即使前一跳是短连接，Nginx 与上游也可以是长连接</li>
+<li>另外 <code>upstream</code> 里的 <code>keepalive_requests</code> 和 <code>http</code> 区块里的一样是 100，但 <code>keepalive_timeout</code> 默认为 60 秒，比 <code>http</code> 区块里的少 15 秒，不过也正常，毕竟是里层，这个设置是比较合理的，使用默认的就可以</li>
+</ul>
+<figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">upstream</span> backend &#123;</span><br><span class="line">    <span class="attribute">server</span> <span class="number">192.167.61.1:8080</span>;</span><br><span class="line">    <span class="attribute">server</span> <span class="number">192.167.61.1:8082</span> back;</span><br><span class="line">    <span class="attribute">keepalive</span> <span class="number">100</span>;</span><br><span class="line">    <span class="comment"># keepalive_requests 100;</span></span><br><span class="line">    <span class="comment"># keepalive_timeout 60s;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="attribute">local</span> /test &#123;</span><br><span class="line">    <span class="attribute">proxy_http_version</span> <span class="number">1</span>.<span class="number">1</span>;</span><br><span class="line">    <span class="attribute">proxy_set_header</span> Connection <span class="string">&quot;&quot;</span>; // 传递给上游服务器的头信息</span><br><span class="line"></span><br><span class="line">    <span class="attribute">proxy_pass</span> http://backend;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ul>
+<li>另外，Nginx 还在 <code>listner</code> 指令上提供了一个 <code>so_keepalive</code> 选项，来开启 Nginx 对 TCP 长连接的支持，应该开启的是客户端与 Nginx 之间的 TCP 长连接，但一般没有人使用，那负载均衡和 Nginx、Nginx 和 Tomcat 之间是<strong>不需要 TCP 长连接吗</strong>？因为中间没有网络设备？否则 TCP 长连接是由谁来做检测？</li>
+<li>长连接的资源占用问题</li>
+<li> 长连接带来的一个很明显的问题就是资源的占用，浏览器对同一个域名一般能并发建立 6 个连接，一般这些都是长连接，而这些连接会维护 75 秒，但客户端获得响应以后一般就结束了，下一次的客户是不同的源地址，因此无法复用前一个浏览器与服务器之间维护的长连接，这会造成服务端维护了大量不再被使用的连接，所以长连接的意义在于有大量资源持续请求的场景</li>
+<li> 假设你就一个静态页面，里面包含几个资源，使用短连接对服务器并发更好</li>
+<li> 另外，注意 Nginx 中 <code>keepalive_requests</code> 默认的 100 表示的是单个长连接能处理的最大请求数，而并不是 Nginx 能维护的长连接数。Nginx 能维护的 TCP 连接数，为工作进程个数 <code>worker_processes</code> 乘以每个工作进程允许维护的最大连接数 <code>worker_connections</code>（默认 512）；如果想计算 Nginx 能服务的最大请求数，还需要在最大 TCP 连接数外，加上操作系统允许的排队等待数 <code>net.core.somaxconn</code>，默认 128</li>
+<li> Nginx 通过事件驱动来实现大量长连接的维护，具体可以查看 Nginx 文档</li>
+<li>端口号与文件数</li>
+<li>由于端口在传输层使用 16 位来传输，因此取值范围只能是 0 到 65535，再加上 TCP 连接关闭后端口并不能立刻被重用，而是要经过 2MSL 的 TIME_WAIT 闲置，所以经常有人以为一个服务器同时最大能维持的 TCP 数是 <code>65000/2*60</code> ，大约 500 左右</li>
+<li> 这个理解是有偏颇的。端口的限制只是对发起方来说的，即源端口。比如 Nginx 作为反向代理，和上游 Tomcat 建立连接时，源 IP 和目的 IP 肯定是固定的，目的端口也是固定的，比如 Tomcat 的 8080 端口，只有源端口可变，所以 Nginx 和上游 Tomcat 最多只能建立 500 左右的 TCP 连接，不过两端 IP 都是固定的，所以 TCP 连接重用效果非常好，并不会造成性能问题</li>
+<li> 当 Nginx 作为接收方和客户端浏览器建立连接时，Nginx 服务器提供固定的 IP 和端口，而客户端浏览器 IP 和端口都会正常变动，因此 Nginx 服务器上维护的与客户端的长连接是不受端口限制的，不过此时服务器又会遇到著名的 C10K 问题</li>
+<li> 此时限制服务器维持 TCP 连接数的是操作系统允许打开的最大文件数，要修改的主要有以下几处</li>
+</ul>
+<ol>
+<li>/proc/sys/fs/file-max：操作系统所有进程一共可以打开的文件数</li>
+<li>/proc/sys/fs/nr_open：单个进程能分配的最大文件数</li>
+<li>ulimit 的 open files：当前 shell 以及由它启动的进程可以打开的最大文件数，如果超过了 nr<em>open，要先调整 nr</em>open 的值</li>
+</ol>
+<h2 id="八、Tomcat-的-KeepAlive-配置"><a href="#八、Tomcat-的-KeepAlive-配置" class="headerlink" title="八、Tomcat 的 KeepAlive 配置"></a>八、Tomcat 的 KeepAlive 配置</h2><ul>
+<li>Tomcat7 以上都默认开启了 keepalive 支持。两个主要参数 maxKeepAliveRequest 和 KeepAliveTimeout</li>
+<li> maxKeepAliveRequest：一个长连接能接受的最大请求数，默认 100</li>
+<li> KeepAliveTimeout：一个长连接最长空闲时间，否则被关闭，默认为 connectionTimeout 的值，默认 60s</li>
+<li>Tomcat 里的应用作为发起方的时候，是否支持 KeepAlive 是由应用自行决定的，和 Tomcat 无关</li>
+</ul>
+<h4 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h4><ul>
+<li><a class="link"   href="https://xie.infoq.cn/link?target=https://tools.ietf.org/html/rfc1122%23page-101" >RFC1122 - TCP Keep-Alives<i class="fas fa-external-link-alt"></i></a></li>
+<li><a class="link"   href="https://xie.infoq.cn/link?target=https://tools.ietf.org/html/rfc2616%23section-13.5.1" >HTTP Header Type<i class="fas fa-external-link-alt"></i></a></li>
+<li><a href="https://xie.infoq.cn/link?target=http://nginx.org/en/docs/http/ngx%3Ci%3Ehttp%3C/i%3Ecore_module.html">Nginx ngx<em>http</em>core_module</a></li>
+<li><a class="link"   href="https://xie.infoq.cn/link?target=https://www.nginx.com/blog/http-keepalives-and-web-performance/" >HTTP Keepalive Connections and Web Performance<i class="fas fa-external-link-alt"></i></a></li>
+<li><a class="link"   href="https://xie.infoq.cn/link?target=https://www.nginx.com/blog/tuning-nginx/" >Tuning NGINX for Performance<i class="fas fa-external-link-alt"></i></a></li>
+<li><a class="link"   href="https://xie.infoq.cn/link?target=http://www.kegel.com/c10k.html" >The C10K problem<i class="fas fa-external-link-alt"></i></a></li>
+<li><a class="link"   href="https://xie.infoq.cn/link?target=https://juejin.im/post/6844903916887343118" >ulimit的探讨<i class="fas fa-external-link-alt"></i></a></li>
+</ul>
+
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/posts/20440/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">HTTP 基础问题</span>
+                                <span class="post-nav-item">Next posts</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2021</span>
+              -
+            
+            2023&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">JD</a>
+        </div>
+        
+            <script async  src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <div class="website-count info-item">
+                
+                    <span id="busuanzi_container_site_uv">
+                        Visitor Count&nbsp;<span id="busuanzi_value_site_uv"></span>&ensp;
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv">
+                        Totalview&nbsp;<span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="theme-info info-item">
+            Powered by <a target="_blank" href="https://hexo.io">Hexo</a>&nbsp;|&nbsp;Theme&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.3</a>
+        </div>
+        
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="arrow-up fas fa-arrow-up"></i>
+                <span class="percent"></span>
+            </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E4%BB%80%E4%B9%88%E6%98%AF-KeepAlive"><span class="nav-text">一、什么是 KeepAlive</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81TCP-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%81%9A-KeepAlive"><span class="nav-text">二、TCP 为什么要做 KeepAlive</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E5%A6%82%E4%BD%95%E5%BC%80%E5%90%AF-TCP-%E7%9A%84-KeepAlive"><span class="nav-text">三、如何开启 TCP 的 KeepAlive</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9B%9B%E3%80%81HTTP-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%81%9A-KeepAlive"><span class="nav-text">四、HTTP 为什么要做 KeepAlive</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%94%E3%80%81HTTP-%E7%9A%84-KeepAlive-%E5%92%8C-TCP-%E7%9A%84-KeepAlive-%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="nav-text">五、HTTP 的 KeepAlive 和 TCP 的 KeepAlive 的关系</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AD%E3%80%81%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8-HTTP-%E7%9A%84-KeepAlive"><span class="nav-text">六、如何使用 HTTP 的 KeepAlive</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%83%E3%80%81Nginx-%E7%9A%84-KeepAlive-%E9%85%8D%E7%BD%AE"><span class="nav-text">七、Nginx 的 KeepAlive 配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AB%E3%80%81Tomcat-%E7%9A%84-KeepAlive-%E9%85%8D%E7%BD%AE"><span class="nav-text">八、Tomcat 的 KeepAlive 配置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="nav-text">参考资料</span></a></li></ol></li></ol></li></ol>
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="Search..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="popup-btn-close">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+</main>
+
+
+
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/main.js"></script>
+
+<script src="/js/header-shrink.js"></script>
+
+<script src="/js/back2top.js"></script>
+
+<script src="/js/dark-light-toggle.js"></script>
+
+
+
+    
+<script src="/js/local-search.js"></script>
+
+
+
+
+    
+<script src="/js/code-copy.js"></script>
+
+
+
+
+
+<div class="post-scripts">
+    
+        
+<script src="/js/left-side-toggle.js"></script>
+
+<script src="/js/libs/anime.min.js"></script>
+
+<script src="/js/toc.js"></script>
+
+    
+</div>
+
+
+
+</body>
+</html>
