@@ -229,7 +229,7 @@
 <li>标准方面，添加了四种内置的、不可扩展的认证方案，即 Client-Cert、Basic、Digest 和 Form；</li>
 <li>实现方面，添加了一套与认证和授权相关的程序接口，譬如 <code>HttpServletRequest::isUserInRole()</code>、<code>HttpServletRequest::getUserPrincipal()</code>等方法。</li>
 </ul>
-<p>一项发布超过20年的老旧技术，原木并没有什么专门提起的必要性，笔者之所以引用这件事，是希望从它包含的两部分内容中引出一个架构安全性的经验原则：以标准规范为指导、以标准接口去实现。安全涉及的问题很麻烦，但解决方案已相当成熟，对于99%的系统来说、在安全上不去做轮子，不去想发明创造，严格遵循标准，就是最恰当的安全设计。</p>
+<p>一项发布超过20年的老旧技术，原本并没有什么专门提起的必要性，笔者之所以引用这件事，是希望从它包含的两部分内容中引出一个架构安全性的经验原则：以标准规范为指导、以标准接口去实现。安全涉及的问题很麻烦，但解决方案已相当成熟，对于99%的系统来说、在安全上不去做轮子，不去想发明创造，严格遵循标准，就是最恰当的安全设计。</p>
 <p>引用 J2EE1.2 对安全的改进还有另一个原因，它内置的 Client-Cert、Basic、Digest 和 Form 这四种认证方案都很有代表性，刚好分别覆盖了通信信道、协议和内容层面的认证。而这三种层面的认证恰好涵盖了主流的三种认证方式，具体含义和应用场景列举如下。</p>
 <ul>
 <li><strong>通信信道上的认证</strong>：你和我建立通信连接之前，要先证明你是谁。在网络传输（Network）场景中的典型应用是基于 SSL/TLS 传输安全层的认证。</li>
@@ -247,13 +247,13 @@
 <p>Authorization： &lt;认证方案&gt; &lt;凭证内容&gt;<br>Proxy-Authorization：&lt;认证方案&gt; &lt;凭证内容&gt;</p>
 </blockquote>
 <p>HTTP 认证框架提出认证方案是希望能把认证 “要产生身份凭证” 的目的与 “具体如何产生凭证” 的实现分离开来，无论客户端通过生物信息（指纹、人脸）、用户密码、数字证书抑或其他方式来生成凭证，都属于如何生成凭证的具体实现，都可以包含在HTTP协议预设的框架之内。HTTP认证框架的工作流程如下图所示。</p>
-<p><img src="http://qiniu.jzcupid.cn/blog/HTTP%E8%AE%A4%E8%AF%81%E6%A1%86%E6%9E%B6%E7%9A%84%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B%E6%97%B6%E5%BA%8F%E5%9B%BE.png" alt="HTTP认证框架的工作流程时序图"></p>
+<p><img src="../../../imgs/phoenix/HTTP%E8%AE%A4%E8%AF%81%E6%A1%86%E6%9E%B6%E7%9A%84%E5%B7%A5%E4%BD%9C%E6%B5%81%E7%A8%8B%E6%97%B6%E5%BA%8F%E5%9B%BE.png" alt="HTTP认证框架的工作流程时序图"></p>
 <p>以上概念性的介绍可能会有些枯燥抽象，下面笔者将以最基础的认证方案 “HTTP Basic 认证” 为例来介绍认证是如何工作的。HTTP Basic 认证是一种主要以演示为目的的认证方案，也应用于一些不要求安全性的场合，譬如家里的路由器登录等。Basic 认证产生用户身份凭证的方法是让用户输入用户名和密码，经过 Base64 编码 “加密” 后作为身份凭证。譬如请求资源“GET/admin”后，浏览器会收到来自服务端的如下响应：</p>
 <blockquote>
 <p>HTTP/1.1 401 Unauthorized<br>Date:  Mon, 24 Feb 2020 16：50：53 GMT<br>WWW-Authenticate: Basic realm=”example from icyfenix.cn”</p>
 </blockquote>
 <p>此时，浏览器必须询问最终用户，即弹出如图所示的 HTTP Basic 认证对话框，要求提供用户名和密码。</p>
-<p><img src="http://qiniu.jzcupid.cn/blog/Http%20Basice%E8%AE%A4%E8%AF%81%E5%AF%B9%E8%AF%9D%E6%A1%86.pic.jpg" alt="Http Basice认证对话框"></p>
+<p>![Http Basice认证对话框](../../../imgs/phoenix/Http Basice认证对话框.pic.png)</p>
 <p>用户在对话框中输入密码信息，譬如输入用户名 “icyfenix”，密码 “123456”，浏览器会将字符串 “icyfenix：123456” 编码为“aWN5ZmVuaXg6MTIzNDU2”，然后发送给服务端，HTTP 请求如下所示：</p>
 <blockquote>
 <p>GET /admin HTTP/1.1<br>Authorization： Basic aWN5zmVuaXg6MTIzNDU2</p>
@@ -286,7 +286,7 @@
 <li>浏览器将验证器返回的结果转发给服务器。</li>
 <li>服务器核验信息，检查 UserID 与之前发送的是否一致，并用公钥解密后得到的结果与之前发送的 Challenge 作对比，一致即表明注册通过，由服务端存储该UserlD 对应的公钥。</li>
 </ol>
-<p><img src="http://qiniu.jzcupid.cn/blog/%E6%B3%A8%E5%86%8C%E6%B5%81%E7%A8%8B%E6%97%B6%E5%BA%8F%E5%9B%BE.png" alt="注册流程时序图"></p>
+<p><img src="../../../imgs/phoenix/%E6%B3%A8%E5%86%8C%E6%B5%81%E7%A8%8B%E6%97%B6%E5%BA%8F%E5%9B%BE.png" alt="注册流程时序图"></p>
 <p>登录流程与注册流程类似，大致可以分为以下步骤。</p>
 <ol>
 <li>用户访问登录页面，填入用户名后即可点击登录按钮。</li>
@@ -329,7 +329,7 @@
 <h3 id="1-RBAC"><a href="#1-RBAC" class="headerlink" title="1. RBAC"></a>1. RBAC</h3><p>所有的访问控制模型，实质上都是在解决同一个问题：“谁（User）拥有什么权限（Authority）去操作（Operation）哪些资源（Resource）。”</p>
 <p>这个问题初看起来并不难，一种直观的解决方案就是在用户对象上设定一些权限，当用户使用资源时，检查是否有对应的操作权限即可。很多著名的安全框架，譬如 Spring Security 的访问控制本质上就是这么做的。不过，这种把权限直接关联在用户身上的简单设计，在复杂系统上确实会导致一些比较烦琐的问题。试想一下，如果某个系统涉及成百上千的资源，又有成千上万的用户，若要为每个用户访问每个资源都分配合适的权限，必定导致巨大的操作量和极高的出错概率，这也正是 RBAC 所关注的问题之一。</p>
 <p>RBAC 模型在业界中有多种说法，其中以美国 George Mason 大学信息安全技术实验室提出的 RBAC96 模型最具系统性、得到了普遍的认可。为了避免对每一个用户设定权限，RBAC 将权限从用户身上剥离。改为绑定到 “角色”（Role）上，将权限控制变为对 “角拥有操作哪些资源的许可” 这个逻辑表达式的值是否为真的求解过程。RBAC 的主要元素的关系图如下。</p>
-<p><img src="http://qiniu.jzcupid.cn/blog/RBAC%E4%B8%BB%E8%A6%81%E5%85%83%E7%B4%A0%E5%85%B3%E7%B3%BB%E5%9B%BE.png" alt="RBAC主要元素关系图"></p>
+<p><img src="../../../imgs/phoenix/RBAC%E4%B8%BB%E8%A6%81%E5%85%83%E7%B4%A0%E5%85%B3%E7%B3%BB%E5%9B%BE.png" alt="RBAC主要元素关系图"></p>
 <p>上图中出现了一个新的名词 “<strong>许可</strong>”。许可是抽象权限的具象化体现，权限在 RBAC 系统中的含义是 “允许何种<strong>操作</strong>作用于哪些<strong>资源</strong>之上” ，这句话的具体实例即为 “许可”。提出许可这个概念的目的其实与提出角色的目的是完全一致的，只是更为抽象。角色为的是解耦用户与权限之间的多对多关系，而许可为的是解耦操作与资源之间的多对多关系譬如不同的数据都能够有增、删、改等操作，如果将数据与操作搅和在一起也会面临配置膨胀问题。这里举个更具体的例子帮助你理清众多名词之间的关系。譬如某个论文管理系统的 UserStory 中，与访问控制相关的 Backlog 可能会是这样描述的：</p>
 <blockquote>
 <p><strong>Backlog</strong><br>周同学（User）是某SCI杂志的审稿人（Role），职责之一是在系统中审核论文（Authority）。在审稿过程（Session）中，当他认为某篇论文（Resource）达到了可以公开发表的标准时，就会在后台点击通过按钮（Operation）来完成审核</p>
@@ -341,7 +341,7 @@
 <p>建立访问控制模型的基本目的是管理垂直权限和水平权限。垂直权限即功能权限，譬如前面提到的审稿编辑有通过审核的权限、开发经理有代码提交的权限、出纳有从账户报取资金的权限，这一类某个角色完成某项操作的许可，都可以直接翻译为功能权限。由于实际应用与权限模型具有高度对应关系，将权限从具体的应用中抽离出来，放到通用的模型中是相对容易的 Spring Security、Apache Shiro 等权限框架就是这样的抽象产物，大多数系统都能采用这些权限框架来管理功能权限。</p>
 <p>与此相对，水平权限即数据权限，但管理起来要困难许多。譬如用户 A、B 都属于同一个角色。但它们各自在系统中产生的数据完全有可能是私有的，A 访问或删除了 B 的数据也照样属于越权。一般来说、数据权限是很难抽象与通用的，仅在角色层面控制并不能满足全部业务的需要，很多时候只能具体到用户，甚至要具体管理到发生数据的某一行、一列之上，因此数据权限基本只能由信息系统自主完成，并不存在能放之四海皆准的通用数据权限框架。</p>
 <p>本书后面章节中的 “重要角色” —— Kubernetes 完全遵循了 RBAC 来进行服务访问控制，Fenix’s Bookstore 所使用的 Spring Security 也参考了（但并没有完全遵循）RBAC 来设计它的访问控制功能。在 Spring Security 的设计里，用户和角色都可以拥有权限，譬如在它的 HttpSecurity 接口就同时有 hasRole() 和 hasAuthority() 方法。Spring Security 的访问控制模型如图5-6所示，可与前面 RBAC 的关系图对比一下。</p>
-<p><img src="http://qiniu.jzcupid.cn/blog/SpringSecurity%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6%E6%A8%A1%E5%9E%8B.png" alt="SpringSecurity访问控制模型"></p>
+<p><img src="../../../imgs/phoenix/SpringSecurity%E8%AE%BF%E9%97%AE%E6%8E%A7%E5%88%B6%E6%A8%A1%E5%9E%8B.png" alt="SpringSecurity访问控制模型"></p>
 <p>从实现角度来看，Spring Security 中的角色和权限的差异很小，它们完全共享同一套存储结构。唯一的差别仅是角色会在存储时自动带上“ROLE” 前缀罢了。但从使用角度来看，角色和权限的差异可以很大，用户可以自行决定系统中许可是只能对应到角色身上，还是可以让用户也拥有某些角色中没有的权限。这一点不符合 RBAC 的思想，但笔者个人认同这是一种创新而非破坏，在 Spring Security 的文档上说得很清楚：这取决于你自己何使用。</p>
 <blockquote>
 <p> 角色和权限的核心差异取决于用户打算如何使用这些特性，在框架层面它们的差别是极小的，基本采用了完全相同的方式来进行处理</p>
@@ -356,7 +356,7 @@
 </ul>
 <p>以上列举的这些问题，也正是 OAuth2 所要解决的问题，尤其是要求第三方系统没有支持 HTTPS 传输安全的环境下依然能够解决这些问题，这并非易事。</p>
 <p>OAuth2 给出了多种解决办法，这些办法的共同特征是以令牌（Token）代替用户密码作为授权的凭证。有了令牌之后，哪怕令牌被泄漏，也不会导致密码的泄漏；令牌上可以设定访问资源的范围以及时效性；每个应用都持有独立的令牌，哪个失效都不会波及其他。这样上面提出的三个问题就都解决了。有了一层令牌之后，整个授权的流程如下图所示。</p>
-<p><img src="http://qiniu.jzcupid.cn/blog/%E5%8A%A0%E4%BB%A4%E7%89%8C%E5%90%8E%E7%9A%84%E6%8E%88%E6%9D%83%E6%B5%81%E7%A8%8B%E7%A4%BA%E6%84%8F%E5%9B%BE.png" alt="加令牌后的授权流程示意图"></p>
+<p><img src="../../../imgs/phoenix/%E5%8A%A0%E4%BB%A4%E7%89%8C%E5%90%8E%E7%9A%84%E6%8E%88%E6%9D%83%E6%B5%81%E7%A8%8B%E7%A4%BA%E6%84%8F%E5%9B%BE.png" alt="加令牌后的授权流程示意图"></p>
 <p>这个时序图里面涉及到了 OAuth2 中几个关键术语，我们通过前面那个具体的上下文语境来解释其含义，这对理解后续几种认证流程十分重要：</p>
 <ul>
 <li><strong>第三方应用</strong>（Third-Party Application）：需要得到授权访问我资源的那个应用，即此场景中的“Travis-CI”。</li>
@@ -373,7 +373,7 @@
 <li>客户端模式（Client Credentials）</li>
 </ul>
 <h4 id="1）授权码模式"><a href="#1）授权码模式" class="headerlink" title="1）授权码模式"></a>1）授权码模式</h4><p>授权码模式是四种模式中最严（luō）谨（suō）的，它考虑到了几乎所有敏感信息泄漏的预防和后果。具体步骤的时序如下图所示。</p>
-<p><img src="http://qiniu.jzcupid.cn/blog/%E6%8E%88%E6%9D%83%E7%A0%81%E6%A8%A1%E5%BC%8F%E7%9A%84%E8%B0%83%E7%94%A8%E6%97%B6%E5%BA%8F%E5%9B%BE.png" alt="授权码模式的调用时序图"></p>
+<p><img src="../../../imgs/phoenix/%E6%8E%88%E6%9D%83%E7%A0%81%E6%A8%A1%E5%BC%8F%E7%9A%84%E8%B0%83%E7%94%A8%E6%97%B6%E5%BA%8F%E5%9B%BE.png" alt="授权码模式的调用时序图"></p>
 <p>开始进行授权过程以前，第三方应用先要到授权服务器上进行注册，所谓注册，是指向认证服务器提供一个域名地址，然后从授权服务器中获取 ClientID 和 ClientSecret，以便能够顺利完成如下授权过程：</p>
 <ol>
 <li>第三方应用将资源所有者（用户）导向授权服务器的授权页面，并向授权服务器提供 ClientID 及用户同意授权后的回调 URI，这是一次客户端页面转向。</li>
@@ -392,7 +392,7 @@
 <p>尽管授权码模式是严谨的，但是它并不够好用，这不仅仅体现在它那繁复的调用过程上，还体现在它对第三方应用提出了一个“貌似不难”的要求：第三方应用必须有应用服务器，因为第 4 步要发起服务端转向，而且要求服务端的地址必须与注册时提供的地址在同一个域内。不要觉得要求一个系统要有应用服务器是天经地义理所当然的事情，你现在阅读文章的这个网站就没有任何应用服务器的支持，里面使用到了 Gitalk 作为每篇文章的留言板，它对 GitHub 来说照样是第三方应用，需要 OAuth2 授权来解决。除基于浏览器的应用外，现在越来越普遍的是移动或桌面端的客户端 Web 应用（Client-Side Web Applications），譬如现在大量的基于 Cordova、Electron、Node-Webkit.js 的<a class="link"   target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/Progressive_web_application" >PWA 应用<i class="fas fa-external-link-alt"></i></a>，它们都没有应用服务器的支持。由于有这样的实际需求，因此引出了 OAuth2 的第二种授权模式：隐式授权。</p>
 <h4 id="2）隐式授权模式"><a href="#2）隐式授权模式" class="headerlink" title="2）隐式授权模式"></a>2）隐式授权模式</h4><p>隐式授权省略掉了通过授权码换取令牌的步骤，整个授权过程都不需要服务端支持，一步到位。代价是在隐式授权中，授权服务器不会再去验证第三方应用的身份，因为已经没有应用服务器了，ClientSecret 没有人保管，就没有存在的意义了。但其实还是会限制第三方应用的回调 URI 地址必须与注册时提供的域名一致，尽管有可能被 DNS 污染之类的攻击所攻破，但仍算是尽可能努力一下。同样的原因，也不能避免令牌暴露给资源所有者，不能避免用户机器上可能意图不轨的其他程序、HTTP 的中间人攻击等风险了。</p>
 <p>隐式授权的调用时序如下图（从此之后的授权模式，时序中笔者就不再画出资源访问部分的内容了，就是前面 opt 框中的那一部分，以便更聚焦重点）所示。</p>
-<p><img src="http://qiniu.jzcupid.cn/blog/%E9%9A%90%E5%BC%8F%E6%8E%88%E6%9D%83%E7%9A%84%E8%B0%83%E7%94%A8%E6%97%B6%E5%BA%8F%E5%9B%BE.png" alt="隐式授权的调用时序图"></p>
+<p><img src="../../../imgs/phoenix/%E9%9A%90%E5%BC%8F%E6%8E%88%E6%9D%83%E7%9A%84%E8%B0%83%E7%94%A8%E6%97%B6%E5%BA%8F%E5%9B%BE.png" alt="隐式授权的调用时序图"></p>
 <p>在时序图所示的交互过程里，隐式模式与授权码模式的显著区别是授权服务器在得到用户授权后，直接返回了访问令牌，这显著地降低了安全性，但 OAuth2 仍然努力尽可能地做到相对安全，譬如在前面提到的隐式授权中，尽管不需要用到服务端，但仍然需要在注册时提供回调域名，此时会要求该域名与接受令牌的服务处于同一个域内。此外，同样基于安全考虑，在隐式模式中明确禁止发放刷新令牌。</p>
 <p>还有一点，在 RFC 6749 对隐式授权的描述中，特别强调了令牌必须是“通过 Fragment 带回”的。部分对超文本协议没有了解的读者，可能还根本不知道<a class="link"   target="_blank" rel="noopener" href="https://en.wikipedia.org/wiki/URI_fragment" >Fragment<i class="fas fa-external-link-alt"></i></a>是个什么东西？</p>
 <blockquote>
@@ -409,14 +409,14 @@
 <p>笔者认为，如果要采用密码模式，那“第三方”属性就必须弱化，把“第三方”视作是系统中与授权服务器相对独立的子模块，在物理上独立于授权服务器部署，但是在逻辑上与授权服务器仍同属一个系统，这样将认证和授权一并完成的密码模式才会有合理的应用场景。</p>
 <p>譬如 Fenix’s Bookstore 便直接采用了密码模式，将认证和授权统一到一个过程中完成，尽管 Fenix’s Bookstore 中的 Frontend 工程和 Account 工程都能直接接触到用户名和密码，但它们事实上都是整个系统的一部分，这个前提下密码模式才具有可用性。关于分布式系统各个服务之间的信任关系，后续会在“<a class="link"   target="_blank" rel="noopener" href="http://icyfenix.cn/distribution/secure/zero-trust.html" >零信任网络<i class="fas fa-external-link-alt"></i></a>”与“<a class="link"   target="_blank" rel="noopener" href="http://icyfenix.cn/distribution/secure/service-security.html" >服务安全<i class="fas fa-external-link-alt"></i></a>”中作进一步讨论。</p>
 <p>理解了密码模式的用途，它的调用过程就很简单了，就是第三方应用拿着用户名和密码向授权服务器换令牌而已。具体时序如下图所示。</p>
-<p><img src="http://qiniu.jzcupid.cn/blog/%E5%AF%86%E7%A0%81%E6%A8%A1%E5%BC%8F%E7%9A%84%E8%B0%83%E7%94%A8%E6%97%B6%E5%BA%8F%E5%9B%BE.png" alt="密码模式的调用时序图"></p>
+<p><img src="../../../imgs/phoenix/%E5%AF%86%E7%A0%81%E6%A8%A1%E5%BC%8F%E7%9A%84%E8%B0%83%E7%94%A8%E6%97%B6%E5%BA%8F%E5%9B%BE.png" alt="密码模式的调用时序图"></p>
 <p>密码模式下“如何保障安全”的职责无法由 OAuth2 来承担，只能由用户和第三方应用来自行保障，尽管 OAuth2 在规范中强调到“此模式下，第三方应用不得保存用户的密码”，但这并没有任何技术上的约束力。</p>
 <h4 id="4）客户端模式"><a href="#4）客户端模式" class="headerlink" title="4）客户端模式"></a>4）客户端模式</h4><p>客户端模式是四种模式中最简单的，它只涉及到两个主体，第三方应用和授权服务器。如果严谨一点，现在称“第三方应用”其实已经不合适了，因为已经没有了“第二方”的存在，资源所有者、操作代理在客户端模式中都是不必出现的。甚至严格来说叫“授权”都已不太恰当，资源所有者都没有了，也就不会有谁授予谁权限的过程。</p>
 <p>客户端模式是指第三方应用（行文一致考虑，还是继续沿用这个称呼）以自己的名义，向授权服务器申请资源许可。此模式通常用于管理操作或者自动处理类型的场景中。举个具体例子，譬如笔者开了一家叫 Fenix’s Bookstore 的书店，因为小本经营，不像京东那样全国多个仓库可以调货，因此必须保证只要客户成功购买，书店就必须有货可发，不允许超卖。但经常有顾客下了订单又拖着不付款，导致部分货物处于冻结状态。所以 Fenix’s Bookstore 中有一个订单清理的定时服务，自动清理超过两分钟还未付款的订单。在这个场景里，订单肯定是属于下单用户自己的资源，如果把订单清理服务看作一个独立的第三方应用的话，它是不可能向下单用户去申请授权来删掉订单的，而应该直接以自己的名义向授权服务器申请一个能清理所有用户订单的授权。客户端模式的时序如下图所示。</p>
-<p><img src="http://qiniu.jzcupid.cn/blog/%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%A8%A1%E5%BC%8F%E7%9A%84%E8%B0%83%E7%94%A8%E6%97%B6%E5%BA%8F%E5%9B%BE.png" alt="客户端模式的调用时序图"></p>
+<p><img src="../../../imgs/phoenix/%E5%AE%A2%E6%88%B7%E7%AB%AF%E6%A8%A1%E5%BC%8F%E7%9A%84%E8%B0%83%E7%94%A8%E6%97%B6%E5%BA%8F%E5%9B%BE.png" alt="客户端模式的调用时序图"></p>
 <p>微服务架构并不提倡同一个系统的各服务间有默认的信任关系，所以服务之间调用也需要先进行认证授权，然后才能通信。此时，客户端模式便是一种常用的服务间认证授权的解决方案。<a class="link"   target="_blank" rel="noopener" href="http://icyfenix.cn/exploration/projects/microservice_arch_springcloud.html" >Spring Cloud 版本的 Fenix’s Bookstore<i class="fas fa-external-link-alt"></i></a>是采用这种方案来保证微服务之间的合法调用的，<a class="link"   target="_blank" rel="noopener" href="http://icyfenix.cn/exploration/projects/servicemesh_arch_istio.html" >Istio 版本的 Fenix’s Bookstore<i class="fas fa-external-link-alt"></i></a>则启用了双向 mTLS 通信，使用客户端证书来保障安全，它们可作为上一节介绍认证时提到的“通信信道认证”和“通信内容认证”例子，感兴趣的读者可以对比一下这两种方式的差异优劣。</p>
 <p>OAuth2 中还有一种与客户端模式类似的授权模式，在<a class="link"   target="_blank" rel="noopener" href="https://tools.ietf.org/html/rfc8628#section-3.4" >RFC 8628<i class="fas fa-external-link-alt"></i></a>中定义为“设备码模式”（Device Code），这里顺带提一下。设备码模式用于在无输入的情况下区分设备是否被许可使用，典型的应用便是手机锁网解锁（锁网在国内较少，但在国外很常见）或者设备激活（譬如某游戏机注册到某个游戏平台）的过程。它的时序如下图所示。</p>
-<p><img src="http://qiniu.jzcupid.cn/blog/%E8%AE%BE%E5%A4%87%E7%A0%81%E6%A8%A1%E5%BC%8F%E7%9A%84%E8%B0%83%E7%94%A8%E6%97%B6%E5%BA%8F%E5%9B%BE.png" alt="设备码模式的调用时序图"></p>
+<p><img src="../../../imgs/phoenix/%E8%AE%BE%E5%A4%87%E7%A0%81%E6%A8%A1%E5%BC%8F%E7%9A%84%E8%B0%83%E7%94%A8%E6%97%B6%E5%BA%8F%E5%9B%BE.png" alt="设备码模式的调用时序图"></p>
 <p>进行验证时，设备需要从授权服务器获取一个 URI 地址和一个用户码，然后需要用户手动或设备自动地到验证 URI 中输入用户码。在这个过程中，设备会一直循环，尝试去获取令牌，直到拿到令牌或者用户码过期为止。</p>
 <h2 id="三、凭证"><a href="#三、凭证" class="headerlink" title="三、凭证"></a>三、凭证</h2><p>在前面介绍 OAuth2 的内容中，每一种授权模式的最终目标都是拿到访间令牌，但未涉及过拿回来的令牌应该长什么样子。反而还挖了一些坑没有填（为何说 OAuth2 的一个主要缺陷是令牌难以主动失效）。这节讨论的主角是令牌，同时，还会讨论如果不使用 OAuth2，如何以最传统的方式完成认证、授权。</p>
 <p>对 “如何承载认证授权信息” 这个问题的不同看法，代表了软件架构对待共享状态信息的两种不同思路：状态应该维护在服务端，还是在客户端之中？在分布式系统崛起以前，这个问题原本已有了较为统一的结论，即以 HTTP 协议的 Cookie-Session 机制为代表的服务端状态存储在分布式崛起前的三十年中都是主流的解决方案。不过，到了最近十年，由于分布式系统中共享数据必然会受到 CAP 不兼容原理的打击限制，迫使人们重新去审视之前已基本放弃掉的客户端状态存储、这就让原本只在多方系统中采用的 JWT 令牌方案，在分布式系统中也有了另一块用武之地。本节将围绕 Cookie-Session 和 JWT 之间的相同与不同而展开。</p>
@@ -440,7 +440,7 @@
 <p>通过前面章节的内容，我们已经知道<strong>只要在分布式系统中共享信息，CAP 就不可兼得所以分布式环境中的状态管理一定会受到 CAP 的限制，无论怎样都不可能完美</strong>。但如果只是解决分布式下的认证授权问题，并顺带解决少量状态的问题，就不一定只能依靠共享信息去实现。这句话的言外之意是提醒读者，接下来的 JWT 令牌与 Cookie-Session 并不是完全对等的解决方案，JWT 令牌只用来处理认证授权问题，充其量只能携带少量非敏感的信息，是 Cookie-Session 在认证授权问题上的替代品，而不能说 JWT 要比 Cookie-Session 更先进，更不可能说 JWT 可以全面取代 Cookie-Session 机制。</p>
 <h3 id="2-JWT"><a href="#2-JWT" class="headerlink" title="2. JWT"></a>2. JWT</h3><p>Cookie-Session 机制在分布式环境下会遇到 CAP 不可兼得的问题，而在多方系统中，就更不可能谈 Session 层面的数据共享了，哪怕服务端之间能共享数据，客户端的 Cookie 也没法跨域。所以我们不得不重新捡起最初被抛弃的思路，当服务器存在多个，客户端只有一个时，把状态信息存储在客户端，每次随着请求发回服务器去。前面说过，这样做的缺点是无法携带大量信息，而且有泄漏和篡改的安全风险。信息量受限的问题并没有太好的解决办法，不过要确保信息不被中间人篡改则还是可以实现的，JWT 便是这个问题的标准答案。</p>
 <p>JWT（JSON Web Token）定义于 RFC7519 标准之中，是目前广泛使用的一种令牌格式尤其经常与 OAuth2 配合应用于分布式的、涉及多方的应用系统中。介绍JWT的具体构成之前，我们先来直观地看一下它是什么样子的，如下图所示。</p>
-<p><img src="http://qiniu.jzcupid.cn/blog/JWT%E4%BB%A4%E7%89%8C%E7%BB%93%E6%9E%84.png" alt="JWT令牌结构"></p>
+<p><img src="../../../imgs/phoenix/JWT%E4%BB%A4%E7%89%8C%E7%BB%93%E6%9E%84.png" alt="JWT令牌结构"></p>
 <p>以上截图来自 <a class="link"   target="_blank" rel="noopener" href="https://jwt.io/" >JWT 官网<i class="fas fa-external-link-alt"></i></a>，数据则是笔者随意编的。右边的 JSON 结构是 JWT 令牌中携带的信息，左边的字符串呈现了 JWT 令牌的本体。它最常见的使用方式是附在名为 Authorization 的 Header 发送给服务端，前缀在 RFC6750 中被规定为 Bearere。如果你没有忘记 “认证方案” 与 “OAuth2” 的内容，那看到 Authorization 这个Header 与 Bearer 这个前缀时，便应意识到它是 HTTP 认证框架中的 OAuth2 认证方案。如下代码展示了一次采用 JWT 令牌的 HTTP 实际请求：</p>
 <blockquote>
 <p>GET /restful/products/1 HTTP/1.1<br>Host: 1cyfenix.cn<br>Connection: keep-alive<br>Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c</p>
@@ -453,7 +453,7 @@
 <blockquote>
 <p><strong>散列消息认证码</strong><br>在本节及后面其他关于安全的内容中，经常会在某种哈希算法前出现 “HMAC” 的前缀，这是指散列消息认证码（Hash-based Message Authentication Code，HMAC）。可以简单将它理解为一种带有密钥的哈希摘要算法，其实现形式上通常是把密钥以加盐方式混入，与内容一起做哈希摘要。</p>
 <p>HMAC 哈希与普通哈希算法的差别是普通的哈希算法通过 Hash 函数结果易变性保证了原有内容未被篡改，而 HMAC 不仅保证了内容未被篡改，还保证了该哈希确实是由密钥的持有人所生成的。如图所示。</p>
-<p><img src="http://qiniu.jzcupid.cn/blog/HMAC%E5%93%88%E5%B8%8C%E4%B8%8E%E6%99%AE%E9%80%9A%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95%E7%9A%84%E5%B7%AE%E5%88%AB.jpg" alt="HMAC哈希与普通哈希算法的差别"></p>
+<p><img src="../../../imgs/phoenix/HMAC%E5%93%88%E5%B8%8C%E4%B8%8E%E6%99%AE%E9%80%9A%E5%93%88%E5%B8%8C%E7%AE%97%E6%B3%95%E7%9A%84%E5%B7%AE%E5%88%AB.png" alt="HMAC哈希与普通哈希算法的差别"></p>
 </blockquote>
 <p>令牌的第二部分是负载（Payload），这是令牌真正需要向服务端传递的信息。针对认证问题，负载至少应该包含能够告知服务端 “这个用户是谁” 的信息；针对授权问题，令牌至少应该包含能够告知服务端 “这个用户拥有什么角色 / 权限” 的信息。JWT 的负载部分<br>是可以完全自定义的，根据具体要解决的问题不同，设计自己所需要的信息，只是总容量不能太大，毕竟要受到 HTTP Header 大小的限制。一个 JWT 负载的例子如下所示：</p>
 <figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  <span class="attr">&quot;username&quot;</span>: <span class="string">&quot;icyfenix&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;authorities&quot;</span>: [</span><br><span class="line">  	<span class="string">&quot;ROLE_USER&quot;</span>,</span><br><span class="line">  	<span class="string">&quot;ROLE_ADMIN&quot;</span></span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">&quot;scope&quot;</span>: [</span><br><span class="line">  	<span class="string">&quot;ALL&quot;</span></span><br><span class="line">  ],</span><br><span class="line">  <span class="attr">&quot;exp&quot;</span>: <span class="number">1584948947</span>,</span><br><span class="line">  <span class="attr">&quot;jti&quot;</span>: <span class="string">&quot;9d77586a-3f4f-4cbb-9924-fe2f77dfa33d&quot;</span>,</span><br><span class="line">  <span class="attr">&quot;client_id&quot;</span>: <span class="string">&quot;bookstore frontend&quot;</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
