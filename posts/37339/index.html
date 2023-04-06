@@ -208,7 +208,7 @@
 
 <h4 id="3、强制删除-pod"><a href="#3、强制删除-pod" class="headerlink" title="3、强制删除 pod"></a>3、强制删除 pod</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl delete pod pod-name -n <span class="built_in">test</span> --force --grace-period=0</span><br></pre></td></tr></table></figure>
 
-<h4 id="4、批量删除-pod"><a href="#4、批量删除-pod" class="headerlink" title="4、批量删除 pod"></a>4、批量删除 pod</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl get pod -n <span class="built_in">test</span> -o wide | grep <span class="string">&quot;Terminating&quot;</span> | awk <span class="string">&#x27;&#123;system(echo&quot; kubectl delete pod &quot;$1&quot; -n test --force --grace-period=0&quot;)&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
+<h4 id="4、批量删除-pod"><a href="#4、批量删除-pod" class="headerlink" title="4、批量删除 pod"></a>4、批量删除 pod</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">kubectl get pod -n <span class="built_in">test</span> -o wide | grep <span class="string">&quot;Terminating&quot;</span> | awk <span class="string">&#x27;&#123;system(&quot;kubectl delete pod &quot;$1&quot; -n test --force --grace-period=0&quot;)&#125;&#x27;</span></span><br></pre></td></tr></table></figure>
 
         </div>
 
