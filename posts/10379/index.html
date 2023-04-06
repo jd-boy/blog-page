@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="JD">
+    
+    <title>
+        
+            awk 命令 |
+        
+        Bean You
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <link rel="shortcut icon" href="/images/favicon.png">
+    
+<link rel="stylesheet" href="/css/font-awesome.min.css">
+
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"jzcupid.cn","root":"/","language":"en","path":"search.json"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":false,"expand_all":false,"init_open":false},"style":{"primary_color":"#0066CC","avatar":"/images/avatar.svg","favicon":"/images/favicon.png","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":true,"scale":true},"first_screen":{"enable":true,"background_img":"/images/bg.svg","description":"莫听穿林打叶声，何妨吟啸且徐行。"},"scroll":{"progress_bar":{"enable":false},"percent":{"enable":true}}},"local_search":{"enable":true,"trigger":"auto","preload":true},"code_copy":{"enable":true,"style":"default"},"pjax":{"enable":false},"lazyload":{"enable":false},"version":"3.4.3"};
+    KEEP.language_ago = {"second":"%s seconds ago","minute":"%s minutes ago","hour":"%s hours ago","day":"%s days ago","week":"%s weeks ago","month":"%s months ago","year":"%s years ago"};
+  </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                Bean You
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                首页
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/categories"
+                            >
+                                分类
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >
+                                标签
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                归档
+                            </a>
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="fas fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">首页</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/categories">分类</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags">标签</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">归档</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">awk 命令</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="/images/avatar.svg">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">JD</span>
+                        
+                            <span class="author-label">Lv6</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2023-04-06 11:52:59
+    </span>
+    
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>&nbsp;
+                    </li>
+                
+                    <li>
+                        &gt; <a href="/categories/%E8%BF%90%E7%BB%B4/Linux/">Linux</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+    
+        <span class="article-tags article-meta-item">
+            <i class="fas fa-tags"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/tags/Linux-%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4/">Linux 常用命令</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+
+    
+    
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fas fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <p><a class="link"   target="_blank" rel="noopener" href="https://www.gnu.org/software/gawk/manual/gawk.html" >AWK官方文档<i class="fas fa-external-link-alt"></i></a></p>
+<h2 id="awk-是什么"><a href="#awk-是什么" class="headerlink" title="awk 是什么"></a>awk 是什么</h2><p>awk是linux环境下的一个命令行工具，但是由于awk强大的能力，我们可以为awk工具传递一个字符串，该字符串的内容类似一种编程语言的语法，我们可以称其为Awk语言，而awk工具本身则可以看作是Awk语言的解析器。就好比python解析器与Python语言的关系。我们一般使用awk来做什么，awk又适合做什么工作呢。由于awk天生提供对文件中文本分列进行处理，所以如果一个文件中的每行都被特定的分隔符(常见的是空格)隔开，我们可以将这个文件看成是由很多列的文本组成，这样的文件最适合用awk进行处理，其实awk在工作中很多时候被用来处理log文件，进行一些统计工作等。</p>
+<h2 id="awk-命令的一般组成"><a href="#awk-命令的一般组成" class="headerlink" title="awk 命令的一般组成"></a>awk 命令的一般组成</h2><p>awk最常用的工作一般是遍历一个文件中的每一行，然后分别对文件的每一行进行处理，一个完整的awk命令形式如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">awk [options] <span class="string">&#x27;BEGIN&#123; commands &#125; pattern&#123; commands &#125; END&#123; commands &#125;&#x27;</span> file</span><br></pre></td></tr></table></figure>
+
+<p>其中options表示awk的可选的命令行选项，其中最常用的恐怕是 -F 它指定将文件中每一行分隔成列的分隔符号。而紧接着后面的单引号里面的所有内容是awk的程序脚本，awk需要对文件每一行分割后的每一列做处理。file则是awk要处理的文件名称。让我们通过demo来体会awk的功能。</p>
+<h2 id="awk-对每一行进行分割处理"><a href="#awk-对每一行进行分割处理" class="headerlink" title="awk 对每一行进行分割处理"></a>awk 对每一行进行分割处理</h2><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> <span class="string">&#x27;11 22 33 44&#x27;</span> | awk <span class="string">&#x27;&#123;print $3&quot; &quot;$2&quot; &quot;$1&#125;&#x27;</span></span><br><span class="line">33 22 11</span><br></pre></td></tr></table></figure>
+
+<p>我们将字符串 11 22 33 44 通过管道传递给awk命令，相当于awk处理一个文件，该文件的内容就是 11 22 33 44 上面的命令中我们并没有添加 -F 指定分割符号，实际上默认情况下awk使用空格分割每一行，如果需要指定别的字符则使用-F显示指定。上面的命令是将 11 22 33 44 通过空格(不管列之间有多少个空格都将当作一个空格处理)分割成4列，在awk中有一种通过 <code>$数字</code> 引用的变量，这种变量引用的内容就是当前行中分割的每一列的内容，数字的序号从1开始，例如$1表示第1列的内容，$2表示第二列，以此类推。$0 表示当前整行的内容。print是awk的内置函数，用于打印出变量的值。 而我们在$3 $2 $1 之间添加了用双引号引起来的空格，如果没有，则这些变量的值打印出来会连在一起。这里的awk命令中{}里面的内容实际上是我们上面完整模式的中间部分，我们省略了上面的BEGIN块，END块，并且中间的程序块我们也省略掉了pattern部分，也就是如果不添加BEGIN或者END说明那么该程序块就是上面完整模式中的中间的那个程序块，该中间的程序块所执行的操作就是循环处理文件内容的每一行，如果文件有10行，那么中间的程序块要运行10次，每一次处理一行的内容，并且处理完当前行之后，下次循环会自动依次处理接下来的行内容。</p>
+<p>我们来看看，如果有两列是什么效果呢，例如：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> -e <span class="string">&#x27;11 22 33 44\naa bb cc dd&#x27;</span> | awk <span class="string">&#x27;&#123;print $3&quot; &quot;$2&quot; &quot;$1&#125;&#x27;</span></span><br><span class="line">33 22 11</span><br><span class="line">cc bb aa</span><br></pre></td></tr></table></figure>
+
+<p>注意这里 <code>echo</code> 命令使用了 <code>-e</code> 选项的目的就是为了保持字符串中的\n的格式能够生效，否则该换行将被忽略。那么上面的命令是如何执行的呢，我们模拟一下awk的执行过程，首先awk读取第一行的内容，使用空格分隔该行中的列，并将字符串11赋值给<code>$1</code>，22赋值给<code>$2</code>，33赋值给<code>$3</code>，44赋值给<code>$4</code>。然后通过print打印出来。接着读取第二行的内容，同样执行上面的操作。</p>
+<h2 id="使用parttern部分"><a href="#使用parttern部分" class="headerlink" title="使用parttern部分"></a>使用parttern部分</h2><p>我们已经学习了awk最简单的命令，下面我们再加一点东西进去，在程序块的前面添加pattern部分，例如：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> -e <span class="string">&#x27;1 2 3 4\n5 6 7 8&#x27;</span> | awk <span class="string">&#x27;$1&gt;2&#123;print $3&quot; &quot;$2&quot; &quot;$1&#125;&#x27;</span></span><br><span class="line">7 6 5</span><br></pre></td></tr></table></figure>
+
+<p>该程序与上面的程序几乎一样，只不过我们在程序块前面添加了 $1&gt;2 表示如果当前行的第1列的值大于2则处理当前行，否则不处理。说白了pattern部分是用来从文件中筛选出需要处理的行进行处理的，如果没有则循环处理文件中的所有行。pattern部分可以是任何条件表达式的判断结果，例如&gt;，&lt;，==，&gt;=，&lt;=，!= 同时还可以使用+，-，*，/运算与条件表达式相结合的复合表达式，逻辑 &amp;&amp;，||，! 同样也可以使用进来。另外pattern部分还可以使用 /正则/ 选择需要处理的行。</p>
+<h2 id="awk-的BEGIN语句块"><a href="#awk-的BEGIN语句块" class="headerlink" title="awk 的BEGIN语句块"></a>awk 的BEGIN语句块</h2><p>BEGIN语句块是在匹配文件第一行之前运行的语句块。由于是匹配第一行之前运行，实际上在BEGIN语句块中 $n 是不可用的。一般情况下可以在BEGIN语句块中做一些变量(awk中可以自定义变量，直接为一个变量赋值就定义了一个变量，awk中没有专门定义变量的关键字)初始化的工作，以及一些只需要在开始仅打印一次的输出信息(例如输出表的表头)。例如：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> -e <span class="string">&#x27;1 2 3 4\n5 6 7 8&#x27;</span> | awk <span class="string">&#x27;BEGIN&#123;print &quot;c1 c2 c3&quot;;print &quot;&quot;&#125;&#123;print $3&quot; &quot;$2&quot; &quot;$1&#125;&#x27;</span></span><br><span class="line">c1 c2 c3</span><br><span class="line"></span><br><span class="line">3 2 1</span><br><span class="line">7 6 5</span><br></pre></td></tr></table></figure>
+
+<p>注意一个语句块(花括号包围)中可以有多条语句，使用分号隔开，这与C语言一样。如果需要单独打印空行，需要使用 <code>print &quot;&quot;</code> 我们上面就实现了输出表头的效果。</p>
+<h2 id="awk-的END语句块"><a href="#awk-的END语句块" class="headerlink" title="awk 的END语句块"></a>awk 的END语句块</h2><p>END语句块是在awk循环执行完所有行的处理之后，才执行的，与BEGIN一样，END语句块也只执行一次，我们看看完整的例子。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">echo</span> -e <span class="string">&#x27;1\n2\n3&#x27;</span> | awk <span class="string">&#x27;BEGIN&#123;print &quot;begin&quot;&#125;&#123;print $1&#125;END&#123;print &quot;end&quot;&#125;&#x27;</span></span><br><span class="line">begin</span><br><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">end</span><br></pre></td></tr></table></figure>
+
+<h2 id="awk定义变量对列求和"><a href="#awk定义变量对列求和" class="headerlink" title="awk定义变量对列求和"></a>awk定义变量对列求和</h2><p>test.txt 的内容如下：</p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">11 22 33</span><br><span class="line">23 45 34</span><br><span class="line">22 32 43</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">awk <span class="string">&#x27;BEGIN&#123;sum=0&#125;&#123;sum+=$1&#125;END&#123;print sum&#125;&#x27;</span> test.txt</span><br><span class="line">56</span><br></pre></td></tr></table></figure>
+
+<p>首先在BEGIN语句块中为变量sum赋值0，然后在循环语句块中将每一行的第1列加到sum中，当文件的所有行全部循环处理完成之后，打印出sum变量的值。当然这个例子中BEGIN语句块是可以省略的，我们可以直接在循环语句块中使用sum变量，此时sum第一次使用，该变量会自动被建立，默认的初始值是0。</p>
+<h2 id="awk中的判断语句"><a href="#awk中的判断语句" class="headerlink" title="awk中的判断语句"></a>awk中的判断语句</h2><p>awk的所有语句块中都可以使用判断语句，其判断语句语法与C语言一样。</p>
+<p>//test.txt内容如下</p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">1 2 3</span><br><span class="line">4 5 6</span><br><span class="line">7 8 9</span><br><span class="line">10 11 12</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">awk <span class="string">&#x27;&#123;if($1%2==0)print $1&quot; &quot;$2&quot; &quot;$3&#125;&#x27;</span> test.txt</span><br><span class="line">4 5 6</span><br><span class="line">10 11 12</span><br></pre></td></tr></table></figure>
+
+<h2 id="awk中的循环"><a href="#awk中的循环" class="headerlink" title="awk中的循环"></a>awk中的循环</h2><h4 id="while循环"><a href="#while循环" class="headerlink" title="while循环"></a>while循环</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">awk <span class="string">&#x27;BEGIN&#123;count=0;while(count&lt;5)&#123;print count;count ++;&#125;&#125;&#x27;</span></span><br><span class="line">0</span><br><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td></tr></table></figure>
+
+<p>可以看出awk的一个语句块中可以有比较复杂的复合语句，其使用与C语言几乎差不多，多条语句之间用分号隔开，复合语句块用花括号括起来做分隔。</p>
+<h4 id="do-while循环"><a href="#do-while循环" class="headerlink" title="do..while循环"></a>do..while循环</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">awk <span class="string">&#x27;BEGIN&#123;count=0;do&#123;print count;count++&#125;while(count&lt;5)&#125;&#x27;</span></span><br><span class="line">0</span><br><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td></tr></table></figure>
+
+<h4 id="for-循环"><a href="#for-循环" class="headerlink" title="for 循环"></a>for 循环</h4><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">awk <span class="string">&#x27;BEGIN&#123;for(count=0;count&lt;5;count++)print count&#125;&#x27;</span></span><br><span class="line">0</span><br><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td></tr></table></figure>
+
+<p>可以看到这几种循环的形式与C语言是一样的，对于我们理解没有任何障碍。awk中也使用break退出循环，使用continue跳过本次循环，其含义与C语言一样。</p>
+<h2 id="使用数组分组求和，for-in循环"><a href="#使用数组分组求和，for-in循环" class="headerlink" title="使用数组分组求和，for..in循环"></a>使用数组分组求和，for..in循环</h2><p>awk中的数组基本上可以看作是字典，看下面的例子：<br>test.txt的文件内容</p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">zhangsan 2 3</span><br><span class="line">lisi 5 6</span><br><span class="line">zhangsan 8 9</span><br><span class="line">lisi 11 12</span><br><span class="line">wangwu 33 11</span><br></pre></td></tr></table></figure>
+
+<p>将所有第一列相同的分成一个组，并将该组中的第二列求和。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">awk <span class="string">&#x27;&#123;sum[$1]+=$2&#125;END&#123;for(k in sum)print k&quot; &quot;sum[k]&#125;&#x27;</span> test.txt</span><br><span class="line">zhangsan 10</span><br><span class="line">lisi 16</span><br><span class="line">wangwu 33</span><br></pre></td></tr></table></figure>
+
+<p>这个例子里面使用了for..in循环来遍历数组的key，同时通过key来得到数组的值。对于key不是数字的数组，是不能通过普通的for循环来以数字索引访问数组元素的。我们可以通过length()函数来获得数组的元素个数，例如length(array)</p>
+<h2 id="awk-中使用shell变量值"><a href="#awk-中使用shell变量值" class="headerlink" title="awk 中使用shell变量值"></a>awk 中使用shell变量值</h2><p>有的时候我们在shell中计算出来的变量值需要被awk命令使用，我们当然不能在awk中直接使用 $VAR，因为美元符号在awk中本来就是特殊符号，在awk中可以使用 $n 引用当前行的第n列的值，所以直接这么使用是不行的，awk提供了一个选项 -v 来指定变量，在awk中有两种变量，一种是 $n 形式的变量，这个是在循环文件的行的时候，用来引用当前行的第n列的值，还有一种变量，不用定义可以直接使用，不需要用美元符号来引用。下面看看shell中的变量值如何在awk中使用：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">a=22</span><br><span class="line">b=33</span><br><span class="line">awk -v x=$a -v y=$b &#x27;BEGIN&#123;print x&quot; &quot;y&#125;&#x27;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到我们只需要在使用awk的时候通过 -v 指定awk中将会用到的变量即可，而变量值则可以通过引用shell变量得到，也就是说我们只能在awk的options部分引用shell的变量，在awk的语句块中使用美元符号引用变量会被awk解析成自己的变量而不是shell的变量。</p>
+<h2 id="awk-中的操作符与优先级列表"><a href="#awk-中的操作符与优先级列表" class="headerlink" title="awk 中的操作符与优先级列表"></a>awk 中的操作符与优先级列表</h2><p><img src="../../imgs/Linux/o_awk_caozf.png" alt="11"></p>
+<h2 id="awk-的内置函数"><a href="#awk-的内置函数" class="headerlink" title="awk 的内置函数"></a>awk 的内置函数</h2><p>awk定义了很多内置函数，下面我们根据函数类型列出常用的函数，下面的函数只是一部分，完整的函数列表则需要查阅awk的官方文档。</p>
+<h4 id="算术："><a href="#算术：" class="headerlink" title="算术："></a>算术：</h4><ul>
+<li><code>atan2(y,x)</code> 返回 y/x 的反正切</li>
+<li><code>cos(x)</code> 返回 x 的余弦；x 是弧度</li>
+<li><code>sin(x)</code> 返回 x 的正弦；x 是弧度</li>
+<li><code>exp(x)</code> 返回 x 幂函数</li>
+<li><code>log(x)</code> 返回 x 的自然对数</li>
+<li><code>sqrt(x) </code>返回 x 平方根</li>
+<li><code>int(x) </code>返回 x 的截断至整数的值</li>
+<li><code>rand() </code>返回任意数字 n，其中 0 &lt;= n &lt; 1</li>
+<li><code>srand([expr]) </code>将 rand 函数的种子值设置为 Expr 参数的值，或如果省略 Expr 参数则使用某天的时间。返回先前的种子值。</li>
+</ul>
+<h4 id="字符串："><a href="#字符串：" class="headerlink" title="字符串："></a>字符串：</h4><ul>
+<li><code>gsub(reg,str1,str2) </code>使用str1替换所有str2中符合正则表达式reg的子串</li>
+<li><code>sub(reg,str1,str2) </code>含义与gsub相同，只不过gsub是替换所有匹配，sub只替换第一个匹配</li>
+<li><code>index(str,substr) </code>返回substr在str中第一次出现的索引，注意索引从1开始计算，如果没有则返回0</li>
+<li><code>length(str)</code> 返回str字符串的长度，length函数还可以返回数组元素的个数</li>
+<li><code>blength(str) </code>返回字符串的字节数</li>
+<li><code>match(str,reg) </code>与index函数一样，只不过reg使用正则表达式，例如match(“hello”,/lo/)</li>
+<li><code>split(str,array,reg)</code>将str分隔成数组保存到array中，分隔使用正则reg，或者字符串都可以，返回数组长度</li>
+<li><code>tolower(str)</code> 转换为小写</li>
+<li><code>toupper(str)</code> 转换为大写</li>
+<li><code>substr(str,start,length)</code> 截取字符串，从start索引开始的length个字符，如不指定length则截取到末尾，索引从1开始</li>
+</ul>
+<h4 id="其他："><a href="#其他：" class="headerlink" title="其他："></a>其他：</h4><ul>
+<li><code>system(command)</code> 执行系统命令，返回退出码</li>
+<li><code>mktime( YYYY MM dd HH MM ss[ DST]) </code>生成时间格式</li>
+<li><code>strftime(format,timestamp)</code> 格式化时间输出，将时间戳转换为时间字符串</li>
+<li><code>systime() </code>得到时间戳,返回从1970年1月1日开始到当前时间(不计闰年)的整秒数</li>
+</ul>
+<h2 id="awk-的内置变量"><a href="#awk-的内置变量" class="headerlink" title="awk 的内置变量"></a>awk 的内置变量</h2><p>awk 中同样定义了很多内置变量，我们可以直接像使用普通变量一样使用他们，由于awk的版本众多，有些内置变量并不是得到所有awk版本的支持。</p>
+<ul>
+<li><code>$n</code> 当前记录的第n个字段，比如n为1表示第一个字段，n为2表示第二个字段</li>
+<li><code>$0</code> 这个变量包含执行过程中当前行的文本内容。</li>
+</ul>
+<h4 id="awk-支持的变量"><a href="#awk-支持的变量" class="headerlink" title="awk 支持的变量"></a>awk 支持的变量</h4><ul>
+<li><code>FILENAME</code> 当前输入文件的名</li>
+<li><code>FS</code> 字段分隔符（默认是任何空格）</li>
+<li><code>NF</code> 表示字段数，在执行过程中对应于当前的字段数</li>
+<li><code>NR</code> 表示记录数，在执行过程中对应于当前的行号</li>
+<li><code>OFMT</code> 数字的输出格式（默认值是%.6g）</li>
+<li><code>OFS</code> 输出字段分隔符（默认值是一个空格）</li>
+<li><code>ORS</code> 输出记录分隔符（默认值是一个换行符）</li>
+<li><code>RS</code> 记录分隔符（默认是一个换行符）</li>
+</ul>
+<h4 id="nawk-支持的变量"><a href="#nawk-支持的变量" class="headerlink" title="nawk 支持的变量"></a>nawk 支持的变量</h4><ul>
+<li><code>ARGC</code> 命令行参数的数目</li>
+<li><code>ARGV</code> 包含命令行参数的数组</li>
+<li><code>ERRNO</code> 最后一个系统错误的描述</li>
+<li><code>RSTART</code> 由match函数所匹配的字符串的第一个位置</li>
+<li><code>RLENGTH</code> 由match函数所匹配的字符串的长度</li>
+<li><code>SUBSEP</code> 数组下标分隔符（默认值是34）</li>
+</ul>
+<h4 id="POSIXawk-支持的变量"><a href="#POSIXawk-支持的变量" class="headerlink" title="POSIXawk 支持的变量"></a>POSIXawk 支持的变量</h4><ul>
+<li><code>ENVIRON</code> 环境变量关联数组</li>
+<li><code>FNR</code> 同NR，但相对于当前文件</li>
+</ul>
+<h4 id="gawk-支持的变量"><a href="#gawk-支持的变量" class="headerlink" title="gawk 支持的变量"></a>gawk 支持的变量</h4><ul>
+<li><code>ARGIND</code> 命令行中当前文件的位置（从0开始算）</li>
+<li><code>CONVFMT</code> 数字转换格式（默认值为%.6g）</li>
+<li><code>FIELDWIDTHS</code> 字段宽度列表（用空格键分隔）</li>
+<li><code>IGNORECASE</code> 如果为真，则进行忽略大小写的匹配</li>
+</ul>
+
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/posts/24978/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">Bean Searcher SQL 查询工具</span>
+                                <span class="post-nav-item">Next posts</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2021</span>
+              -
+            
+            2023&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">JD</a>
+        </div>
+        
+            <script async  src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <div class="website-count info-item">
+                
+                    <span id="busuanzi_container_site_uv">
+                        Visitor Count&nbsp;<span id="busuanzi_value_site_uv"></span>&ensp;
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv">
+                        Totalview&nbsp;<span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="theme-info info-item">
+            Powered by <a target="_blank" href="https://hexo.io">Hexo</a>&nbsp;|&nbsp;Theme&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.3</a>
+        </div>
+        
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="arrow-up fas fa-arrow-up"></i>
+                <span class="percent"></span>
+            </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#awk-%E6%98%AF%E4%BB%80%E4%B9%88"><span class="nav-text">awk 是什么</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#awk-%E5%91%BD%E4%BB%A4%E7%9A%84%E4%B8%80%E8%88%AC%E7%BB%84%E6%88%90"><span class="nav-text">awk 命令的一般组成</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#awk-%E5%AF%B9%E6%AF%8F%E4%B8%80%E8%A1%8C%E8%BF%9B%E8%A1%8C%E5%88%86%E5%89%B2%E5%A4%84%E7%90%86"><span class="nav-text">awk 对每一行进行分割处理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8parttern%E9%83%A8%E5%88%86"><span class="nav-text">使用parttern部分</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#awk-%E7%9A%84BEGIN%E8%AF%AD%E5%8F%A5%E5%9D%97"><span class="nav-text">awk 的BEGIN语句块</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#awk-%E7%9A%84END%E8%AF%AD%E5%8F%A5%E5%9D%97"><span class="nav-text">awk 的END语句块</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#awk%E5%AE%9A%E4%B9%89%E5%8F%98%E9%87%8F%E5%AF%B9%E5%88%97%E6%B1%82%E5%92%8C"><span class="nav-text">awk定义变量对列求和</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#awk%E4%B8%AD%E7%9A%84%E5%88%A4%E6%96%AD%E8%AF%AD%E5%8F%A5"><span class="nav-text">awk中的判断语句</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#awk%E4%B8%AD%E7%9A%84%E5%BE%AA%E7%8E%AF"><span class="nav-text">awk中的循环</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#while%E5%BE%AA%E7%8E%AF"><span class="nav-text">while循环</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#do-while%E5%BE%AA%E7%8E%AF"><span class="nav-text">do..while循环</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#for-%E5%BE%AA%E7%8E%AF"><span class="nav-text">for 循环</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8%E6%95%B0%E7%BB%84%E5%88%86%E7%BB%84%E6%B1%82%E5%92%8C%EF%BC%8Cfor-in%E5%BE%AA%E7%8E%AF"><span class="nav-text">使用数组分组求和，for..in循环</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#awk-%E4%B8%AD%E4%BD%BF%E7%94%A8shell%E5%8F%98%E9%87%8F%E5%80%BC"><span class="nav-text">awk 中使用shell变量值</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#awk-%E4%B8%AD%E7%9A%84%E6%93%8D%E4%BD%9C%E7%AC%A6%E4%B8%8E%E4%BC%98%E5%85%88%E7%BA%A7%E5%88%97%E8%A1%A8"><span class="nav-text">awk 中的操作符与优先级列表</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#awk-%E7%9A%84%E5%86%85%E7%BD%AE%E5%87%BD%E6%95%B0"><span class="nav-text">awk 的内置函数</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AE%97%E6%9C%AF%EF%BC%9A"><span class="nav-text">算术：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AD%97%E7%AC%A6%E4%B8%B2%EF%BC%9A"><span class="nav-text">字符串：</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%EF%BC%9A"><span class="nav-text">其他：</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#awk-%E7%9A%84%E5%86%85%E7%BD%AE%E5%8F%98%E9%87%8F"><span class="nav-text">awk 的内置变量</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#awk-%E6%94%AF%E6%8C%81%E7%9A%84%E5%8F%98%E9%87%8F"><span class="nav-text">awk 支持的变量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#nawk-%E6%94%AF%E6%8C%81%E7%9A%84%E5%8F%98%E9%87%8F"><span class="nav-text">nawk 支持的变量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#POSIXawk-%E6%94%AF%E6%8C%81%E7%9A%84%E5%8F%98%E9%87%8F"><span class="nav-text">POSIXawk 支持的变量</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#gawk-%E6%94%AF%E6%8C%81%E7%9A%84%E5%8F%98%E9%87%8F"><span class="nav-text">gawk 支持的变量</span></a></li></ol></li></ol></li></ol>
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="Search..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="popup-btn-close">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+</main>
+
+
+
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/main.js"></script>
+
+<script src="/js/header-shrink.js"></script>
+
+<script src="/js/back2top.js"></script>
+
+<script src="/js/dark-light-toggle.js"></script>
+
+
+
+    
+<script src="/js/local-search.js"></script>
+
+
+
+
+    
+<script src="/js/code-copy.js"></script>
+
+
+
+
+
+<div class="post-scripts">
+    
+        
+<script src="/js/left-side-toggle.js"></script>
+
+<script src="/js/libs/anime.min.js"></script>
+
+<script src="/js/toc.js"></script>
+
+    
+</div>
+
+
+
+</body>
+</html>
