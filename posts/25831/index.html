@@ -228,23 +228,20 @@
 <li>Dissector Pane(数据包字节区)。</li>
 </ol>
 <h1 id="二、Wireshark过滤器设置"><a href="#二、Wireshark过滤器设置" class="headerlink" title="二、Wireshark过滤器设置"></a>二、Wireshark过滤器设置</h1><p>  初学者使用wireshark时，将会得到大量的冗余数据包列表，以至于很难找到自己需要抓取的数据包部分。wireshark工具中自带了两种类型的过滤器，学会使用这两种过滤器会帮助我们在大量的数据中迅速找到我们需要的信息。</p>
-<p>（1）抓包过滤器</p>
-<p>  捕获过滤器的菜单栏路径为Capture –&gt; Capture Filters。用于<strong>在抓取数据包前设置。</strong></p>
+<h4 id="（1）抓包过滤器"><a href="#（1）抓包过滤器" class="headerlink" title="（1）抓包过滤器"></a>（1）抓包过滤器</h4><p>  捕获过滤器的菜单栏路径为Capture –&gt; Capture Filters。用于<strong>在抓取数据包前设置。</strong></p>
 <p><img src="../../imgs/other/774327-20181216161942199-694292737.png" alt="img">**</p>
 <p> 如何使用？可以在抓取数据包前设置如下。</p>
 <p><img src="../../imgs/other/774327-20181216162715878-976869768.png" alt="img"></p>
 <p>ip host 60.207.246.216 and icmp表示只捕获主机IP为60.207.246.216的ICMP数据包。获取结果如下：</p>
 <p><img src="../../imgs/other/774327-20181216162922295-1140020404.png" alt="img"></p>
-<p>（2）显示过滤器</p>
-<p> 显示过滤器是用于在抓取数据包后设置过滤条件进行过滤数据包。通常是在抓取数据包时设置条件相对宽泛或者没有设置导致抓取的数据包内容较多时使用显示过滤器设置条件过滤以方便分析。同样上述场景，在捕获时未设置抓包过滤规则直接通过网卡进行抓取所有数据包，如下</p>
+<h4 id="（2）显示过滤器"><a href="#（2）显示过滤器" class="headerlink" title="（2）显示过滤器"></a>（2）显示过滤器</h4><p> 显示过滤器是用于在抓取数据包后设置过滤条件进行过滤数据包。通常是在抓取数据包时设置条件相对宽泛或者没有设置导致抓取的数据包内容较多时使用显示过滤器设置条件过滤以方便分析。同样上述场景，在捕获时未设置抓包过滤规则直接通过网卡进行抓取所有数据包，如下</p>
 <p><img src="../../imgs/other/774327-20181216163301344-1400128534.png" alt="img"></p>
 <p>执行ping <a class="link"   target="_blank" rel="noopener" href="http://www.huawei.com获取的数据包列表如下/" >www.huawei.com获取的数据包列表如下<i class="fas fa-external-link-alt"></i></a></p>
 <p><img src="../../imgs/other/774327-20181216163359260-101806867.png" alt="img"></p>
 <p>观察上述获取的数据包列表，含有大量的无效数据。这时可以通过设置显示器过滤条件进行提取分析信息。ip.addr == 211.162.2.183 and icmp。并进行过滤。</p>
 <p><img src="../../imgs/other/774327-20181216163607973-642074591.png" alt="img"></p>
 <p> 上述介绍了抓包过滤器和显示过滤器的基本使用方法。<strong>在组网不复杂或者流量不大情况下，使用显示器过滤器进行抓包后处理就可以满足我们使用。</strong>下面介绍一下两者间的语法以及它们的区别。</p>
-<h4 id="wireshark过滤器表达式的规则"><a href="#wireshark过滤器表达式的规则" class="headerlink" title="wireshark过滤器表达式的规则"></a>wireshark过滤器表达式的规则</h4><p>1、抓包过滤器语法和实例</p>
-<p>  抓包过滤器类型Type（host、net、port）、方向Dir（src、dst）、协议Proto（ether、ip、tcp、udp、http、icmp、ftp等）、逻辑运算符（&amp;&amp; 与、|| 或、！非）</p>
+<h1 id="三、wireshark过滤器表达式的规则"><a href="#三、wireshark过滤器表达式的规则" class="headerlink" title="三、wireshark过滤器表达式的规则"></a>三、wireshark过滤器表达式的规则</h1><h4 id="1、抓包过滤器语法和实例"><a href="#1、抓包过滤器语法和实例" class="headerlink" title="1、抓包过滤器语法和实例"></a>1、抓包过滤器语法和实例</h4><p>  抓包过滤器类型Type（host、net、port）、方向Dir（src、dst）、协议Proto（ether、ip、tcp、udp、http、icmp、ftp等）、逻辑运算符（&amp;&amp; 与、|| 或、！非）</p>
 <p>（1）协议过滤</p>
 <p> 比较简单，直接在抓包过滤框中直接输入协议名即可。</p>
 <ul>
@@ -268,8 +265,7 @@
 <p> src host 192.168.1.104 &amp;&amp; dst port 80 抓取主机地址为192.168.1.80、目的端口为80的数据包</p>
 <p> host 192.168.1.104 || host 192.168.1.102 抓取主机为192.168.1.104或者192.168.1.102的数据包</p>
 <p> ！broadcast 不抓取广播数据包</p>
-<p>2、显示过滤器语法和实例</p>
-<p>（1）比较操作符</p>
+<h4 id="2、显示过滤器语法和实例"><a href="#2、显示过滤器语法和实例" class="headerlink" title="2、显示过滤器语法和实例"></a>2、显示过滤器语法和实例</h4><p>（1）比较操作符</p>
 <p> 比较操作符有== 等于、！= 不等于、&gt; 大于、&lt; 小于、&gt;= 大于等于、&lt;=小于等于。</p>
 <p>（2）协议过滤</p>
 <p> 比较简单，直接在Filter框中直接输入协议名即可。<strong>注意：协议名称需要输入小写。</strong></p>
@@ -301,16 +297,14 @@
 <p>后面条件表达式就需要自己填写。如下我想过滤出data数据包中包含”abcd”内容的数据流。<strong>包含的关键词是contains 后面跟上内容。</strong></p>
 <p><img src="../../imgs/other/774327-20190619075212180-801507805.png" alt="img"></p>
 <p>看到这， 基本上对wireshak有了初步了解。</p>
-<h1 id="三、Wireshark抓包分析TCP三次握手"><a href="#三、Wireshark抓包分析TCP三次握手" class="headerlink" title="三、Wireshark抓包分析TCP三次握手"></a>三、Wireshark抓包分析TCP三次握手</h1><p>（1）TCP三次握手连接建立过程</p>
-<p>  Step1：客户端发送一个SYN=1，ACK=0标志的数据包给服务端，请求进行连接，这是第一次握手；</p>
-<p>  Step2：服务端收到请求并且允许连接的话，就会发送一个SYN=1，ACK=1标志的数据包给发送端，告诉它，可以通讯了，并且让客户端发送一个确认数据包，这是第二次握手；</p>
-<p>  Step3：服务端发送一个SYN=0，ACK=1的数据包给客户端端，告诉它连接已被确认，这就是第三次握手。TCP连接建立，开始通讯。</p>
+<h1 id="四、Wireshark抓包分析TCP三次握手"><a href="#四、Wireshark抓包分析TCP三次握手" class="headerlink" title="四、Wireshark抓包分析TCP三次握手"></a>四、Wireshark抓包分析TCP三次握手</h1><h4 id="（1）TCP三次握手连接建立过程"><a href="#（1）TCP三次握手连接建立过程" class="headerlink" title="（1）TCP三次握手连接建立过程"></a>（1）TCP三次握手连接建立过程</h4><p>Step1：客户端发送一个SYN=1，ACK=0标志的数据包给服务端，请求进行连接，这是第一次握手；</p>
+<p>Step2：服务端收到请求并且允许连接的话，就会发送一个SYN=1，ACK=1标志的数据包给发送端，告诉它，可以通讯了，并且让客户端发送一个确认数据包，这是第二次握手；</p>
+<p>Step3：服务端发送一个SYN=0，ACK=1的数据包给客户端端，告诉它连接已被确认，这就是第三次握手。TCP连接建立，开始通讯。</p>
 <p><img src="../../imgs/other/2013050217125714223.png" alt="img"></p>
-<p>（2）wireshark抓包获取访问指定服务端数据包</p>
-<p>  Step1：启动wireshark抓包，打开浏览器输入<a class="link"   target="_blank" rel="noopener" href="http://www.huawei.com./" >www.huawei.com。<i class="fas fa-external-link-alt"></i></a></p>
-<p>  Step2：使用ping <a class="link"   target="_blank" rel="noopener" href="http://www.huawei.com获取ip./" >www.huawei.com获取IP。<i class="fas fa-external-link-alt"></i></a></p>
+<h4 id="（2）wireshark抓包获取访问指定服务端数据包"><a href="#（2）wireshark抓包获取访问指定服务端数据包" class="headerlink" title="（2）wireshark抓包获取访问指定服务端数据包"></a>（2）wireshark抓包获取访问指定服务端数据包</h4><p>Step1：启动wireshark抓包，打开浏览器输入<a class="link"   target="_blank" rel="noopener" href="http://www.huawei.com./" >www.huawei.com。<i class="fas fa-external-link-alt"></i></a></p>
+<p>Step2：使用ping <a class="link"   target="_blank" rel="noopener" href="http://www.huawei.com获取ip./" >www.huawei.com获取IP。<i class="fas fa-external-link-alt"></i></a></p>
 <p><img src="../../imgs/other/774327-20181216104018866-329362658.png" alt="img"></p>
-<p>  Step3：输入过滤条件获取待分析数据包列表 ip.addr == 211.162.2.183</p>
+<p>Step3：输入过滤条件获取待分析数据包列表 ip.addr == 211.162.2.183</p>
 <p><img src="../../imgs/other/774327-20181216104535874-2007397893.png" alt="img"></p>
 <p> 图中可以看到wireshark截获到了三次握手的三个数据包。第四个包才是HTTP的， 这说明HTTP的确是使用TCP建立连接的。</p>
 <p><strong>第一次握手数据包</strong></p>
@@ -345,7 +339,7 @@
 <p> 在TCP层，有个FLAGS字段，这个字段有以下几个标识：SYN, FIN, ACK, PSH, RST, URG。如下</p>
 <p><img src="../../imgs/other/774327-20181216113119425-2072328757.png" alt="img"></p>
 <p>  其中，对于我们日常的分析有用的就是前面的五个字段。它们的含义是：SYN表示建立连接，FIN表示关闭连接，ACK表示响应，PSH表示有DATA数据传输，RST表示连接重置。</p>
-<h1 id="四、Wireshark分析常用操作"><a href="#四、Wireshark分析常用操作" class="headerlink" title="四、Wireshark分析常用操作"></a>四、Wireshark分析常用操作</h1><p> 调整数据包列表中时间戳显示格式。调整方法为View –&gt;Time Display Format –&gt; Date and Time of Day。调整后格式如下：</p>
+<h1 id="五、Wireshark分析常用操作"><a href="#五、Wireshark分析常用操作" class="headerlink" title="五、Wireshark分析常用操作"></a>五、Wireshark分析常用操作</h1><p> 调整数据包列表中时间戳显示格式。调整方法为View –&gt;Time Display Format –&gt; Date and Time of Day。调整后格式如下：</p>
 <p><img src="../../imgs/other/774327-20181216113851595-75851722.png" alt="img"></p>
 
         </div>
@@ -488,7 +482,7 @@
         <aside class="page-aside">
             <div class="post-toc-wrap">
     <div class="post-toc">
-        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E3%80%81Wireshakr%E6%8A%93%E5%8C%85%E7%95%8C%E9%9D%A2%E4%BB%8B%E7%BB%8D"><span class="nav-text">一、Wireshakr抓包界面介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E3%80%81Wireshark%E8%BF%87%E6%BB%A4%E5%99%A8%E8%AE%BE%E7%BD%AE"><span class="nav-text">二、Wireshark过滤器设置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#wireshark%E8%BF%87%E6%BB%A4%E5%99%A8%E8%A1%A8%E8%BE%BE%E5%BC%8F%E7%9A%84%E8%A7%84%E5%88%99"><span class="nav-text">wireshark过滤器表达式的规则</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89%E3%80%81Wireshark%E6%8A%93%E5%8C%85%E5%88%86%E6%9E%90TCP%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B"><span class="nav-text">三、Wireshark抓包分析TCP三次握手</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%9B%E3%80%81Wireshark%E5%88%86%E6%9E%90%E5%B8%B8%E7%94%A8%E6%93%8D%E4%BD%9C"><span class="nav-text">四、Wireshark分析常用操作</span></a></li></ol>
+        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E3%80%81Wireshakr%E6%8A%93%E5%8C%85%E7%95%8C%E9%9D%A2%E4%BB%8B%E7%BB%8D"><span class="nav-text">一、Wireshakr抓包界面介绍</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E3%80%81Wireshark%E8%BF%87%E6%BB%A4%E5%99%A8%E8%AE%BE%E7%BD%AE"><span class="nav-text">二、Wireshark过滤器设置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%881%EF%BC%89%E6%8A%93%E5%8C%85%E8%BF%87%E6%BB%A4%E5%99%A8"><span class="nav-text">（1）抓包过滤器</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%882%EF%BC%89%E6%98%BE%E7%A4%BA%E8%BF%87%E6%BB%A4%E5%99%A8"><span class="nav-text">（2）显示过滤器</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89%E3%80%81wireshark%E8%BF%87%E6%BB%A4%E5%99%A8%E8%A1%A8%E8%BE%BE%E5%BC%8F%E7%9A%84%E8%A7%84%E5%88%99"><span class="nav-text">三、wireshark过滤器表达式的规则</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1%E3%80%81%E6%8A%93%E5%8C%85%E8%BF%87%E6%BB%A4%E5%99%A8%E8%AF%AD%E6%B3%95%E5%92%8C%E5%AE%9E%E4%BE%8B"><span class="nav-text">1、抓包过滤器语法和实例</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2%E3%80%81%E6%98%BE%E7%A4%BA%E8%BF%87%E6%BB%A4%E5%99%A8%E8%AF%AD%E6%B3%95%E5%92%8C%E5%AE%9E%E4%BE%8B"><span class="nav-text">2、显示过滤器语法和实例</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%9B%E3%80%81Wireshark%E6%8A%93%E5%8C%85%E5%88%86%E6%9E%90TCP%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B"><span class="nav-text">四、Wireshark抓包分析TCP三次握手</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%881%EF%BC%89TCP%E4%B8%89%E6%AC%A1%E6%8F%A1%E6%89%8B%E8%BF%9E%E6%8E%A5%E5%BB%BA%E7%AB%8B%E8%BF%87%E7%A8%8B"><span class="nav-text">（1）TCP三次握手连接建立过程</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%EF%BC%882%EF%BC%89wireshark%E6%8A%93%E5%8C%85%E8%8E%B7%E5%8F%96%E8%AE%BF%E9%97%AE%E6%8C%87%E5%AE%9A%E6%9C%8D%E5%8A%A1%E7%AB%AF%E6%95%B0%E6%8D%AE%E5%8C%85"><span class="nav-text">（2）wireshark抓包获取访问指定服务端数据包</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%94%E3%80%81Wireshark%E5%88%86%E6%9E%90%E5%B8%B8%E7%94%A8%E6%93%8D%E4%BD%9C"><span class="nav-text">五、Wireshark分析常用操作</span></a></li></ol>
     </div>
 </div>
         </aside>
