@@ -266,6 +266,10 @@
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># ./stat.sh https://www.baidu.com</span></span><br><span class="line"></span><br><span class="line">cURL Timing: </span><br><span class="line">   time_namelookup :   0.004087 </span><br><span class="line">      time_connect :   0.006480 </span><br><span class="line">   time_appconnect :   0.022001 </span><br><span class="line">     time_redirect :   0.000000 </span><br><span class="line">  time_pretransfer :   0.022026 </span><br><span class="line">time_starttransfer :   0.025635 </span><br><span class="line">        time_total :   0.025658 </span><br><span class="line"></span><br><span class="line">Resource Timing: </span><br><span class="line">        DNS Lookup : 0.004087 </span><br><span class="line">    TCP Connection : 0.002393 </span><br><span class="line">     TLS Handshake : 0.015521 </span><br><span class="line"> Server Processing : 0.003609 </span><br><span class="line">              TTFB : 0.003634 </span><br><span class="line">  Content Transfer : 0.000023 </span><br><span class="line">            Finish : 0.025658 </span><br></pre></td></tr></table></figure>
 
 <p>从上述结果，就可以直观的分析出http各阶段的耗时，方便我们进行性能瓶颈。</p>
+<h2 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h2><ul>
+<li><code>--keepalive</code>：强制开启 keep-alive（默认开启）</li>
+<li><code>--no-keepalive</code>：禁用 keep-alive</li>
+</ul>
 
         </div>
 
@@ -422,7 +426,7 @@
         <aside class="page-aside">
             <div class="post-toc-wrap">
     <div class="post-toc">
-        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E6%9E%90-HTTP-%E8%AF%B7%E6%B1%82%E8%80%97%E6%97%B6"><span class="nav-text">分析 HTTP 请求耗时</span></a></li></ol>
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%86%E6%9E%90-HTTP-%E8%AF%B7%E6%B1%82%E8%80%97%E6%97%B6"><span class="nav-text">分析 HTTP 请求耗时</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8F%82%E6%95%B0"><span class="nav-text">参数</span></a></li></ol>
     </div>
 </div>
         </aside>
