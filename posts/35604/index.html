@@ -9,7 +9,7 @@
     
     <title>
         
-            Category: 开发实用技巧 |
+            sbt 仓库配置 |
         
         Bean You
     </title>
@@ -67,7 +67,7 @@
                         </li>
                     
                         <li class="menu-item">
-                            <a class="active"
+                            <a class=""
                                href="/categories"
                             >
                                 分类
@@ -117,7 +117,7 @@
                 </li>
             
                 <li class="drawer-menu-item flex-center">
-                    <a class="active"
+                    <a class=""
                        href="/categories">分类</a>
                 </li>
             
@@ -147,101 +147,100 @@
 
                 
                     <div class="fade-in-down-animation">
-    <div class="category-container">
-        <div class="category-name">
-            <i class="fas fa-folder"></i>&nbsp;开发实用技巧
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">sbt 仓库配置</span>
         </div>
-        <div class="category-post-list">
-            
-<div class="archive-list-container">
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="/images/avatar.svg">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">JD</span>
+                        
+                            <span class="author-label">Lv6</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2023-11-09 15:48:00
+    </span>
     
-        <section class="archive-item">
-            <div class="archive-item-header">
-                <span class="archive-year">2023</span>
-                <span class="archive-year-post-count">[7]</span>
-            </div>
-            <ul class="article-list">
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
                 
-                    <li class="article-item">
-                        <a class="article-title"
-                           href="/posts/35604/"
-                        >sbt 仓库配置</a>
-                        <span class="article-date">11-09</span>
-                    </li>
-                
-                    <li class="article-item">
-                        <a class="article-title"
-                           href="/posts/28720/"
-                        >maven 指定编译版本</a>
-                        <span class="article-date">09-19</span>
-                    </li>
-                
-                    <li class="article-item">
-                        <a class="article-title"
-                           href="/posts/17911/"
-                        >Git 撤销某次commit</a>
-                        <span class="article-date">09-14</span>
-                    </li>
-                
-                    <li class="article-item">
-                        <a class="article-title"
-                           href="/posts/61019/"
-                        >Mac 配置定时任务</a>
-                        <span class="article-date">07-05</span>
-                    </li>
-                
-                    <li class="article-item">
-                        <a class="article-title"
-                           href="/posts/29893/"
-                        >Mac 配置终端</a>
-                        <span class="article-date">04-19</span>
-                    </li>
-                
-                    <li class="article-item">
-                        <a class="article-title"
-                           href="/posts/25831/"
-                        >Wireshark 抓包</a>
-                        <span class="article-date">04-07</span>
-                    </li>
-                
-                    <li class="article-item">
-                        <a class="article-title"
-                           href="/posts/13254/"
-                        >brew 常用命令</a>
-                        <span class="article-date">03-29</span>
+                    <li>
+                        <a href="/categories/%E5%BC%80%E5%8F%91%E5%AE%9E%E7%94%A8%E6%8A%80%E5%B7%A7/">开发实用技巧</a>&nbsp;
                     </li>
                 
             </ul>
-        </section>
+        </span>
     
-        <section class="archive-item">
-            <div class="archive-item-header">
-                <span class="archive-year">2022</span>
-                <span class="archive-year-post-count">[1]</span>
-            </div>
-            <ul class="article-list">
-                
-                    <li class="article-item">
-                        <a class="article-title"
-                           href="/posts/48924/"
-                        >Github 实用技巧</a>
-                        <span class="article-date">08-29</span>
-                    </li>
-                
-            </ul>
-        </section>
+    
+
+    
+    
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fas fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
     
 </div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <h2 id="一、新增身份认证配置文件"><a href="#一、新增身份认证配置文件" class="headerlink" title="一、新增身份认证配置文件"></a>一、新增身份认证配置文件</h2><p>新建 <code>/Users/jd/.sbt/.credentials</code></p>
+<p><strong>内容：</strong></p>
+<figure class="highlight properties"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">realm</span>=<span class="string">Sonatype Nexus Repository Manager</span></span><br><span class="line"><span class="attr">host</span>=<span class="string">ci.yunat.com</span></span><br><span class="line"><span class="attr">user</span>=<span class="string">di.jia</span></span><br><span class="line"><span class="attr">password</span>=<span class="string">9Yhi6vuU</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="二、创建仓库配置文件"><a href="#二、创建仓库配置文件" class="headerlink" title="二、创建仓库配置文件"></a>二、创建仓库配置文件</h2><p>新建 <code>/Users/jd/.sbt/.repositories</code></p>
+<p><strong>内容：</strong></p>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">[repositories]</span><br><span class="line">  local</span><br><span class="line">  mysql: http://ci.mysql.com:8091/nexus/content/groups/public/, allowInsecureProtocol</span><br><span class="line">  aliyun: https://maven.aliyun.com/repository/public/</span><br><span class="line">  huaweicloud-ivy: https://mirrors.huaweicloud.com/repository/ivy/, [organization]/[module]/(scala<span class="built_in">_</span>[scalaVersion]/)(sbt<span class="built_in">_</span>[sbtVersion]/)[revision]/[type]s/[artifact](-[classifier]).[ext]</span><br><span class="line">  huaweicloud-maven: https://mirrors.huaweicloud.com/repository/maven/</span><br><span class="line">  aliyun-ivy: https://maven.aliyun.com/nexus/content/groups/public/, [organization]/[module]/(scala<span class="built_in">_</span>[scalaVersion]/)(sbt<span class="built_in">_</span>[sbtVersion]/)[revision]/[type]s/[artifact](-[classifier]).[ext]</span><br><span class="line">  aliyun-maven: https://maven.aliyun.com/nexus/content/groups/public/</span><br><span class="line">  typesafe: https://repo.typesafe.com/typesafe/maven-releases/</span><br><span class="line">  sbt-plugin-releases: https://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/</span><br><span class="line">  maven-local</span><br></pre></td></tr></table></figure>
+
+<h2 id="三、添加-jvm-启动参数"><a href="#三、添加-jvm-启动参数" class="headerlink" title="三、添加 jvm 启动参数"></a>三、添加 jvm 启动参数</h2><figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">-Dsbt.override.build.repos=<span class="literal">true</span>           <span class="comment">#允许覆盖内置的repositories</span></span><br><span class="line">-Dsbt.boot.credentials=/Users/jd/.sbt/.credentials     <span class="comment">#私服的身份认证配置文件位置</span></span><br><span class="line">-Dsbt.repository.config=/Users/jd/.sbt/repositories    <span class="comment">#给出自定义repositories配置文件</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p>参考文档：<a class="link"   target="_blank" rel="noopener" href="https://blog.csdn.net/ltian999/article/details/105148354" >https://blog.csdn.net/ltian999/article/details/105148354<i class="fas fa-external-link-alt"></i></a></p>
 
         </div>
-    </div>
-    <div class="category-paginator">
-        <div class="paginator">
-    
 
-    
-</div>
+        
 
+        
+            <div class="article-nav">
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/posts/5491/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">Mac Docker 搭建 Doris</span>
+                                <span class="post-nav-item">Next posts</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
     </div>
 </div>
 
@@ -289,6 +288,23 @@
     </div>
 
     
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
 
     <div class="right-bottom-side-tools">
         <div class="side-tools-container">
@@ -334,6 +350,14 @@
 
     </div>
 
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E6%96%B0%E5%A2%9E%E8%BA%AB%E4%BB%BD%E8%AE%A4%E8%AF%81%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-text">一、新增身份认证配置文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%88%9B%E5%BB%BA%E4%BB%93%E5%BA%93%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-text">二、创建仓库配置文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E6%B7%BB%E5%8A%A0-jvm-%E5%90%AF%E5%8A%A8%E5%8F%82%E6%95%B0"><span class="nav-text">三、添加 jvm 启动参数</span></a></li></ol>
+    </div>
+</div>
+        </aside>
     
 
     <div class="image-viewer-container">
@@ -403,6 +427,14 @@
 
 
 <div class="post-scripts">
+    
+        
+<script src="/js/left-side-toggle.js"></script>
+
+<script src="/js/libs/anime.min.js"></script>
+
+<script src="/js/toc.js"></script>
+
     
 </div>
 
