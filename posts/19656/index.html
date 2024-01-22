@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta name="keywords" content="Hexo Theme Keep">
+    <meta name="description" content="Hexo Theme Keep">
+    <meta name="author" content="JD">
+    
+    <title>
+        
+            Spring Security 权限注解在方法上进行权限认证多种方式 |
+        
+        Bean You
+    </title>
+    
+<link rel="stylesheet" href="/css/style.css">
+
+    <link rel="shortcut icon" href="/images/favicon.png">
+    
+<link rel="stylesheet" href="/css/font-awesome.min.css">
+
+    <script id="hexo-configurations">
+    let KEEP = window.KEEP || {};
+    KEEP.hexo_config = {"hostname":"jzcupid.cn","root":"/","language":"en","path":"search.json"};
+    KEEP.theme_config = {"toc":{"enable":true,"number":false,"expand_all":false,"init_open":false},"style":{"primary_color":"#0066CC","avatar":"/images/avatar.svg","favicon":"/images/favicon.png","article_img_align":"left","left_side_width":"260px","content_max_width":"920px","hover":{"shadow":true,"scale":true},"first_screen":{"enable":true,"background_img":"/images/bg.svg","description":"莫听穿林打叶声，何妨吟啸且徐行。"},"scroll":{"progress_bar":{"enable":false},"percent":{"enable":true}}},"local_search":{"enable":true,"trigger":"auto","preload":true},"code_copy":{"enable":true,"style":"default"},"pjax":{"enable":false},"lazyload":{"enable":false},"version":"3.4.3"};
+    KEEP.language_ago = {"second":"%s seconds ago","minute":"%s minutes ago","hour":"%s hours ago","day":"%s days ago","week":"%s weeks ago","month":"%s months ago","year":"%s years ago"};
+  </script>
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+<body>
+<div class="progress-bar-container">
+    
+
+    
+</div>
+
+
+<main class="page-container">
+
+    
+
+    <div class="page-main-content">
+
+        <div class="page-main-content-top">
+            <header class="header-wrapper">
+
+    <div class="header-content">
+        <div class="left">
+            
+            <a class="logo-title" href="/">
+                Bean You
+            </a>
+        </div>
+
+        <div class="right">
+            <div class="pc">
+                <ul class="menu-list">
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/"
+                            >
+                                首页
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/categories"
+                            >
+                                分类
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/tags"
+                            >
+                                标签
+                            </a>
+                        </li>
+                    
+                        <li class="menu-item">
+                            <a class=""
+                               href="/archives"
+                            >
+                                归档
+                            </a>
+                        </li>
+                    
+                    
+                        <li class="menu-item search search-popup-trigger">
+                            <i class="fas fa-search"></i>
+                        </li>
+                    
+                </ul>
+            </div>
+            <div class="mobile">
+                
+                    <div class="icon-item search search-popup-trigger"><i class="fas fa-search"></i></div>
+                
+                <div class="icon-item menu-bar">
+                    <div class="menu-bar-middle"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="header-drawer">
+        <ul class="drawer-menu-list">
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/">首页</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/categories">分类</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/tags">标签</a>
+                </li>
+            
+                <li class="drawer-menu-item flex-center">
+                    <a class=""
+                       href="/archives">归档</a>
+                </li>
+            
+        </ul>
+    </div>
+
+    <div class="window-mask"></div>
+
+</header>
+
+
+        </div>
+
+        <div class="page-main-content-middle">
+
+            <div class="main-content">
+
+                
+                    <div class="fade-in-down-animation">
+    <div class="article-content-container">
+
+        <div class="article-title">
+            <span class="title-hover-animation">Spring Security 权限注解在方法上进行权限认证多种方式</span>
+        </div>
+
+        
+            <div class="article-header">
+                <div class="avatar">
+                    <img src="/images/avatar.svg">
+                </div>
+                <div class="info">
+                    <div class="author">
+                        <span class="name">JD</span>
+                        
+                            <span class="author-label">Lv6</span>
+                        
+                    </div>
+                    <div class="meta-info">
+                        <div class="article-meta-info">
+    <span class="article-date article-meta-item">
+        <i class="fas fa-edit"></i>&nbsp;2024-01-22 10:37:00
+    </span>
+    
+        <span class="article-categories article-meta-item">
+            <i class="fas fa-folder"></i>&nbsp;
+            <ul>
+                
+                    <li>
+                        <a href="/categories/Spring/">Spring</a>&nbsp;
+                    </li>
+                
+            </ul>
+        </span>
+    
+    
+
+    
+    
+    
+    
+        <span class="article-pv article-meta-item">
+            <i class="fas fa-eye"></i>&nbsp;<span id="busuanzi_value_page_pv"></span>
+        </span>
+    
+</div>
+
+                    </div>
+                </div>
+            </div>
+        
+
+        <div class="article-content markdown-body">
+            <h1 id="一、新建安全配置类"><a href="#一、新建安全配置类" class="headerlink" title="一、新建安全配置类"></a>一、新建安全配置类</h1><p>Spring Security<code>默认是禁用注解的，要想开启注解，要在继承</code>WebSecurityConfigurerAdapter<code>的类加</code>@EnableMethodSecurity<code>注解，并在该类中将</code>AuthenticationManager<code>定义为</code>Bean。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@EnableWebSecurity</span></span><br><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableMethodSecurity(</span></span><br><span class="line"><span class="meta">  prePostEnabled = true, </span></span><br><span class="line"><span class="meta">  securedEnabled = true, </span></span><br><span class="line"><span class="meta">  jsr250Enabled = true)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SecurityConfig</span> <span class="keyword">extends</span> <span class="title">WebSecurityConfigurerAdapter</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> AuthenticationManager <span class="title">authenticationManagerBean</span><span class="params">()</span> <span class="keyword">throws</span> Exception </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">super</span>.authenticationManagerBean();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们看到<code>@EnableGlobalMethodSecurity</code> 分别有<code>prePostEnabled 、securedEnabled、jsr250Enabled</code>三个字段，其中每个字段代码一种注解支持，默认为<code>false，true为开启</code>。那么我们就一一来说一下这三总注解支持。</p>
+<blockquote>
+<p>prePostEnabled = true 的作用的是启用Spring Security的@PreAuthorize 以及@PostAuthorize 注解。</p>
+</blockquote>
+<blockquote>
+<p>securedEnabled = true 的作用是启用Spring Security的@Secured 注解。</p>
+</blockquote>
+<blockquote>
+<p>jsr250Enabled = true 的作用是启用@RoleAllowed 注解</p>
+</blockquote>
+<p>更详细使用整合请参考我这两篇<br><a class="link"   target="_blank" rel="noopener" href="https://juejin.cn/post/6998360655078096926" >轻松上手SpringBoot+SpringSecurity+JWT实RESTfulAPI权限控制实战<i class="fas fa-external-link-alt"></i></a></p>
+<p><a class="link"   target="_blank" rel="noopener" href="https://juejin.cn/post/6999952004990631949" >Spring Security核心接口用户权限获取，鉴权流程执行原理<i class="fas fa-external-link-alt"></i></a></p>
+<h1 id="二、在方法上设置权限认证"><a href="#二、在方法上设置权限认证" class="headerlink" title="二、在方法上设置权限认证"></a>二、在方法上设置权限认证</h1><h2 id="1）JSR-250注解"><a href="#1）JSR-250注解" class="headerlink" title="1）JSR-250注解"></a>1）JSR-250注解</h2><p>遵守了JSR-250标准注解<br>主要注解</p>
+<ol>
+<li>@DenyAll</li>
+<li>@RolesAllowed</li>
+<li>@PermitAll</li>
+</ol>
+<p>这里面<code>@DenyAll</code> 和 <code>@PermitAll</code> 相信就不用多说了 代表拒绝和通过。</p>
+<p><code>@RolesAllowed</code> 使用示例</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RolesAllowed(&quot;ROLE_VIEWER&quot;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">getUsername2</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">&#125;</span><br><span class="line">     </span><br><span class="line"><span class="meta">@RolesAllowed(&#123; &quot;USER&quot;, &quot;ADMIN&quot; &#125;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isValidUsername2</span><span class="params">(String username)</span> </span>&#123;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>代表标注的方法只要具有USER, ADMIN任意一种权限就可以访问。这里可以省略前缀ROLE_，实际的权限可能是ROLE_ADMIN</p>
+<p>在功能及使用方法上与 <code>@Secured</code> 完全相同</p>
+<h2 id="2）securedEnabled-注解"><a href="#2）securedEnabled-注解" class="headerlink" title="2）securedEnabled 注解"></a>2）securedEnabled 注解</h2><p>主要注解</p>
+<p><code>@Secured</code></p>
+<ol>
+<li>Spring Security的<code>@Secured</code>注解。注解规定了访问访方法的角色列表，在列表中最少指定一种角色</li>
+<li><code>@Secured</code>在方法上指定安全性，要求 角色/权限等 只有对应 角色/权限 的用户才可以调用这些方法。 如果有人试图调用一个方法，但是不拥有所需的 角色/权限，那会将会拒绝访问将引发异常。</li>
+</ol>
+<p>比如：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Secured(&quot;ROLE_VIEWER&quot;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">getUsername</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    SecurityContext securityContext = SecurityContextHolder.getContext();</span><br><span class="line">    <span class="keyword">return</span> securityContext.getAuthentication().getName();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="meta">@Secured(&#123; &quot;ROLE_DBA&quot;, &quot;ROLE_ADMIN&quot; &#125;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">getUsername2</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>@Secured(&quot;ROLE_VIEWER&quot;)</code> 表示只有拥有<code>ROLE_VIEWER</code>角色的用户，才能够访问<code>getUsername()</code>方法。</p>
+<p><code>@Secured(&#123; &quot;ROLE_DBA&quot;, &quot;ROLE_ADMIN&quot; &#125;)</code> 表示用户拥有”<code>ROLE_DBA&quot;, &quot;ROLE_ADMIN&quot;</code> 两个角色中的任意一个角色，均可访问 <code>getUsername2</code> 方法。</p>
+<blockquote>
+<p>还有一点就是@Secured,不支持Spring EL表达式</p>
+</blockquote>
+<h2 id="3）prePostEnabled注解"><a href="#3）prePostEnabled注解" class="headerlink" title="3）prePostEnabled注解"></a>3）prePostEnabled注解</h2><blockquote>
+<p>这个开启后支持Spring EL表达式 算是蛮厉害的。如果没有访问方法的权限，会抛出AccessDeniedException。</p>
+</blockquote>
+<p>主要注解</p>
+<ol>
+<li><code>@PreAuthorize</code> –适合进入方法之前验证授权</li>
+<li><code>@PostAuthorize</code> –检查授权方法之后才被执行并且可以影响执行方法的返回值</li>
+</ol>
+<p>3.<code>@PostFilter</code> –在方法执行之后执行，而且这里可以调用方法的返回值，然后对返回值进行过滤或处理或修改并返回</p>
+<ol>
+<li><code>@PreFilter</code> –在方法执行之前执行，而且这里可以调用方法的参数，然后对参数值进行过滤或处理或修改</li>
+</ol>
+<h3 id="PreAuthorize注解使用"><a href="#PreAuthorize注解使用" class="headerlink" title="@PreAuthorize注解使用"></a>@PreAuthorize注解使用</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@PreAuthorize(&quot;hasRole(&#x27;ROLE_VIEWER&#x27;)&quot;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">getUsernameInUpperCase</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> getUsername().toUpperCase();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>@PreAuthorize(“hasRole(‘ROLE_VIEWER’)”) 相当于@Secured(“ROLE_VIEWER”)。</p>
+<p>同样的<code>@Secured(&#123;“ROLE_VIEWER”,”ROLE_EDITOR”&#125;)</code> 也可以替换为：<code>@PreAuthorize(“hasRole(‘ROLE_VIEWER&#39;) or hasRole(‘ROLE_EDITOR&#39;)”)</code>。</p>
+<blockquote>
+<p>除此以外，我们还可以在方法的参数上使用表达式：</p>
+</blockquote>
+<p>在方法执行之前执行，这里可以调用方法的参数，也可以得到参数值，这里利用JAVA8的参数名反射特性，如果没有JAVA8，那么也可以利用Spring Secuirty的@P标注参数，或利用Spring Data的@Param标注参数。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//无java8</span></span><br><span class="line"><span class="meta">@PreAuthorize(&quot;#userId == authentication.principal.userId or hasAuthority(‘ADMIN’)&quot;)</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">changePassword</span><span class="params">(<span class="meta">@P(&quot;userId&quot;)</span> <span class="keyword">long</span> userId )</span></span>&#123;&#125;</span><br><span class="line"><span class="comment">//有java8</span></span><br><span class="line"><span class="meta">@PreAuthorize(&quot;#userId == authentication.principal.userId or hasAuthority(‘ADMIN’)&quot;)</span></span><br><span class="line"><span class="function"><span class="keyword">void</span> <span class="title">changePassword</span><span class="params">(<span class="keyword">long</span> userId )</span></span>&#123;&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里表示在<code>changePassword</code>方法执行之前，判断方法参数userId的值是否等于principal中保存的当前用户的userId，或者当前用户是否具有ROLE_ADMIN权限，两种符合其一，就可以访问该 方法。</p>
+<h3 id="PostAuthorize注解使用"><a href="#PostAuthorize注解使用" class="headerlink" title="@PostAuthorize注解使用"></a>@PostAuthorize注解使用</h3><p>在方法执行之后执行可,以获取到方法的返回值，并且可以根据该方法来决定最终的授权结果（是允许访问还是不允许访问):</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@PostAuthorize</span></span><br><span class="line">  (<span class="string">&quot;returnObject.username == authentication.principal.nickName&quot;</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> CustomUser <span class="title">loadUserDetail</span><span class="params">(String username)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> userRoleRepository.loadUserByUserName(username);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上述代码中，仅当<code>loadUserDetail</code>方法的返回值中的username与当前登录用户的username相同时才被允许访问</p>
+<blockquote>
+<p>注意如果EL为false，那么该方法也已经执行完了，可能会回滚。EL变量returnObject表示返回的对象。</p>
+</blockquote>
+<h3 id="PreFilter以及-PostFilter注解使用"><a href="#PreFilter以及-PostFilter注解使用" class="headerlink" title="@PreFilter以及@PostFilter注解使用"></a>@PreFilter以及@PostFilter注解使用</h3><p>Spring Security提供了一个<code>@PreFilter</code> 注解来对传入的参数进行过滤：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@PreFilter(&quot;filterObject != authentication.principal.username&quot;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">joinUsernames</span><span class="params">(List&lt;String&gt; usernames)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> usernames.stream().collect(Collectors.joining(<span class="string">&quot;;&quot;</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>当usernames中的子项与当前登录用户的用户名不同时，则保留；当usernames中的子项与当前登录用户的用户名相同时，则移除。比如当前使用用户的用户名为zhangsan，此时usernames的值为<code>&#123;&quot;zhangsan&quot;, &quot;lisi&quot;, &quot;wangwu&quot;&#125;</code>，则经@PreFilter过滤后，实际传入的usernames的值为<code>&#123;&quot;lisi&quot;, &quot;wangwu&quot;&#125;</code></p>
+<p>如果执行方法中包含有多个类型为Collection的参数，filterObject 就不太清楚是对哪个Collection参数进行过滤了。此时，便需要加入 filterTarget 属性来指定具体的参数名称：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@PreFilter</span></span><br><span class="line">  (value = <span class="string">&quot;filterObject != authentication.principal.username&quot;</span>,</span><br><span class="line">  filterTarget = <span class="string">&quot;usernames&quot;</span>)</span><br><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">joinUsernamesAndRoles</span><span class="params">(</span></span></span><br><span class="line"><span class="params"><span class="function">  List&lt;String&gt; usernames, List&lt;String&gt; roles)</span> </span>&#123;</span><br><span class="line">  </span><br><span class="line">    <span class="keyword">return</span> usernames.stream().collect(Collectors.joining(<span class="string">&quot;;&quot;</span>)) </span><br><span class="line">      + <span class="string">&quot;:&quot;</span> + roles.stream().collect(Collectors.joining(<span class="string">&quot;;&quot;</span>));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>同样的我们还可以使用<code>@PostFilter</code>注解来过<code>返回</code>的Collection进行过滤：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@PostFilter(&quot;filterObject != authentication.principal.username&quot;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> List&lt;String&gt; <span class="title">getAllUsernamesExceptCurrent</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> userRoleRepository.getAllUsernames();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>此时 filterObject 代表返回值。如果按照上述代码则实现了：移除掉返回值中与当前登录用户的用户名相同的子项。</p>
+<h2 id="4）自定义元注解"><a href="#4）自定义元注解" class="headerlink" title="4）自定义元注解"></a>4）自定义元注解</h2><p>如果我们需要在多个方法中使用相同的安全注解，则可以通过创建元注解的方式来提升项目的可维护性。</p>
+<p>比如创建以下元注解：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Target(ElementType.METHOD)</span></span><br><span class="line"><span class="meta">@Retention(RetentionPolicy.RUNTIME)</span></span><br><span class="line"><span class="meta">@PreAuthorize(&quot;hasRole(&#x27;ROLE_VIEWER&#x27;)&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> IsViewer &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后可以直接将该注解添加到对应的方法上：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@IsViewer</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> String <span class="title">getUsername4</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    <span class="comment">//...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在生产项目中，由于元注解分离了业务逻辑与安全框架，所以使用元注解是一个非常不错的选择。</p>
+<h1 id="三、类上使用安全注解"><a href="#三、类上使用安全注解" class="headerlink" title="三、类上使用安全注解"></a>三、类上使用安全注解</h1><p>如果一个类中的所有的方法我们全部都是应用的同一个安全注解，那么此时则应该把安全注解提升到类的级别上：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="meta">@PreAuthorize(&quot;hasRole(&#x27;ROLE_ADMIN&#x27;)&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SystemService</span> </span>&#123;</span><br><span class="line">  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getSystemYear</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="comment">//...</span></span><br><span class="line">    &#125;</span><br><span class="line">  </span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getSystemDate</span><span class="params">()</span></span>&#123;</span><br><span class="line">        <span class="comment">//...</span></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上述代码实现了：访问getSystemYear 以及getSystemDate 方法均需要ROLE_ADMIN权限。</p>
+<h1 id="四、方法上应用多个安全注解"><a href="#四、方法上应用多个安全注解" class="headerlink" title="四、方法上应用多个安全注解"></a>四、方法上应用多个安全注解</h1><p>在一个安全注解无法满足我们的需求时，还可以应用多个安全注解:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@PreAuthorize(&quot;#username == authentication.principal.username&quot;)</span></span><br><span class="line"><span class="meta">@PostAuthorize(&quot;returnObject.username == authentication.principal.nickName&quot;)</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> CustomUser <span class="title">securedLoadUserDetail</span><span class="params">(String username)</span> </span>&#123;</span><br><span class="line">    <span class="keyword">return</span> userRoleRepository.loadUserByUserName(username);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>此时Spring Security将在执行方法前执行@PreAuthorize的安全策略，在执行方法后执行@PostAuthorize的安全策略。</p>
+<h1 id="五、总结"><a href="#五、总结" class="headerlink" title="五、总结"></a>五、总结</h1><p>在此结合我们的使用经验，给出以下两点提示：</p>
+<ol>
+<li>默认情况下，在方法中使用安全注解是由Spring AOP代理实现的，这意味着：如果我们在方法1中去调用同类中的使用安全注解的方法2，则方法2上的安全注解将失效。</li>
+<li>Spring Security上下文是线程绑定的，这意味着：安全上下文将不会传递给子线程。</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isValidUsername4</span><span class="params">(String username)</span> </span>&#123;</span><br><span class="line">    <span class="comment">// 以下的方法将会跳过安全认证</span></span><br><span class="line">    <span class="keyword">this</span>.getUsername();</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+        </div>
+
+        
+
+        
+            <div class="article-nav">
+                
+                
+                    <div class="article-next">
+                        <a class="next"
+                           rel="next"
+                           href="/posts/35604/"
+                        >
+                            <span class="title flex-center">
+                                <span class="post-nav-title-item">sbt 仓库配置</span>
+                                <span class="post-nav-item">Next posts</span>
+                            </span>
+                            <span class="right arrow-icon flex-center">
+                              <i class="fas fa-chevron-right"></i>
+                            </span>
+                        </a>
+                    </div>
+                
+            </div>
+        
+
+        
+    </div>
+</div>
+
+
+                
+            </div>
+
+        </div>
+
+        <div class="page-main-content-bottom">
+            <footer class="footer">
+    <div class="info-container">
+        <div class="copyright-info info-item">
+            &copy;
+            
+              <span>2021</span>
+              -
+            
+            2024&nbsp;<i class="fas fa-heart icon-animate"></i>&nbsp;<a href="/">JD</a>
+        </div>
+        
+            <script async  src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+            <div class="website-count info-item">
+                
+                    <span id="busuanzi_container_site_uv">
+                        Visitor Count&nbsp;<span id="busuanzi_value_site_uv"></span>&ensp;
+                    </span>
+                
+                
+                    <span id="busuanzi_container_site_pv">
+                        Totalview&nbsp;<span id="busuanzi_value_site_pv"></span>
+                    </span>
+                
+            </div>
+        
+        <div class="theme-info info-item">
+            Powered by <a target="_blank" href="https://hexo.io">Hexo</a>&nbsp;|&nbsp;Theme&nbsp;<a class="theme-version" target="_blank" href="https://github.com/XPoet/hexo-theme-keep">Keep v3.4.3</a>
+        </div>
+        
+        
+    </div>
+</footer>
+
+        </div>
+    </div>
+
+    
+        <div class="post-tools">
+            <div class="post-tools-container">
+    <ul class="tools-list">
+        <!-- TOC aside toggle -->
+        
+            <li class="tools-item page-aside-toggle">
+                <i class="fas fa-outdent"></i>
+            </li>
+        
+
+        <!-- go comment -->
+        
+    </ul>
+</div>
+
+        </div>
+    
+
+    <div class="right-bottom-side-tools">
+        <div class="side-tools-container">
+    <ul class="side-tools-list">
+        <li class="tools-item tool-font-adjust-plus flex-center">
+            <i class="fas fa-search-plus"></i>
+        </li>
+
+        <li class="tools-item tool-font-adjust-minus flex-center">
+            <i class="fas fa-search-minus"></i>
+        </li>
+
+        <li class="tools-item tool-expand-width flex-center">
+            <i class="fas fa-arrows-alt-h"></i>
+        </li>
+
+        <li class="tools-item tool-dark-light-toggle flex-center">
+            <i class="fas fa-moon"></i>
+        </li>
+
+        <!-- rss -->
+        
+
+        
+
+        <li class="tools-item tool-scroll-to-bottom flex-center">
+            <i class="fas fa-arrow-down"></i>
+        </li>
+    </ul>
+
+    <ul class="exposed-tools-list">
+        <li class="tools-item tool-toggle-show flex-center">
+            <i class="fas fa-cog fa-spin"></i>
+        </li>
+        
+            <li class="tools-item tool-scroll-to-top flex-center">
+                <i class="arrow-up fas fa-arrow-up"></i>
+                <span class="percent"></span>
+            </li>
+        
+    </ul>
+</div>
+
+    </div>
+
+    
+        <aside class="page-aside">
+            <div class="post-toc-wrap">
+    <div class="post-toc">
+        <ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E6%96%B0%E5%BB%BA%E5%AE%89%E5%85%A8%E9%85%8D%E7%BD%AE%E7%B1%BB"><span class="nav-text">一、新建安全配置类</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%9C%A8%E6%96%B9%E6%B3%95%E4%B8%8A%E8%AE%BE%E7%BD%AE%E6%9D%83%E9%99%90%E8%AE%A4%E8%AF%81"><span class="nav-text">二、在方法上设置权限认证</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1%EF%BC%89JSR-250%E6%B3%A8%E8%A7%A3"><span class="nav-text">1）JSR-250注解</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2%EF%BC%89securedEnabled-%E6%B3%A8%E8%A7%A3"><span class="nav-text">2）securedEnabled 注解</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3%EF%BC%89prePostEnabled%E6%B3%A8%E8%A7%A3"><span class="nav-text">3）prePostEnabled注解</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#PreAuthorize%E6%B3%A8%E8%A7%A3%E4%BD%BF%E7%94%A8"><span class="nav-text">@PreAuthorize注解使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PostAuthorize%E6%B3%A8%E8%A7%A3%E4%BD%BF%E7%94%A8"><span class="nav-text">@PostAuthorize注解使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#PreFilter%E4%BB%A5%E5%8F%8A-PostFilter%E6%B3%A8%E8%A7%A3%E4%BD%BF%E7%94%A8"><span class="nav-text">@PreFilter以及@PostFilter注解使用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4%EF%BC%89%E8%87%AA%E5%AE%9A%E4%B9%89%E5%85%83%E6%B3%A8%E8%A7%A3"><span class="nav-text">4）自定义元注解</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E7%B1%BB%E4%B8%8A%E4%BD%BF%E7%94%A8%E5%AE%89%E5%85%A8%E6%B3%A8%E8%A7%A3"><span class="nav-text">三、类上使用安全注解</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E6%96%B9%E6%B3%95%E4%B8%8A%E5%BA%94%E7%94%A8%E5%A4%9A%E4%B8%AA%E5%AE%89%E5%85%A8%E6%B3%A8%E8%A7%A3"><span class="nav-text">四、方法上应用多个安全注解</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%94%E3%80%81%E6%80%BB%E7%BB%93"><span class="nav-text">五、总结</span></a></li></ol>
+    </div>
+</div>
+        </aside>
+    
+
+    <div class="image-viewer-container">
+    <img src="">
+</div>
+
+
+    
+        <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+          <span class="search-input-field-pre">
+            <i class="fas fa-keyboard"></i>
+          </span>
+            <div class="search-input-container">
+                <input autocomplete="off"
+                       autocorrect="off"
+                       autocapitalize="off"
+                       placeholder="Search..."
+                       spellcheck="false"
+                       type="search"
+                       class="search-input"
+                >
+            </div>
+            <span class="popup-btn-close">
+                <i class="fas fa-times"></i>
+            </span>
+        </div>
+        <div id="search-result">
+            <div id="no-result">
+                <i class="fas fa-spinner fa-pulse fa-5x fa-fw"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+    
+
+</main>
+
+
+
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/main.js"></script>
+
+<script src="/js/header-shrink.js"></script>
+
+<script src="/js/back2top.js"></script>
+
+<script src="/js/dark-light-toggle.js"></script>
+
+
+
+    
+<script src="/js/local-search.js"></script>
+
+
+
+
+    
+<script src="/js/code-copy.js"></script>
+
+
+
+
+
+<div class="post-scripts">
+    
+        
+<script src="/js/left-side-toggle.js"></script>
+
+<script src="/js/libs/anime.min.js"></script>
+
+<script src="/js/toc.js"></script>
+
+    
+</div>
+
+
+
+</body>
+</html>
