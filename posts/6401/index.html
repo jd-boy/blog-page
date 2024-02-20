@@ -9,7 +9,7 @@
     
     <title>
         
-            AtomicInteger实现边界值控制 |
+            Nguni 部署 Vue项目 |
         
         Bean You
     </title>
@@ -150,7 +150,7 @@
     <div class="article-content-container">
 
         <div class="article-title">
-            <span class="title-hover-animation">AtomicInteger实现边界值控制</span>
+            <span class="title-hover-animation">Nguni 部署 Vue项目</span>
         </div>
 
         
@@ -168,7 +168,7 @@
                     <div class="meta-info">
                         <div class="article-meta-info">
     <span class="article-date article-meta-item">
-        <i class="fas fa-edit"></i>&nbsp;2024-01-23 10:13:00
+        <i class="fas fa-edit"></i>&nbsp;2024-02-20 09:29:00
     </span>
     
         <span class="article-categories article-meta-item">
@@ -176,7 +176,11 @@
             <ul>
                 
                     <li>
-                        <a href="/categories/Java/">Java</a>&nbsp;
+                        <a href="/categories/%E8%BF%90%E7%BB%B4/">运维</a>&nbsp;
+                    </li>
+                
+                    <li>
+                        &gt; <a href="/categories/%E8%BF%90%E7%BB%B4/Nginx/">Nginx</a>&nbsp;
                     </li>
                 
             </ul>
@@ -200,7 +204,15 @@
         
 
         <div class="article-content markdown-body">
-            <h3 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">int</span> <span class="title">incrAndGet</span><span class="params">(<span class="keyword">final</span> AtomicInteger number, <span class="keyword">final</span> <span class="keyword">int</span> threshold)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">while</span> (<span class="keyword">true</span>) &#123;</span><br><span class="line">    <span class="keyword">int</span> current = number.get();</span><br><span class="line">    <span class="keyword">if</span> (current &gt;= threshold) &#123;</span><br><span class="line">      <span class="keyword">return</span> current;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">int</span> next = current + <span class="number">1</span>;</span><br><span class="line">    <span class="keyword">if</span> (number.compareAndSet(current, next)) &#123;</span><br><span class="line">      <span class="keyword">return</span> next;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+            <h2 id="一、Vue-项目配置"><a href="#一、Vue-项目配置" class="headerlink" title="一、Vue 项目配置"></a>一、Vue 项目配置</h2><h4 id="1-路由配置"><a href="#1-路由配置" class="headerlink" title="1. 路由配置"></a>1. 路由配置</h4><p><code>router/index.js</code> 文件中配置 <code>base</code>，这里配置为了 <code>/admin/</code></p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">const</span> createRouter = <span class="function">() =&gt;</span> <span class="keyword">new</span> Router(&#123;</span><br><span class="line">  <span class="attr">mode</span>: <span class="string">&#x27;history&#x27;</span>, <span class="comment">// require service support</span></span><br><span class="line">  <span class="attr">base</span>: <span class="string">&#x27;/admin/&#x27;</span>,</span><br><span class="line">  <span class="attr">scrollBehavior</span>: <span class="function">() =&gt;</span> (&#123; <span class="attr">y</span>: <span class="number">0</span> &#125;),</span><br><span class="line">  <span class="attr">routes</span>: constantRoutes</span><br><span class="line">&#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">const</span> router = createRouter()</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-配置-publicPath"><a href="#2-配置-publicPath" class="headerlink" title="2. 配置 publicPath"></a>2. 配置 publicPath</h4><p>项目跟目录的 <code>vue.config.js</code> 中配置 <code>publicPath</code></p>
+<p><img src="../../../imgs/Nginx/1.png"></p>
+<h4 id="3-打包项目"><a href="#3-打包项目" class="headerlink" title="3. 打包项目"></a>3. 打包项目</h4><p>在本地打包项目，并传到服务器</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">npm run build</span><br></pre></td></tr></table></figure>
+
+<h2 id="二、Nginx-配置"><a href="#二、Nginx-配置" class="headerlink" title="二、Nginx 配置"></a>二、Nginx 配置</h2><figure class="highlight nginx"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="attribute">upstream</span> backend_server &#123;</span><br><span class="line">    <span class="attribute">server</span> <span class="number">127.0.0.1:8080</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="section">server</span> &#123;</span><br><span class="line">    <span class="attribute">listen</span> <span class="number">80</span>;</span><br><span class="line">    <span class="attribute">server_name</span> <span class="number">139.155.176.218</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 后端</span></span><br><span class="line">    <span class="attribute">location</span> /api &#123;</span><br><span class="line">        <span class="attribute">proxy_pass</span> http://backend_server;</span><br><span class="line"></span><br><span class="line">        <span class="attribute">proxy_set_header</span> Host $host;</span><br><span class="line">        <span class="attribute">proxy_set_header</span>  X-Real-IP        $remote_addr;</span><br><span class="line">        <span class="attribute">proxy_set_header</span>  X-Forwarded-For  $proxy_add_x_forwarded_for;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="attribute">location</span><span class="regexp"> ^~</span> /admin/ &#123;</span><br><span class="line"></span><br><span class="line">        <span class="attribute">alias</span> /app/front/;  <span class="comment"># vue 项目静态文件目录</span></span><br><span class="line"></span><br><span class="line">        <span class="comment"># 处理 Vue 单页面应用 路由模式为 history 模式刷新页面 404 的问题</span></span><br><span class="line">        <span class="attribute">try_files</span> $uri $uri/ /admin/index.html;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 
         </div>
@@ -210,29 +222,14 @@
         
             <div class="article-nav">
                 
-                    <div class="article-prev">
-                        <a class="prev"
-                           rel="prev"
-                           href="/posts/6401/"
-                        >
-                            <span class="left arrow-icon flex-center">
-                              <i class="fas fa-chevron-left"></i>
-                            </span>
-                            <span class="title flex-center">
-                                <span class="post-nav-title-item">Nguni 部署 Vue项目</span>
-                                <span class="post-nav-item">Prev posts</span>
-                            </span>
-                        </a>
-                    </div>
-                
                 
                     <div class="article-next">
                         <a class="next"
                            rel="next"
-                           href="/posts/19656/"
+                           href="/posts/4657/"
                         >
                             <span class="title flex-center">
-                                <span class="post-nav-title-item">Spring Security 权限注解在方法上进行权限认证多种方式</span>
+                                <span class="post-nav-title-item">AtomicInteger实现边界值控制</span>
                                 <span class="post-nav-item">Next posts</span>
                             </span>
                             <span class="right arrow-icon flex-center">
@@ -358,7 +355,7 @@
         <aside class="page-aside">
             <div class="post-toc-wrap">
     <div class="post-toc">
-        <ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81"><span class="nav-text">代码</span></a></li></ol>
+        <ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%80%E3%80%81Vue-%E9%A1%B9%E7%9B%AE%E9%85%8D%E7%BD%AE"><span class="nav-text">一、Vue 项目配置</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-%E8%B7%AF%E7%94%B1%E9%85%8D%E7%BD%AE"><span class="nav-text">1. 路由配置</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-%E9%85%8D%E7%BD%AE-publicPath"><span class="nav-text">2. 配置 publicPath</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-%E6%89%93%E5%8C%85%E9%A1%B9%E7%9B%AE"><span class="nav-text">3. 打包项目</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BA%8C%E3%80%81Nginx-%E9%85%8D%E7%BD%AE"><span class="nav-text">二、Nginx 配置</span></a></li></ol>
     </div>
 </div>
         </aside>
